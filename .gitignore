@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # --- Backend (Java / Maven / Spring Boot) ---
 backend/target/
 backend/.mvn/
@@ -25,3 +26,38 @@ Thumbs.db
 .env
 .env.local
 *.log
+=======
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+>>>>>>> fefa4af (feat(backend): implementa API REST e entidades do Combinado com PostgreSQL)
