@@ -1,0 +1,27 @@
+# --- Backend (Java / Maven / Spring Boot) ---
+backend/target/
+backend/.mvn/
+backend/HELP.md
+*.class
+*.jar
+*.war
+
+# --- Frontend (Node / React / Vite) ---
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/*.local
+
+# --- IDE ---
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Env ---
+.env
+.env.local
+*.log
