@@ -74,10 +74,72 @@ Para executar o front-end em modo de desenvolvimento, também é possível usar:
 
 ```powershell
 cd frontend
-npm run dev
+
+## Fluxo de Git
+
+### Branch principal
+
+- `main`: código integrado e pronto para publicação.
+- Não faça commits diretamente em `main`; use pull requests.
+
+### Padrão de branches
+
+Crie cada branch a partir de `main`, usando o tipo da mudança e uma descrição curta em kebab-case:
+
+```text
+feature/cadastro-usuario
+fix/validacao-email
+chore/configura-postgresql
+docs/guia-setup
+refactor/organiza-servicos
+test/cadastro-usuario
 ```
 
+Use os seguintes tipos:
+
+| Tipo | Uso |
+| --- | --- |
+| `feature/` | Nova funcionalidade |
+| `fix/` | Correção de comportamento |
+| `chore/` | Configuração e manutenção |
+| `docs/` | Documentação |
+| `refactor/` | Refatoração sem mudança de comportamento |
+| `test/` | Criação ou ajuste de testes |
+
+### Fluxo de trabalho
+
+```powershell
+git switch main
+npm run dev
+```
+```
+
+Faça commits pequenos e relacionados à mesma mudança. Antes de abrir o pull request, atualize sua branch e valide o projeto:
+
+```powershell
+
 A aplicação ficará disponível em `http://localhost:5173` e a API em `http://localhost:8080`.
+
+cd backend
+.\mvnw.cmd test
+
+cd ..\frontend
+npm run lint
+npm run build
+```
+
+Abra um pull request para `main` com descrição do problema, solução implementada e validações executadas. Após a revisão e a aprovação, faça o merge e exclua a branch concluída.
+
+### Mensagens de commit
+
+Use mensagens no formato `tipo: descrição curta`, por exemplo:
+
+```text
+feat: implementa cadastro de usuário
+fix: corrige validação de senha
+docs: atualiza guia de setup
+chore: configura PostgreSQL local
+```
 
 ## Banco de dados local
 
