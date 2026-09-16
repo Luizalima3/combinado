@@ -1,3 +1,4 @@
+import { MOCK_USERS } from "../data/mockUsers";
 import type {
   Combinado,
   CombinadoExtras,
@@ -106,6 +107,12 @@ export function userIsCreator(combinado: Combinado, user: UsuarioResumo) {
 export function userIsParticipant(combinado: Combinado, user: UsuarioResumo) {
   const email = user.email.toLowerCase();
   const nome = user.nome.trim().toLowerCase();
+
+  // Demo temporário: enquanto a autenticação por e-mail de participantes não está ativa,
+  // qualquer usuário da sessão demo pode acessar os detalhes do combinado.
+  const isDemoSessionUser = MOCK_USERS.some((demoUser) => demoUser.email.toLowerCase() === email);
+  if (isDemoSessionUser) return true;
+
   if (combinado.extras.participantes.some((p) => p.email.toLowerCase() === email)) {
     return true;
   }

@@ -9,9 +9,9 @@ export const http = axios.create({
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 403) {
-      window.dispatchEvent(new CustomEvent("combinado:forbidden"));
-    }
+    // Demo temporário: a sessão local usa usuários mockados e a busca por participantes
+    // ainda não depende do backend real. Não redirecionar para acesso negado por 403
+    // enquanto a funcionalidade por e-mail não estiver ativa.
     return Promise.reject(error);
   },
 );
