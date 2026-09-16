@@ -67,7 +67,10 @@ export async function aceitarConvite(
   id: number,
   user: UsuarioResumo,
 ): Promise<Combinado> {
-  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/aceitar`);
+  const timestamp = new Date().toISOString();
+  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/aceitar`, {
+    respondidoEm: timestamp,
+  });
   const combinado = mapCombinado(data);
   return stampParticipant(combinado, user, "ACEITO");
 }
@@ -78,7 +81,11 @@ export async function recusarConvite(
   user: UsuarioResumo,
   motivo?: string,
 ): Promise<Combinado> {
-  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/recusar`);
+  const timestamp = new Date().toISOString();
+  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/recusar`, {
+    respondidoEm: timestamp,
+    motivo,
+  });
   const combinado = mapCombinado(data);
   combinado.extras.recusaMotivo = motivo;
   return stampParticipant(combinado, user, "RECUSADO");

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -84,16 +85,20 @@ public class CombinadoService {
     }
 
     @Transactional
-    public Combinado aceitar(Long id) {
+    public Combinado aceitar(Long id, LocalDateTime respondidoEm) {
         Combinado combinado = buscarPorId(id);
         combinado.setStatus(StatusCombinado.ATIVO);
+        combinado.setAceitoEm(respondidoEm != null ? respondidoEm : LocalDateTime.now());
+        combinado.setRecusadoEm(null);
         return repository.save(combinado);
     }
 
     @Transactional
-    public Combinado recusar(Long id) {
+    public Combinado recusar(Long id, LocalDateTime respondidoEm) {
         Combinado combinado = buscarPorId(id);
         combinado.setStatus(StatusCombinado.CANCELADO);
+        combinado.setRecusadoEm(respondidoEm != null ? respondidoEm : LocalDateTime.now());
+        combinado.setAceitoEm(null);
         return repository.save(combinado);
     }
 

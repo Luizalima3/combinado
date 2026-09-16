@@ -39,6 +39,10 @@ public class Combinado {
     @Column(nullable = false)
     private StatusCombinado status;
 
+    private LocalDateTime aceitoEm;
+
+    private LocalDateTime recusadoEm;
+
     private LocalDateTime criadoEm;
 
     @PrePersist
@@ -77,6 +81,12 @@ public class Combinado {
 
     public StatusCombinado getStatus() { return status; }
     public void setStatus(StatusCombinado status) { this.status = status; }
+
+    public LocalDateTime getAceitoEm() { return aceitoEm; }
+    public void setAceitoEm(LocalDateTime aceitoEm) { this.aceitoEm = aceitoEm; }
+
+    public LocalDateTime getRecusadoEm() { return recusadoEm; }
+    public void setRecusadoEm(LocalDateTime recusadoEm) { this.recusadoEm = recusadoEm; }
 
     public LocalDateTime getCriadoEm() { return criadoEm; }
     public void setCriadoEm(LocalDateTime criadoEm) { this.criadoEm = criadoEm; }

@@ -1,17 +1,13 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
+import { CategoryPicker } from "../components/combinados/CategoryPicker";
 import { ParticipantPicker } from "../components/combinados/ParticipantPicker";
+import { Modal } from "../components/ui/Modal";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import { createCombinado } from "../services/combinadoService";
-import {
-  CATEGORIA_LABELS,
-  type CategoriaCombinado,
-  type ParticipanteCombinado,
-} from "../types/combinado";
-
-const CATEGORIAS = Object.keys(CATEGORIA_LABELS) as CategoriaCombinado[];
+import { type CategoriaCombinado, type ParticipanteCombinado } from "../types/combinado";
 
 export function CombinadoFormPage() {
   const { user } = useAuth();
@@ -25,6 +21,7 @@ export function CombinadoFormPage() {
   const [dataPrazo, setDataPrazo] = useState("");
   const [participantes, setParticipantes] = useState<ParticipanteCombinado[]>([]);
   const [mensagemConvite, setMensagemConvite] = useState("");
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState<"draft" | "send" | null>(null);
 
@@ -74,7 +71,11 @@ export function CombinadoFormPage() {
 
   function onSubmit(event: FormEvent) {
     event.preventDefault();
-    void submit(false);
+    if (!validate(false)) {
+      push("error", "Revise os campos obrigatórios antes de continuar.");
+      return;
+    }
+    setShowInviteModal(true);
   }
 
   return (
@@ -104,20 +105,13 @@ export function CombinadoFormPage() {
           />
         </Field>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="space-y-5">
           <Field label="Categoria" error={errors.categoria}>
-            <select
+            <CategoryPicker
               value={categoria}
-              onChange={(event) => setCategoria(event.target.value as CategoriaCombinado | "")}
-              className={inputClass(errors.categoria)}
-            >
-              <option value="">Selecione</option>
-              {CATEGORIAS.map((item) => (
-                <option key={item} value={item}>
-                  {CATEGORIA_LABELS[item]}
-                </option>
-              ))}
-            </select>
+              onChange={setCategoria}
+              error={errors.categoria}
+            />
           </Field>
 
           <Field label="Prazo" error={errors.dataPrazo}>
@@ -137,16 +131,6 @@ export function CombinadoFormPage() {
           error={errors.participantes}
         />
 
-        <Field label="Mensagem do convite (opcional)">
-          <textarea
-            value={mensagemConvite}
-            onChange={(event) => setMensagemConvite(event.target.value)}
-            rows={3}
-            className={inputClass()}
-            placeholder="Uma mensagem curta para quem for convidado"
-          />
-        </Field>
-
         <div className="flex flex-wrap justify-end gap-3 pt-2">
           <button
             type="button"
@@ -165,6 +149,71 @@ export function CombinadoFormPage() {
           </button>
         </div>
       </form>
+
+      {showInviteModal ? (
+        <Modal title="Enviar convites" onClose={() => setShowInviteModal(false)}>
+          <div className="space-y-5">
+            <div>
+              <p className="mb-2 text-sm font-medium text-ink">Participantes</p>
+              <div className="max-h-44 space-y-2 overflow-auto rounded-xl border border-line bg-bg p-3">
+                {participantes.length ? (
+                  participantes.map((participante) => (
+                    <div
+                      key={`${participante.email}-${participante.nome}`}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-line bg-white px-3 py-2"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-ink">{participante.nome}</p>
+                        <p className="text-xs text-muted">{participante.email}</p>
+                      </div>
+                      <span className="rounded-full bg-primary-soft px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-primary-dark">
+                        Pendente
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted">Nenhum participante selecionado.</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="mensagem-convite" className="mb-2 block text-sm font-medium text-ink">
+                Mensagem personalizada (opcional)
+              </label>
+              <textarea
+                id="mensagem-convite"
+                value={mensagemConvite}
+                onChange={(event) => setMensagemConvite(event.target.value)}
+                rows={5}
+                className="w-full rounded-xl border border-line bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-primary"
+                placeholder="Escreva uma mensagem para os convidados"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-line pt-4">
+              <button
+                type="button"
+                onClick={() => setShowInviteModal(false)}
+                className="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-ink hover:bg-bg"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                disabled={!!submitting || !participantes.length}
+                onClick={() => {
+                  setShowInviteModal(false);
+                  void submit(false);
+                }}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting === "send" ? "Enviando..." : `Enviar para ${participantes.length} participante${participantes.length === 1 ? "" : "s"}`}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
     </section>
   );
 }

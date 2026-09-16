@@ -31,7 +31,9 @@ export function DashboardPage() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
   const [invite, setInvite] = useState<Combinado | null>(null);
+  const [acceptedInvite, setAcceptedInvite] = useState<Combinado | null>(null);
   const [refuseTarget, setRefuseTarget] = useState<Combinado | null>(null);
+  const [refuseConfirmOpen, setRefuseConfirmOpen] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
 
   async function load() {
@@ -65,6 +67,7 @@ export function DashboardPage() {
       await aceitarConvite(combinado.id, user);
       push("success", "Convite aceito com sucesso.");
       setInvite(null);
+      setAcceptedInvite(combinado);
       await load();
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível aceitar o convite."));
@@ -80,6 +83,7 @@ export function DashboardPage() {
       await recusarConvite(refuseTarget.id, user, refuseReason);
       push("info", "Convite recusado.");
       setRefuseTarget(null);
+      setRefuseConfirmOpen(false);
       setRefuseReason("");
       setInvite(null);
       await load();
@@ -209,7 +213,10 @@ export function DashboardPage() {
                 <button
                   type="button"
                   className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-white"
-                  onClick={() => setRefuseTarget(invite)}
+                  onClick={() => {
+                    setRefuseTarget(invite);
+                    setRefuseConfirmOpen(true);
+                  }}
                 >
                   Recusar
                 </button>
@@ -234,36 +241,76 @@ export function DashboardPage() {
         </Modal>
       ) : null}
 
-      {refuseTarget ? (
-        <Modal title="Recusar convite" onClose={() => setRefuseTarget(null)}>
-          <p className="text-sm text-muted">
-            Confirma a recusa de <strong>{refuseTarget.titulo}</strong>? Esta ação atualiza o
-            combinado e registra data/hora da resposta.
-          </p>
-          <label className="mt-4 block text-sm font-medium text-ink">
-            Motivo (opcional)
-            <textarea
-              className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-primary"
-              rows={3}
-              value={refuseReason}
-              onChange={(event) => setRefuseReason(event.target.value)}
-            />
-          </label>
-          <div className="mt-5 flex justify-end gap-2">
-            <button
-              type="button"
-              className="rounded-lg border border-line px-3 py-2 text-sm"
-              onClick={() => setRefuseTarget(null)}
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
-              className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-white"
-              onClick={() => void handleRefuseConfirm()}
-            >
-              Confirmar recusa
-            </button>
+      {acceptedInvite ? (
+        <Modal title="Convite aceito" onClose={() => setAcceptedInvite(null)}>
+          <div className="space-y-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-mint/20 text-xl text-mint">
+              ✓
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-ink">Você aceitou o convite.</p>
+              <p className="mt-1 text-sm text-muted">
+                {acceptedInvite.titulo} foi confirmado com sucesso e agora está ativo.
+              </p>
+            </div>
+            <div className="rounded-xl bg-bg p-3 text-sm text-ink">
+              <span className="font-medium">Combinado:</span> {acceptedInvite.titulo}
+            </div>
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+                onClick={() => setAcceptedInvite(null)}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </Modal>
+      ) : null}
+
+      {refuseConfirmOpen && refuseTarget ? (
+        <Modal title="Confirmar recusa" onClose={() => {
+          setRefuseConfirmOpen(false);
+          setRefuseTarget(null);
+          setRefuseReason("");
+        }}>
+          <div className="space-y-4">
+            <p className="text-sm text-muted">
+              Você está prestes a recusar o convite de <strong>{refuseTarget.titulo}</strong>.
+              Essa ação registra a resposta e não pode ser desfeita.
+            </p>
+            <label className="block text-sm font-medium text-ink">
+              Motivo da recusa (opcional)
+              <textarea
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-primary"
+                rows={4}
+                value={refuseReason}
+                onChange={(event) => setRefuseReason(event.target.value)}
+                placeholder="Descreva o motivo da recusa"
+              />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-lg border border-line px-3 py-2 text-sm font-medium text-ink"
+                onClick={() => {
+                  setRefuseConfirmOpen(false);
+                  setRefuseTarget(null);
+                  setRefuseReason("");
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-white"
+                onClick={() => void handleRefuseConfirm()}
+                disabled={!!busyId}
+              >
+                {busyId === refuseTarget.id ? "Confirmando..." : "Confirmar recusa"}
+              </button>
+            </div>
           </div>
         </Modal>
       ) : null}

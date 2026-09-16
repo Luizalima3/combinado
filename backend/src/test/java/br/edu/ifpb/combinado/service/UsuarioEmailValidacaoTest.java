@@ -1,5 +1,6 @@
 package br.edu.ifpb.combinado.service;
 
+import br.edu.ifpb.combinado.dto.UsuarioRequestDTO;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
