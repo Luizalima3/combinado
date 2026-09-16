@@ -72,7 +72,8 @@ export async function aceitarConvite(
     respondidoEm: timestamp,
   });
   const combinado = mapCombinado(data);
-  return stampParticipant(combinado, user, "ACEITO");
+  const atualizado = stampParticipant(combinado, user, "ACEITO");
+  return atualizado;
 }
 
 /** US37 — recusar convite. */
@@ -136,13 +137,30 @@ function stampParticipant(
   status: "ACEITO" | "RECUSADO",
 ): Combinado {
   const extras = parseExtras(combinado.responsabilidades);
-  extras.participantes = extras.participantes.map((p) =>
-    p.email.toLowerCase() === user.email.toLowerCase()
-      ? { ...p, conviteStatus: status, respondidoEm: new Date().toISOString() }
-      : p,
+  const timestamp = new Date().toISOString();
+  const existingIndex = extras.participantes.findIndex(
+    (p) => p.email.toLowerCase() === user.email.toLowerCase(),
   );
+
+  const updatedParticipant = {
+    nome: user.nome,
+    email: user.email,
+    conviteStatus: status,
+    respondidoEm: timestamp,
+  };
+
+  if (existingIndex >= 0) {
+    extras.participantes[existingIndex] = {
+      ...extras.participantes[existingIndex],
+      ...updatedParticipant,
+    };
+  } else {
+    extras.participantes = [...extras.participantes, updatedParticipant];
+  }
+
   combinado.extras = extras;
   combinado.responsabilidades = serializeExtras(extras);
+  combinado.status = status === "ACEITO" ? "ATIVO" : "CANCELADO";
   return combinado;
 }
 

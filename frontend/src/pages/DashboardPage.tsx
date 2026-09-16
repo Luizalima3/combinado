@@ -64,10 +64,13 @@ export function DashboardPage() {
   async function handleAccept(combinado: Combinado) {
     setBusyId(combinado.id);
     try {
-      await aceitarConvite(combinado.id, user);
+      const updated = await aceitarConvite(combinado.id, user);
       push("success", "Convite aceito com sucesso.");
       setInvite(null);
-      setAcceptedInvite(combinado);
+      setAcceptedInvite(updated);
+      setRecebidos((items) =>
+        items.map((item) => (item.id === updated.id ? updated : item)),
+      );
       await load();
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível aceitar o convite."));
@@ -80,12 +83,15 @@ export function DashboardPage() {
     if (!refuseTarget) return;
     setBusyId(refuseTarget.id);
     try {
-      await recusarConvite(refuseTarget.id, user, refuseReason);
+      const updated = await recusarConvite(refuseTarget.id, user, refuseReason);
       push("info", "Convite recusado.");
       setRefuseTarget(null);
       setRefuseConfirmOpen(false);
       setRefuseReason("");
       setInvite(null);
+      setRecebidos((items) =>
+        items.map((item) => (item.id === updated.id ? updated : item)),
+      );
       await load();
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível recusar o convite."));
