@@ -27,6 +27,10 @@ class UsuarioCadastroTest {
     @InjectMocks
     private UsuarioService usuarioService;
 
+    @org.mockito.Spy
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder =
+            new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder(4);
+
     @Test
     @DisplayName("Deve cadastrar usuário com sucesso quando todos os dados são válidos")
     void deveCadastrarUsuarioComDadosValidos() {
