@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import br.edu.ifpb.combinado.service.CombinadoService;
@@ -33,8 +34,8 @@ public class CombinadoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Combinado>> listar() {
-        return ResponseEntity.ok(service.listarTodos());
+    public ResponseEntity<List<CombinadoResumoDTO>> listar() {
+        return ResponseEntity.ok(service.listarResumos());
     }
 
     @GetMapping("/{id}")

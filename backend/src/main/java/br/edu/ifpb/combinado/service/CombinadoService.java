@@ -1,6 +1,7 @@
 package br.edu.ifpb.combinado.service;
 
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
@@ -25,6 +26,12 @@ public class CombinadoService {
     public CombinadoService(CombinadoRepository repository, UsuarioRepository usuarioRepository) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public List<CombinadoResumoDTO> listarResumos() {
+        return listarTodos().stream().map(CombinadoResumoDTO::de).toList();
     }
 
     @PreAuthorize("isAuthenticated()")

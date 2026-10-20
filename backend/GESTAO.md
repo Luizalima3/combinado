@@ -20,3 +20,14 @@ somente id, nome, email e status do convite. Em reenvios prevalece o convite mai
 (data e id); participantes cadastrados sem convite aparecem como PENDENTE.
 O criador não é incluído automaticamente como participante.
 
+## DTOs e consultas (#32249, #32252, #32228)
+
+`GET /api/combinados` entrega DTOs com título, status, prazo e nome atual do criador
+(JOIN com usuário). `nomeCriador`/`prazo` coexistem com `criadorNome`/`dataPrazo`
+para compatibilidade. Registros legados sem vínculo de criador usam o nome armazenado.
+
+`GET /api/convites/{id}` permite acesso ao destinatário ou criador do combinado.
+Retorna categoria, título, resumos dos envolvidos e `participantesConfirmados`,
+considerando apenas o último convite ACEITO de cada pessoa. Não expõe entidades,
+senhas ou perfis. IDs inexistentes e convites de terceiros retornam 403.
+

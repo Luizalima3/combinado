@@ -12,7 +12,7 @@ public interface CombinadoRepository extends JpaRepository<Combinado, Long> {
     String VINCULO = "(c.criador.id = :usuarioId or p.id = :usuarioId or "
             + "exists (select v.id from Convite v where v.combinado = c and v.destinatario.id = :usuarioId))";
 
-    @Query("select distinct c from Combinado c left join c.participantes p where " + VINCULO)
+    @Query("select distinct c from Combinado c left join fetch c.criador left join c.participantes p where " + VINCULO + " order by c.id desc")
     List<Combinado> listarVinculados(@Param("usuarioId") Long usuarioId);
 
     @Query("select (count(c) > 0) from Combinado c left join c.participantes p where c.id = :id and " + VINCULO)
