@@ -39,8 +39,16 @@ public class CombinadoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Combinado> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+    public ResponseEntity<CombinadoResumoDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarDetalhes(id));
+    }
+
+    @GetMapping("/meus-rascunhos")
+    public List<CombinadoResumoDTO> meusRascunhos() { return service.listarMeusRascunhos(); }
+
+    @PostMapping("/{id}/publicar")
+    public CombinadoResumoDTO publicar(@PathVariable Long id, @RequestBody(required = false) CombinadoDTO dados) {
+        return service.publicar(id, dados);
     }
 
     @PatchMapping("/{id}/aceitar")

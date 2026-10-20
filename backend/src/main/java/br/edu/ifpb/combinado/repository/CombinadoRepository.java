@@ -9,8 +9,8 @@ import java.util.List;
 
 @Repository
 public interface CombinadoRepository extends JpaRepository<Combinado, Long> {
-    String VINCULO = "(c.criador.id = :usuarioId or p.id = :usuarioId or "
-            + "exists (select v.id from Convite v where v.combinado = c and v.destinatario.id = :usuarioId))";
+    String VINCULO = "(c.criador.id = :usuarioId or (c.status <> br.edu.ifpb.combinado.model.enums.StatusCombinado.RASCUNHO and (p.id = :usuarioId or "
+            + "exists (select v.id from Convite v where v.combinado = c and v.destinatario.id = :usuarioId))))";
 
     @Query("select distinct c from Combinado c left join fetch c.criador left join c.participantes p where " + VINCULO + " order by c.id desc")
     List<Combinado> listarVinculados(@Param("usuarioId") Long usuarioId);
@@ -19,4 +19,7 @@ public interface CombinadoRepository extends JpaRepository<Combinado, Long> {
     boolean temVinculo(@Param("id") Long id, @Param("usuarioId") Long usuarioId);
 
     boolean existsByIdAndCriadorId(Long id, Long criadorId);
+
+    List<Combinado> findByCriadorIdAndStatusOrderByIdDesc(Long criadorId,
+            br.edu.ifpb.combinado.model.enums.StatusCombinado status);
 }
