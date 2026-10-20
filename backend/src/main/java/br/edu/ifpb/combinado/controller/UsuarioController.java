@@ -2,6 +2,9 @@ package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.dto.UsuarioRequestDTO;
 import br.edu.ifpb.combinado.dto.UsuarioResponseDTO;
+import br.edu.ifpb.combinado.dto.UsuarioResumoDTO;
+import java.util.List;
+import java.util.Map;
 import br.edu.ifpb.combinado.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -35,6 +38,18 @@ public class UsuarioController {
             return ResponseEntity.ok(usuario);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/buscar")
+    public ResponseEntity<?> buscarPorNome(@RequestParam(defaultValue = "") String q,
+                                           @RequestParam(defaultValue = "0") int pagina,
+                                           @RequestParam(defaultValue = "10") int limite) {
+        try {
+            List<UsuarioResumoDTO> usuarios = usuarioService.buscarPorNome(q, pagina, limite);
+            return ResponseEntity.ok(usuarios);
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
         }
     }
 }
