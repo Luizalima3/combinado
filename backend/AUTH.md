@@ -23,3 +23,20 @@ verificação. Nenhum banco local existente foi alterado durante a implementaç�
 
 Os testes HTTP usam banco H2 em memória, isolado do PostgreSQL local.
 Os testes da migração executam o Flyway de verdade sobre esse banco de teste.
+
+## #30934 — rotas privadas
+
+As chamadas privadas exigem `Authorization: Bearer <token>`.
+O filtro verifica assinatura e expiração e carrega o usuário pelo ID (`sub`).
+As permissões são obtidas do perfil atual no banco, com o prefixo `ROLE_`.
+Tokens de usuários removidos deixam de autenticar.
+
+São públicos apenas `POST /api/auth/login`, `POST /api/usuarios` (cadastro),
+Swagger UI e OpenAPI. As demais rotas exigem autenticação, incluindo consultas
+de usuários, combinados e convites. Logout padrão, formulário e HTTP Basic
+estão desabilitados. A API não cria nem reutiliza sessão HTTP para autenticar.
+Falhas de autenticação retornam 401 JSON; permissões insuficientes, 403 JSON.
+
+O frontend atual usa sessão simulada e não envia JWT. Suas chamadas privadas
+serão bloqueadas até integrar o login real; essas tasks alteram somente o backend.
+A verificação de vínculo entre usuário e combinado pertence à task #30968.
