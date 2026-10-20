@@ -15,3 +15,10 @@ em `tb_usuarios`, com atualização de `data_atualizacao` pelo Hibernate.
 Não são necessárias migrações adicionais. Os nomes históricos armazenados nos
 combinados permanecem como foram registrados; as permissões continuam usando IDs.
 O endpoint é de backend; a tela de edição de perfil ainda precisa ser integrada.
+
+## #30942 — testes da atualização do nome
+
+Os testes unitários verificam atualização e persistência no usuário autenticado,
+preservação de e-mail/senha/perfil, normalização de espaços, nomes inválidos e os
+limites de 2 e 150 caracteres. Os testes HTTP complementam essa cobertura com
+persistência real em H2, bloqueio sem JWT e tentativa de alterar outro usuário.
