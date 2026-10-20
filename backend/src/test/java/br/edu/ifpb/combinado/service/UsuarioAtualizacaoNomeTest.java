@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UsuarioAtualizacaoNomeTest {
     @Mock UsuarioRepository usuarios;
+    @Mock org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
     @InjectMocks UsuarioPerfilService service;
     private Usuario usuario;
 

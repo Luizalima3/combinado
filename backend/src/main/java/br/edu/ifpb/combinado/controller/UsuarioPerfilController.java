@@ -1,6 +1,7 @@
 package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.dto.AtualizarNomeDTO;
+import br.edu.ifpb.combinado.dto.AtualizarSenhaDTO;
 import br.edu.ifpb.combinado.dto.UsuarioResponseDTO;
 import br.edu.ifpb.combinado.service.UsuarioPerfilService;
 import jakarta.validation.Valid;
@@ -27,6 +28,12 @@ public class UsuarioPerfilController {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> dadosInvalidos(IllegalArgumentException exception) {
         return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+    }
+
+    @PutMapping("/senha")
+    public ResponseEntity<Void> atualizarSenha(@Valid @RequestBody AtualizarSenhaDTO dto) {
+        service.atualizarSenha(dto);
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
