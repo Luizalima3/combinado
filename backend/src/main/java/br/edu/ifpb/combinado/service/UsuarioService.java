@@ -62,7 +62,7 @@ public class UsuarioService {
         usuario.setNome(dto.nome().trim());
         usuario.setEmail(emailSanitizado);
         usuario.setSenha(passwordEncoder.encode(dto.senha()));
-        usuario.setPerfil(PerfilUsuario.USUARIO);
+        usuario.setPerfil(PerfilUsuario.ROLE_USUARIO);
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
         return UsuarioResponseDTO.fromEntity(usuarioSalvo);

@@ -67,3 +67,12 @@ Execute a partir de `backend`, com JDK 21 configurado:
 ```
 
 Os testes usam H2 em memória; não alteram o PostgreSQL local.
+
+## #30956 — perfis de acesso
+
+`PerfilUsuario` define `ROLE_USUARIO` e `ROLE_ADMIN`, persistidos como texto na
+entidade `Usuario`. O cadastro sempre atribui `ROLE_USUARIO`; o cliente não pode
+se promover a administrador. Não foi criado endpoint de alteração de perfil.
+A migração V4 converte os valores antigos `USUARIO`/`ADMIN`, atualiza o padrão
+do banco. O enum define os perfis aceitos pela aplicação. Os JWTs novos usam esses mesmos nomes;
+tokens antigos continuam sendo autenticados pelo perfil atual do banco.

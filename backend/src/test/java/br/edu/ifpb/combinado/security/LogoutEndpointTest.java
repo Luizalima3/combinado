@@ -47,7 +47,7 @@ class LogoutEndpointTest {
     void preparar() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         usuario = usuarios.findByEmail("logout@combinado.app").orElseGet(() -> usuarios.save(
-                new Usuario("Logout", "logout@combinado.app", encoder.encode("senha123"), PerfilUsuario.USUARIO)));
+                new Usuario("Logout", "logout@combinado.app", encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO)));
     }
 
     private String login() throws Exception {
@@ -100,7 +100,7 @@ class LogoutEndpointTest {
     @Test
     void naoDeveRevogarTokensDeOutroUsuario() throws Exception {
         Usuario outro = usuarios.findByEmail("outro-logout@combinado.app").orElseGet(() -> usuarios.save(
-                new Usuario("Outro", "outro-logout@combinado.app", encoder.encode("senha123"), PerfilUsuario.USUARIO)));
+                new Usuario("Outro", "outro-logout@combinado.app", encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO)));
         String tokenOutro = jwt.gerarToken(outro);
         String token = jwt.gerarToken(usuario);
         mvc.perform(post("/api/auth/logout").header("Authorization", "Bearer " + token)).andExpect(status().isNoContent());

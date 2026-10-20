@@ -49,7 +49,7 @@ class UsuarioCadastroTest {
         assertEquals(1L, resultado.id());
         assertEquals("Ana Souza", resultado.nome());
         assertEquals("ana@combinado.app", resultado.email());
-        assertEquals(PerfilUsuario.USUARIO, resultado.perfil());
+        assertEquals(PerfilUsuario.ROLE_USUARIO, resultado.perfil());
         verify(usuarioRepository).save(any(Usuario.class));
     }
 

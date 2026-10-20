@@ -46,7 +46,7 @@ class ProtectedEndpointsTest {
     void preparar() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         usuario = usuarios.findByEmail("protecao@combinado.app").orElseGet(() -> usuarios.save(
-                new Usuario("Protecao", "protecao@combinado.app", encoder.encode("senha123"), PerfilUsuario.USUARIO)));
+                new Usuario("Protecao", "protecao@combinado.app", encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO)));
     }
 
     @Test
@@ -94,7 +94,7 @@ class ProtectedEndpointsTest {
     @Test
     void deveRejeitarTokenDeUsuarioExcluido() throws Exception {
         Usuario removido = usuarios.save(new Usuario("Removido", "removido@combinado.app",
-                encoder.encode("senha123"), PerfilUsuario.USUARIO));
+                encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO));
         String token = jwt.gerarToken(removido);
         usuarios.deleteById(removido.getId());
         mvc.perform(get("/api/combinados").header("Authorization", "Bearer " + token))

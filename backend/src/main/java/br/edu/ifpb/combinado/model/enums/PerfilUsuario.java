@@ -1,6 +1,6 @@
 package br.edu.ifpb.combinado.model.enums;
 
 public enum PerfilUsuario {
-    USUARIO,
-    ADMIN
+    ROLE_USUARIO,
+    ROLE_ADMIN
 }

@@ -18,7 +18,7 @@ class JwtServiceTest {
     private final JwtService service = new JwtService(SECRET, 3_600_000);
 
     private Usuario usuario() {
-        Usuario usuario = new Usuario("Ana Souza", "ana@combinado.app", "senha-privada", PerfilUsuario.USUARIO);
+        Usuario usuario = new Usuario("Ana Souza", "ana@combinado.app", "senha-privada", PerfilUsuario.ROLE_USUARIO);
         usuario.setId(42L);
         return usuario;
     }
@@ -30,7 +30,7 @@ class JwtServiceTest {
         assertEquals("combinado", token.getIssuer());
         assertEquals("42", token.getSubject());
         assertEquals("ana@combinado.app", token.getClaim("email").asString());
-        assertEquals("USUARIO", token.getClaim("perfil").asString());
+        assertEquals("ROLE_USUARIO", token.getClaim("perfil").asString());
         assertEquals(3600, token.getExpiresAtAsInstant().getEpochSecond()
                 - token.getIssuedAtAsInstant().getEpochSecond());
         assertNotNull(token.getId());
@@ -46,8 +46,8 @@ class JwtServiceTest {
     @Test
     void devePreservarPerfilAdministrador() {
         Usuario usuario = usuario();
-        usuario.setPerfil(PerfilUsuario.ADMIN);
-        assertEquals("ADMIN", service.validarToken(service.gerarToken(usuario)).getClaim("perfil").asString());
+        usuario.setPerfil(PerfilUsuario.ROLE_ADMIN);
+        assertEquals("ROLE_ADMIN", service.validarToken(service.gerarToken(usuario)).getClaim("perfil").asString());
     }
 
     @Test

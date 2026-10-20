@@ -36,7 +36,7 @@ class LoginEndpointTest {
     void preparar() {
         mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         if (!repository.existsByEmail("login@combinado.app")) {
-            repository.save(new Usuario("Login", "login@combinado.app", encoder.encode("senha123"), PerfilUsuario.USUARIO));
+            repository.save(new Usuario("Login", "login@combinado.app", encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO));
         }
     }
 

@@ -28,7 +28,7 @@ class AuthServiceTest {
 
     @BeforeEach
     void preparar() {
-        usuario = new Usuario("Ana", "ana@combinado.app", encoder.encode("senha123"), PerfilUsuario.USUARIO);
+        usuario = new Usuario("Ana", "ana@combinado.app", encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO);
         usuario.setId(1L);
     }
 

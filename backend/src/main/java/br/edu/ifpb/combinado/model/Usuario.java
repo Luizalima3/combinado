@@ -35,7 +35,7 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private PerfilUsuario perfil = PerfilUsuario.USUARIO;
+    private PerfilUsuario perfil = PerfilUsuario.ROLE_USUARIO;
 
     @CreationTimestamp
     @Column(name = "data_criacao", nullable = false, updatable = false)
@@ -52,7 +52,7 @@ public class Usuario {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
-        this.perfil = (perfil != null) ? perfil : PerfilUsuario.USUARIO;
+        this.perfil = (perfil != null) ? perfil : PerfilUsuario.ROLE_USUARIO;
     }
 
     public Long getId() {

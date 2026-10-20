@@ -11,7 +11,7 @@ import java.util.List;
 public record UsuarioPrincipal(Usuario usuario) implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + usuario.getPerfil().name()));
+        return List.of(new SimpleGrantedAuthority(usuario.getPerfil().name()));
     }
 
     @Override
