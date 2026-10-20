@@ -39,7 +39,7 @@ Falhas de autenticação retornam 401 JSON; permissões insuficientes, 403 JSON.
 
 O frontend atual usa sessão simulada e não envia JWT. Suas chamadas privadas
 serão bloqueadas até integrar o login real; essas tasks alteram somente o backend.
-A verificação de vínculo entre usuário e combinado pertence à task #30968.
+A verificação de vínculo entre usuário e combinado está descrita na task #30968 abaixo.
 
 ## #30930 — logout e revogação
 
@@ -76,3 +76,31 @@ se promover a administrador. Não foi criado endpoint de alteração de perfil.
 A migração V4 converte os valores antigos `USUARIO`/`ADMIN`, atualiza o padrão
 do banco. O enum define os perfis aceitos pela aplicação. Os JWTs novos usam esses mesmos nomes;
 tokens antigos continuam sendo autenticados pelo perfil atual do banco.
+
+## #30968 — vínculo com o combinado
+
+A migração V5 adiciona `criador_id` e a tabela `combinado_participantes`, com
+chaves estrangeiras para usuários. Na criação via API, o criador é o usuário
+autenticado: nome ou ID enviados pelo cliente não alteram essa identidade.
+`participantesIds` registra os participantes por ID, com validação de existência.
+Nomes e o JSON de responsabilidades são apenas conteúdo, nunca prova de vínculo.
+
+Somente o criador, participantes registrados ou destinatários de convites
+persistidos podem consultar o combinado. A listagem aplica a mesma regra.
+Convites pendentes também permitem visualizar o combinado para responder.
+Não há exceção automática para administradores. IDs sem vínculo retornam 403,
+inclusive quando inexistentes, para não revelar a existência de registros privados.
+As verificações de detalhe, aceite e recusa são aplicadas no service com
+`@PreAuthorize`, antes de retornar ou alterar o combinado.
+
+O envio de convites exige ser o criador e usa o remetente autenticado, impedindo
+forjar vínculos com IDs enviados pelo cliente. Senhas e hashes não são serializados
+quando um convite inclui dados de usuário.
+
+Registros antigos baseados apenas em nomes permanecem sem criador identificado:
+é necessário conferir a autoria e preencher os vínculos por ID para disponibilizá-los.
+Não se atribui autoria automaticamente por nomes iguais. Convites existentes
+continuam permitindo a consulta por seus destinatários.
+
+O frontend precisará enviar `participantesIds` ao integrar usuários reais; nomes
+informados sem esses IDs não concedem acesso aos participantes.

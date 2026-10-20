@@ -1,6 +1,9 @@
 package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.dto.CombinadoDTO;
+import br.edu.ifpb.combinado.security.UsuarioPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import br.edu.ifpb.combinado.service.CombinadoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +27,9 @@ public class CombinadoController {
     }
 
     @PostMapping
-    public ResponseEntity<Combinado> criar(@RequestBody Combinado combinado) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.criar(combinado));
+    public ResponseEntity<Combinado> criar(@RequestBody CombinadoDTO combinado,
+                                          @AuthenticationPrincipal UsuarioPrincipal principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.criarCombinado(combinado, principal.usuario()));
     }
 
     @GetMapping
@@ -63,5 +67,10 @@ public class CombinadoController {
                 return Instant.parse(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
             }
         }
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> dadosInvalidos(IllegalArgumentException exception) {
+        return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
     }
 }

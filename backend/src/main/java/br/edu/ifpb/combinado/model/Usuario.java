@@ -79,6 +79,7 @@ public class Usuario {
         this.email = email;
     }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getSenha() {
         return senha;
     }
