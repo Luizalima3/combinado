@@ -39,3 +39,19 @@ os erros de validação do endpoint não incluem os valores rejeitados.
 A senha antiga deixa de autenticar novos logins. JWTs já emitidos continuam
 válidos até expirar ou realizar logout; esta task não implementa revogação de
 todas as sessões ao trocar senha. Nome, e-mail e perfil são preservados.
+
+## #30950 — testes de credenciais e hash
+
+Testes unitários com BCrypt real verificam sucesso, rejeição da senha atual
+incorreta e de senhas novas fora do padrão, confirmação, limites em bytes e
+preservação do hash quando a alteração é recusada. Os testes HTTP verificam
+persistência real e login com a nova senha, rejeição da antiga e isolamento
+entre contas. Nenhum teste altera o PostgreSQL local.
+
+## Executar testes
+
+No diretório `backend`, com JDK 21 configurado:
+
+```powershell
+.\mvnw.cmd '-Dtest=br.edu.ifpb.combinado.service.*Test,br.edu.ifpb.combinado.security.*Test' test
+```
