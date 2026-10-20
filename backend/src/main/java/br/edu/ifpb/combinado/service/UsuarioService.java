@@ -2,6 +2,10 @@ package br.edu.ifpb.combinado.service;
 
 import br.edu.ifpb.combinado.dto.UsuarioRequestDTO;
 import br.edu.ifpb.combinado.dto.UsuarioResponseDTO;
+import br.edu.ifpb.combinado.dto.UsuarioResumoDTO;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import java.util.List;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.PerfilUsuario;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
@@ -66,6 +70,20 @@ public class UsuarioService {
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
         return UsuarioResponseDTO.fromEntity(usuarioSalvo);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UsuarioResumoDTO> buscarPorNome(String termo, int pagina, int limite) {
+        if (pagina < 0 || limite < 1 || limite > 50) {
+            throw new IllegalArgumentException("Página deve ser não negativa e limite deve estar entre 1 e 50.");
+        }
+        String nome = termo == null ? "" : termo.strip();
+        if (nome.length() > 150) {
+            throw new IllegalArgumentException("O termo deve conter no máximo 150 caracteres.");
+        }
+        if (nome.length() < 2) return List.of();
+        return usuarioRepository.findByNomeContainingIgnoreCase(nome,
+                PageRequest.of(pagina, limite, Sort.by("nome").ascending().and(Sort.by("id").ascending())));
     }
 
     @Transactional(readOnly = true)

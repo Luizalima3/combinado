@@ -33,7 +33,6 @@ public class Combinado {
     private String descricao;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private CategoriaCombinado categoria;
 
     private LocalDate dataPrazo;

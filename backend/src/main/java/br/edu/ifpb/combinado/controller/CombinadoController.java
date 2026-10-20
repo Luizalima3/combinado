@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import br.edu.ifpb.combinado.service.CombinadoService;
@@ -33,13 +34,21 @@ public class CombinadoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Combinado>> listar() {
-        return ResponseEntity.ok(service.listarTodos());
+    public ResponseEntity<List<CombinadoResumoDTO>> listar() {
+        return ResponseEntity.ok(service.listarResumos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Combinado> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarPorId(id));
+    public ResponseEntity<CombinadoResumoDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarDetalhes(id));
+    }
+
+    @GetMapping("/meus-rascunhos")
+    public List<CombinadoResumoDTO> meusRascunhos() { return service.listarMeusRascunhos(); }
+
+    @PostMapping("/{id}/publicar")
+    public CombinadoResumoDTO publicar(@PathVariable Long id, @RequestBody(required = false) CombinadoDTO dados) {
+        return service.publicar(id, dados);
     }
 
     @PatchMapping("/{id}/aceitar")
