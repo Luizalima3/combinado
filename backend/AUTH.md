@@ -40,3 +40,30 @@ Falhas de autenticação retornam 401 JSON; permissões insuficientes, 403 JSON.
 O frontend atual usa sessão simulada e não envia JWT. Suas chamadas privadas
 serão bloqueadas até integrar o login real; essas tasks alteram somente o backend.
 A verificação de vínculo entre usuário e combinado pertence à task #30968.
+
+## #30930 — logout e revogação
+
+`POST /api/auth/logout` exige o token atual no cabeçalho Authorization.
+Retorna 204 após persistir o encerramento da sessão e revogar o token.
+A tabela `tokens_revogados`, criada pela migração V3, registra o `jti`, ID do
+usuário, horário do encerramento no servidor e expiração original do token.
+O token completo não é armazenado.
+
+O filtro consulta essa tabela em cada requisição autenticada. Reutilizar um
+token revogado retorna 401, inclusive para um novo logout. A revogação é
+persistida no banco e compartilhada entre instâncias do backend. Ela afeta
+apenas aquele token: outras sessões do mesmo usuário continuam válidas.
+O registro é preservado após a expiração para manter a evidência do logout.
+
+O cliente também deve apagar sua cópia do token após o logout.
+Login e logout não encerram nem alteram a sessão simulada do frontend atual.
+
+## Validação local
+
+Execute a partir de `backend`, com JDK 21 configurado:
+
+```powershell
+.\mvnw.cmd '-Dtest=br.edu.ifpb.combinado.service.*Test,br.edu.ifpb.combinado.security.*Test' test
+```
+
+Os testes usam H2 em memória; não alteram o PostgreSQL local.

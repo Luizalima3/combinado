@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.security;
 
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import br.edu.ifpb.combinado.service.JwtService;
+import br.edu.ifpb.combinado.service.LogoutService;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,12 +22,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UsuarioRepository usuarios;
     private final ApiAuthenticationEntryPoint entryPoint;
+    private final LogoutService logoutService;
 
     public JwtAuthenticationFilter(JwtService jwtService, UsuarioRepository usuarios,
-                                   ApiAuthenticationEntryPoint entryPoint) {
+                                   ApiAuthenticationEntryPoint entryPoint, LogoutService logoutService) {
         this.jwtService = jwtService;
         this.usuarios = usuarios;
         this.entryPoint = entryPoint;
+        this.logoutService = logoutService;
     }
 
     @Override
@@ -51,6 +54,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw new BadCredentialsException("Token inválido.");
             }
             var token = jwtService.validarToken(header.substring(7));
+            if (logoutService.estaRevogado(token.getId())) {
+                throw new BadCredentialsException("Token revogado.");
+            }
             long id = Long.parseLong(token.getSubject());
             var usuario = usuarios.findById(id)
                     .orElseThrow(() -> new BadCredentialsException("Token inválido."));
