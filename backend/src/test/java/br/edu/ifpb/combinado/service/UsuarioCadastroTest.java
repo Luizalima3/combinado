@@ -27,6 +27,10 @@ class UsuarioCadastroTest {
     @InjectMocks
     private UsuarioService usuarioService;
 
+    @org.mockito.Spy
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder =
+            new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder(4);
+
     @Test
     @DisplayName("Deve cadastrar usuário com sucesso quando todos os dados são válidos")
     void deveCadastrarUsuarioComDadosValidos() {
@@ -45,7 +49,7 @@ class UsuarioCadastroTest {
         assertEquals(1L, resultado.id());
         assertEquals("Ana Souza", resultado.nome());
         assertEquals("ana@combinado.app", resultado.email());
-        assertEquals(PerfilUsuario.USUARIO, resultado.perfil());
+        assertEquals(PerfilUsuario.ROLE_USUARIO, resultado.perfil());
         verify(usuarioRepository).save(any(Usuario.class));
     }
 

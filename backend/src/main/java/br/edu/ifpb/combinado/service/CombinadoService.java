@@ -2,6 +2,10 @@ package br.edu.ifpb.combinado.service;
 
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.model.Usuario;
+import br.edu.ifpb.combinado.security.UsuarioPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import br.edu.ifpb.combinado.model.enums.StatusCombinado;
 import br.edu.ifpb.combinado.repository.CombinadoRepository;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
@@ -23,10 +27,13 @@ public class CombinadoService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    @PreAuthorize("isAuthenticated()")
     public List<Combinado> listarTodos() {
-        return repository.findAll();
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return repository.listarVinculados(principal.usuario().getId());
     }
 
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
     public Combinado buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado com o id: " + id));
@@ -36,6 +43,28 @@ public class CombinadoService {
     public Combinado criar(Combinado combinado) {
         validarCamposObrigatorios(combinado.getTitulo(), combinado.getCategoria(), combinado.getCriadorNome(), combinado.getParticipanteNome());
         validarPrazo(combinado.getDataPrazo());
+        return repository.save(combinado);
+    }
+
+    @Transactional
+    public Combinado criarCombinado(CombinadoDTO dto, Usuario criador) {
+        var participantes = new java.util.HashSet<Usuario>();
+        if (dto.participantesIds() != null) {
+            for (Long participanteId : dto.participantesIds()) {
+                if (participanteId == null) {
+                    throw new IllegalArgumentException("ID de participante é obrigatório.");
+                }
+                participantes.add(usuarioRepository.findById(participanteId)
+                        .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + participanteId)));
+            }
+        }
+        String nomeParticipantes = participantes.isEmpty() ? dto.participanteNome()
+                : participantes.stream().map(Usuario::getNome).sorted().collect(java.util.stream.Collectors.joining(", "));
+        var dados = new CombinadoDTO(null, dto.titulo(), dto.descricao(), dto.categoria(), dto.dataPrazo(),
+                criador.getNome(), nomeParticipantes, dto.responsabilidades(), dto.status(), dto.participantesIds());
+        Combinado combinado = criarCombinado(dados);
+        combinado.setCriador(criador);
+        combinado.setParticipantes(participantes);
         return repository.save(combinado);
     }
 
@@ -85,6 +114,7 @@ public class CombinadoService {
     }
 
     @Transactional
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
     public Combinado aceitar(Long id, LocalDateTime respondidoEm) {
         Combinado combinado = buscarPorId(id);
         combinado.setStatus(StatusCombinado.ATIVO);
@@ -94,6 +124,7 @@ public class CombinadoService {
     }
 
     @Transactional
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
     public Combinado recusar(Long id, LocalDateTime respondidoEm) {
         Combinado combinado = buscarPorId(id);
         combinado.setStatus(StatusCombinado.CANCELADO);

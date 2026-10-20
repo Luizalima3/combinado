@@ -25,8 +25,9 @@ As propriedades existentes em `application.properties` são utilizadas:
 claims obrigatórios e validade temporal. Tokens inválidos lançam
 `JWTVerificationException`; tokens expirados lançam `TokenExpiredException`.
 
-A integração com login, filtros de autenticação e revogação pertence às próximas
-tasks. O serviço não consulta o banco nem verifica se a conta foi desativada.
+A integração com login, filtros e revogação é descrita em `AUTH.md`.
+O `JwtService` verifica a estrutura criptográfica do token; o filtro também
+consulta o usuário e a lista de tokens revogados antes de autenticar a requisição.
 
 ## Testes
 

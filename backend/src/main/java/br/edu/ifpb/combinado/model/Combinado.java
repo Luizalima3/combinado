@@ -3,6 +3,9 @@ package br.edu.ifpb.combinado.model;
 import br.edu.ifpb.combinado.model.enums.CategoriaCombinado;
 import br.edu.ifpb.combinado.model.enums.StatusCombinado;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashSet;
+import java.util.Set;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -13,6 +16,15 @@ public class Combinado {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "criador_id")
+    private Usuario criador;
+
+    @ManyToMany
+    @JoinTable(name = "combinado_participantes", joinColumns = @JoinColumn(name = "combinado_id"),
+            inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+    private Set<Usuario> participantes = new HashSet<>();
 
     @Column(nullable = false)
     private String titulo;
@@ -57,6 +69,14 @@ public class Combinado {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    @JsonIgnore
+    public Usuario getCriador() { return criador; }
+    public void setCriador(Usuario criador) { this.criador = criador; }
+
+    @JsonIgnore
+    public Set<Usuario> getParticipantes() { return participantes; }
+    public void setParticipantes(Set<Usuario> participantes) { this.participantes = participantes; }
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }

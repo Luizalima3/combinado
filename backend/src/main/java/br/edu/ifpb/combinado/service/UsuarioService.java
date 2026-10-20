@@ -6,6 +6,7 @@ import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.PerfilUsuario;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.regex.Pattern;
@@ -15,9 +16,11 @@ public class UsuarioService {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -47,6 +50,10 @@ public class UsuarioService {
             throw new IllegalArgumentException("A senha deve conter no mínimo 6 caracteres.");
         }
 
+        if (dto.senha().getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72) {
+            throw new IllegalArgumentException("A senha deve conter no máximo 72 bytes em UTF-8.");
+        }
+
         if (dto.confirmacaoSenha() == null || !dto.senha().equals(dto.confirmacaoSenha())) {
             throw new IllegalArgumentException("A confirmação de senha não confere com a senha informada.");
         }
@@ -54,8 +61,8 @@ public class UsuarioService {
         Usuario usuario = new Usuario();
         usuario.setNome(dto.nome().trim());
         usuario.setEmail(emailSanitizado);
-        usuario.setSenha(dto.senha());
-        usuario.setPerfil(PerfilUsuario.USUARIO);
+        usuario.setSenha(passwordEncoder.encode(dto.senha()));
+        usuario.setPerfil(PerfilUsuario.ROLE_USUARIO);
 
         Usuario usuarioSalvo = usuarioRepository.save(usuario);
         return UsuarioResponseDTO.fromEntity(usuarioSalvo);
