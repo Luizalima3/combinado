@@ -11,7 +11,7 @@ export interface CombinadoApi {
   id: number;
   titulo: string;
   descricao?: string;
-  categoria: CategoriaCombinado;
+  categoria?: CategoriaCombinado | null;
   dataPrazo?: string;
   criadorNome: string;
   participanteNome: string;
@@ -29,6 +29,7 @@ export function parseExtras(raw?: string): CombinadoExtras {
       rascunho: parsed.rascunho,
       mensagemConvite: parsed.mensagemConvite,
       recusaMotivo: parsed.recusaMotivo,
+      listaResponsabilidades: parsed.listaResponsabilidades ?? [],
     };
   } catch {
     return { participantes: [] };
@@ -59,10 +60,11 @@ export function buildCreateBody(
   payload: {
     titulo: string;
     descricao: string;
-    categoria: CategoriaCombinado;
+    categoria?: CategoriaCombinado | "";
     dataPrazo?: string;
     participantes: ParticipanteCombinado[];
     mensagemConvite?: string;
+    listaResponsabilidades?: string[];
     rascunho: boolean;
   },
 ) {
@@ -71,16 +73,23 @@ export function buildCreateBody(
     conviteStatus: payload.rascunho ? undefined : ("PENDENTE" as const),
   }));
 
+  const listaResponsabilidades = (payload.listaResponsabilidades ?? []).map((item) => item.trim()).filter(Boolean);
+
   const extras: CombinadoExtras = {
     participantes,
     rascunho: payload.rascunho,
     mensagemConvite: payload.mensagemConvite,
+    listaResponsabilidades,
   };
 
+  const titulo =
+    payload.titulo.trim() ||
+    (payload.rascunho ? "Rascunho em edição" : "");
+
   return {
-    titulo: payload.titulo.trim() || "Sem título",
+    titulo,
     descricao: payload.descricao.trim(),
-    categoria: payload.categoria,
+    categoria: payload.categoria || null,
     dataPrazo: payload.dataPrazo || null,
     criadorNome: criador.nome,
     participanteNome:
@@ -93,6 +102,33 @@ export function buildCreateBody(
       ],
     }),
     status: payload.rascunho ? "RASCUNHO" : "AGUARDANDO_CONFIRMACAO",
+  };
+}
+
+export function buildPublishBody(
+  criador: UsuarioResumo,
+  payload: {
+    titulo: string;
+    descricao: string;
+    categoria?: CategoriaCombinado | "";
+    dataPrazo?: string;
+    participantes: ParticipanteCombinado[];
+    mensagemConvite?: string;
+    listaResponsabilidades?: string[];
+  },
+) {
+  const base = buildCreateBody(criador, { ...payload, rascunho: false });
+  const participantesIds = payload.participantes
+    .map((p) => p.id)
+    .filter((id): id is number => typeof id === "number");
+
+  return {
+    titulo: base.titulo,
+    descricao: base.descricao,
+    categoria: base.categoria,
+    dataPrazo: base.dataPrazo,
+    responsabilidades: base.responsabilidades,
+    participantesIds,
   };
 }
 

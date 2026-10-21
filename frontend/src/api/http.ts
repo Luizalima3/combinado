@@ -1,4 +1,5 @@
 import axios from "axios";
+import { readToken, TOKEN_STORAGE_KEY } from "../auth/storage";
 
 export const http = axios.create({
   baseURL: "/api",
@@ -6,12 +7,25 @@ export const http = axios.create({
   timeout: 15000,
 });
 
+http.interceptors.request.use((config) => {
+  const token = readToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 http.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Demo temporário: a sessão local usa usuários mockados e a busca por participantes
-    // ainda não depende do backend real. Não redirecionar para acesso negado por 403
-    // enquanto a funcionalidade por e-mail não estiver ativa.
+    const status = error.response?.status;
+    if (status === 401) {
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      window.dispatchEvent(new CustomEvent("combinado:unauthorized"));
+    }
+    if (status === 403) {
+      window.dispatchEvent(new CustomEvent("combinado:forbidden"));
+    }
     return Promise.reject(error);
   },
 );

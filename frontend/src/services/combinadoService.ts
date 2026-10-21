@@ -8,6 +8,7 @@ import type {
 } from "../types/combinado";
 import {
   buildCreateBody,
+  buildPublishBody,
   conviteStatusForUser,
   mapCombinado,
   parseExtras,
@@ -22,6 +23,11 @@ async function listAll(): Promise<Combinado[]> {
   return data.map(mapCombinado);
 }
 
+export async function listMeusRascunhos(): Promise<Combinado[]> {
+  const { data } = await http.get<CombinadoApi[]>("/combinados/meus-rascunhos");
+  return data.map(mapCombinado);
+}
+
 export interface ParticipanteConvidado {
   id: number;
   nome: string;
@@ -31,10 +37,15 @@ export interface ParticipanteConvidado {
 
 /** US43 — combinados em que o usuário atual é o criador. */
 export async function listCriados(user: UsuarioResumo): Promise<Combinado[]> {
-  const all = await listAll();
-  return all
-    .filter((item) => userIsCreator(item, user) && item.status !== "RASCUNHO")
-    .sort((a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""));
+  const [all, drafts] = await Promise.all([
+    listAll(),
+    listMeusRascunhos().catch(() => [] as Combinado[]),
+  ]);
+  const byId = new Map<number, Combinado>();
+  for (const item of [...all, ...drafts]) {
+    if (userIsCreator(item, user)) byId.set(item.id, item);
+  }
+  return [...byId.values()].sort((a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""));
 }
 
 export async function listRascunhos(): Promise<Combinado[]> {
@@ -49,6 +60,11 @@ export async function listRecebidos(user: UsuarioResumo): Promise<Combinado[]> {
     .filter((item) => !userIsCreator(item, user) && userIsParticipant(item, user))
     .filter((item) => item.status !== "RASCUNHO")
     .sort((a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""));
+}
+
+export async function concluirCombinado(id: number): Promise<Combinado> {
+  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/concluir`);
+  return mapCombinado(data);
 }
 
 export async function getCombinadoById(id: number): Promise<Combinado> {
@@ -71,17 +87,24 @@ export async function createCombinado(
   user: UsuarioResumo,
   payload: CreateCombinadoPayload,
 ): Promise<Combinado> {
-  const categoria = payload.categoria || (payload.rascunho ? "OUTRO" : "");
-  if (!categoria) {
+  if (!payload.rascunho && !payload.categoria) {
     throw new Error("Categoria é obrigatória.");
   }
 
-  const body = buildCreateBody(user, {
-    ...payload,
-    categoria,
-  });
+  const body = buildCreateBody(user, payload);
 
   const { data } = await http.post<CombinadoApi>("/combinados", body);
+  return mapCombinado(data);
+}
+
+/** Publica rascunho existente com validação completa no backend. */
+export async function publicarCombinado(
+  id: number,
+  user: UsuarioResumo,
+  payload: CreateCombinadoPayload,
+): Promise<Combinado> {
+  const body = buildPublishBody(user, payload);
+  const { data } = await http.post<CombinadoApi>(`/combinados/${id}/publicar`, body);
   return mapCombinado(data);
 }
 
@@ -121,10 +144,15 @@ export async function buscarUsuarioPorEmail(email: string): Promise<UsuarioResum
   if (!normalized || !normalized.includes("@")) return null;
 
   try {
-    const { data } = await http.get<UsuarioResumo>("/usuarios/buscar", {
-      params: { email: normalized },
+    const { data } = await http.get<UsuarioResumo[] | UsuarioResumo>("/usuarios/buscar", {
+      params: { q: normalized, limite: 5 },
     });
-    if (data?.email) return data;
+    if (Array.isArray(data)) {
+      const match = data.find((item) => item.email.toLowerCase() === normalized);
+      if (match) return match;
+    } else if (data?.email) {
+      return data;
+    }
   } catch {
     /* endpoint ainda não existe no backend atual */
   }

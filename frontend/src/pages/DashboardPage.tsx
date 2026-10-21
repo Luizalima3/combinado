@@ -5,6 +5,9 @@ import { CombinadoCard } from "../components/combinados/CombinadoCard";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Modal } from "../components/ui/Modal";
 import { CardSkeleton } from "../components/ui/Spinner";
+import { InviteActionButtons } from "../components/invites/InviteActionButtons";
+import { CategoryBadge } from "../components/ui/CategoryBadge";
+import { ConviteStatusBadge } from "../components/ui/ConviteStatusBadge";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -20,27 +23,23 @@ import {
   type ParticipanteConvidado,
 } from "../services/combinadoService";
 import type { Combinado } from "../types/combinado";
-import { CATEGORIA_LABELS } from "../types/combinado";
 import { userIsCreator, userIsParticipant } from "../utils/combinadoMapper";
 
 type Tab = "criados" | "rascunhos" | "recebidos";
 
-const PARTICIPANT_STATUS_LABEL: Record<ParticipanteConvidado["status"], string> = {
-  PENDENTE: "Pendente",
-  ACEITO: "Aceito",
-  RECUSADO: "Recusado",
-  EXPIRADO: "Expirado",
-};
-
-const PARTICIPANT_STATUS_CLASS: Record<ParticipanteConvidado["status"], string> = {
-  PENDENTE: "bg-warn-soft text-warn",
-  ACEITO: "bg-mint-soft text-mint-dark",
-  RECUSADO: "bg-danger-soft text-danger",
-  EXPIRADO: "bg-line text-muted",
-};
+function participantStatusBadge(status: ParticipanteConvidado["status"]) {
+  if (status === "EXPIRADO") {
+    return (
+      <span className="shrink-0 rounded-full bg-line px-2.5 py-1 text-xs font-semibold text-muted">
+        Expirado
+      </span>
+    );
+  }
+  return <ConviteStatusBadge status={status} />;
+}
 
 export function DashboardPage() {
-  const { user } = useAuth();
+  const { sessionUser: user } = useAuth();
   const { push } = useToast();
   const [tab, setTab] = useState<Tab>("criados");
   const [criados, setCriados] = useState<Combinado[]>([]);
@@ -291,9 +290,7 @@ export function DashboardPage() {
           <p className="mt-2 text-sm text-ink">{invite.descricao || "Sem descrição."}</p>
           <div className="mt-4 flex flex-wrap gap-2 text-sm">
             <StatusBadge status={invite.status} />
-            <span className="rounded-full bg-primary-soft px-2.5 py-1 text-primary">
-              {CATEGORIA_LABELS[invite.categoria]}
-            </span>
+            <CategoryBadge categoria={invite.categoria} />
             <span className="rounded-full bg-bg px-2.5 py-1 text-muted">
               Prazo: {invite.dataPrazo ? new Date(`${invite.dataPrazo}T00:00:00`).toLocaleDateString("pt-BR") : "Não definido"}
             </span>
@@ -316,11 +313,7 @@ export function DashboardPage() {
                         <p className="truncate text-sm font-medium text-ink">{participant.nome}</p>
                         <p className="mt-0.5 truncate text-xs text-muted">{participant.email}</p>
                       </div>
-                      <span
-                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${PARTICIPANT_STATUS_CLASS[participant.status]}`}
-                      >
-                        {PARTICIPANT_STATUS_LABEL[participant.status]}
-                      </span>
+                      {participantStatusBadge(participant.status)}
                     </li>
                   ))}
                 </ul>
@@ -336,25 +329,14 @@ export function DashboardPage() {
           ) : null}
           <div className="mt-5 flex justify-end gap-2">
             {tab === "recebidos" && invite.status === "AGUARDANDO_CONFIRMACAO" ? (
-              <>
-                <button
-                  type="button"
-                  className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-white"
-                  onClick={() => {
-                    setRefuseTarget(invite);
-                    setRefuseConfirmOpen(true);
-                  }}
-                >
-                  Recusar
-                </button>
-                <button
-                  type="button"
-                  className="rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white"
-                  onClick={() => void handleAccept(invite)}
-                >
-                  Aceitar
-                </button>
-              </>
+              <InviteActionButtons
+                busy={busyId === invite.id}
+                onAccept={() => void handleAccept(invite)}
+                onRefuse={() => {
+                  setRefuseTarget(invite);
+                  setRefuseConfirmOpen(true);
+                }}
+              />
             ) : (
               <button
                 type="button"

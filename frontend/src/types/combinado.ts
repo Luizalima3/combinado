@@ -16,9 +16,13 @@ export type StatusCombinado =
 
 export type ConviteStatus = "PENDENTE" | "ACEITO" | "RECUSADO";
 
+import type { PerfilUsuario } from "./auth";
+
 export interface UsuarioResumo {
+  id?: number;
   nome: string;
   email: string;
+  perfil?: PerfilUsuario;
 }
 
 export interface ParticipanteCombinado extends UsuarioResumo {
@@ -31,13 +35,14 @@ export interface CombinadoExtras {
   rascunho?: boolean;
   mensagemConvite?: string;
   recusaMotivo?: string;
+  listaResponsabilidades?: string[];
 }
 
 export interface Combinado {
   id: number;
   titulo: string;
   descricao?: string;
-  categoria: CategoriaCombinado;
+  categoria?: CategoriaCombinado | null;
   dataPrazo?: string;
   criadorNome: string;
   criadorEmail?: string;
@@ -55,6 +60,7 @@ export interface CreateCombinadoPayload {
   dataPrazo: string;
   participantes: ParticipanteCombinado[];
   mensagemConvite?: string;
+  listaResponsabilidades?: string[];
   rascunho: boolean;
 }
 

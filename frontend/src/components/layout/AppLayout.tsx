@@ -1,14 +1,23 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { usePendingInvitesCount } from "../../hooks/usePendingInvitesCount";
+import { PERFIL_LABELS } from "../../types/auth";
 import { ToastHost } from "../ui/ToastHost";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `rounded-lg px-3 py-2 text-sm font-medium ${
+  `relative rounded-lg px-3 py-2 text-sm font-medium ${
     isActive ? "bg-white/15 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
   }`;
 
 export function AppLayout() {
-  const { user, users, setUser } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const pendingInvites = usePendingInvitesCount();
+
+  async function handleLogout() {
+    await logout();
+    navigate("/login", { replace: true });
+  }
 
   return (
     <div className="min-h-svh bg-bg">
@@ -21,29 +30,37 @@ export function AppLayout() {
             <nav className="flex gap-1">
               <NavLink to="/" className={linkClass} end>
                 Meus combinados
+                {pendingInvites > 0 ? (
+                  <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-bold">
+                    {pendingInvites > 9 ? "9+" : pendingInvites}
+                  </span>
+                ) : null}
               </NavLink>
               <NavLink to="/combinados/novo" className={linkClass}>
                 Novo combinado
               </NavLink>
+              <NavLink to="/perfil" className={linkClass}>
+                Perfil
+              </NavLink>
             </nav>
           </div>
-          <label className="flex items-center gap-2 text-sm text-white/90">
-            Sessão demo
-            <select
-              className="rounded-md border-0 bg-white/15 px-2 py-1.5 text-white outline-none"
-              value={user.email}
-              onChange={(event) => {
-                const next = users.find((item) => item.email === event.target.value);
-                if (next) setUser(next);
-              }}
-            >
-              {users.map((item) => (
-                <option key={item.email} value={item.email} className="text-ink">
-                  {item.nome}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-white/90">
+            {user ? (
+              <>
+                <span>
+                  {user.nome}{" "}
+                  <span className="text-white/70">({PERFIL_LABELS[user.perfil]})</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className="rounded-lg border border-white/30 px-3 py-1.5 font-semibold hover:bg-white/10"
+                >
+                  Sair
+                </button>
+              </>
+            ) : null}
+          </div>
         </div>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-8">

@@ -1,8 +1,10 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import type { Combinado, ConviteStatus, UsuarioResumo } from "../../types/combinado";
-import { CATEGORIA_LABELS, STATUS_LABELS } from "../../types/combinado";
+import { STATUS_LABELS } from "../../types/combinado";
 import { conviteStatusForUser } from "../../utils/combinadoMapper";
+import { CategoryBadge } from "../ui/CategoryBadge";
+import { ConviteStatusBadge } from "../ui/ConviteStatusBadge";
 import { StatusBadge } from "../ui/StatusBadge";
 
 function formatDate(value?: string) {
@@ -63,9 +65,10 @@ export function CombinadoCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-ink">{combinado.titulo}</h3>
-          <p className="mt-1 text-sm text-muted">
-            {CATEGORIA_LABELS[combinado.categoria]} · Prazo {formatDate(combinado.dataPrazo)}
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <CategoryBadge categoria={combinado.categoria} />
+            <span>Prazo {formatDate(combinado.dataPrazo)}</span>
+          </div>
         </div>
         <StatusBadge status={combinado.status} />
       </div>
@@ -88,18 +91,19 @@ export function CombinadoCard({
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted">
         <span>{participantCount(combinado)} participante(s)</span>
         {variant === "recebido" ? (
-          <span>
-            Convite:{" "}
-            <strong className="text-ink">
-              {convite === "ACEITO" ? "Aceito" : convite === "RECUSADO" ? "Recusado" : "Pendente"}
-            </strong>
-          </span>
+          <ConviteStatusBadge status={convite} />
         ) : (
           <span>{STATUS_LABELS[combinado.status]}</span>
         )}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <Link
+          to={`/combinados/${combinado.id}`}
+          className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg"
+        >
+          Detalhes
+        </Link>
         <button
           type="button"
           className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary-soft"

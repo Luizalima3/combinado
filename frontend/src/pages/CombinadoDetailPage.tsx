@@ -1,22 +1,38 @@
-import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
+import { ParticipantConfirmedList } from "../components/combinados/ParticipantConfirmedList";
+import { InviteActionButtons } from "../components/invites/InviteActionButtons";
+import { CategoryBadge } from "../components/ui/CategoryBadge";
+import { Modal } from "../components/ui/Modal";
 import { Spinner } from "../components/ui/Spinner";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { useAuth } from "../context/AuthContext";
-import { getCombinadoById } from "../services/combinadoService";
+import { useToast } from "../context/ToastContext";
+import {
+  aceitarConvite,
+  concluirCombinado,
+  getCombinadoById,
+  recusarConvite,
+} from "../services/combinadoService";
 import type { Combinado } from "../types/combinado";
-import { CATEGORIA_LABELS } from "../types/combinado";
-import { userIsCreator, userIsParticipant } from "../utils/combinadoMapper";
+import {
+  conviteStatusForUser,
+  userIsCreator,
+  userIsParticipant,
+} from "../utils/combinadoMapper";
 
 export function CombinadoDetailPage() {
   const { id } = useParams();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { sessionUser: user } = useAuth();
+  const { push } = useToast();
   const [combinado, setCombinado] = useState<Combinado | null>(null);
   const [forbidden, setForbidden] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [finishConfirm, setFinishConfirm] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -38,6 +54,61 @@ export function CombinadoDetailPage() {
     void load();
   }, [id, user]);
 
+  const conviteStatus = useMemo(
+    () => (combinado ? conviteStatusForUser(combinado, user) : "PENDENTE"),
+    [combinado, user],
+  );
+
+  const isCreator = combinado ? userIsCreator(combinado, user) : false;
+  const canRespondInvite =
+    combinado?.status === "AGUARDANDO_CONFIRMACAO" &&
+    !isCreator &&
+    conviteStatus === "PENDENTE";
+
+  async function handleAccept() {
+    if (!combinado) return;
+    setBusy(true);
+    try {
+      const updated = await aceitarConvite(combinado.id, user);
+      setCombinado(updated);
+      push("success", "Convite aceito.");
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível aceitar o convite."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRefuse() {
+    if (!combinado) return;
+    setBusy(true);
+    try {
+      const updated = await recusarConvite(combinado.id, user);
+      setCombinado(updated);
+      push("info", "Convite recusado.");
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível recusar o convite."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleFinish() {
+    if (!combinado || !finishConfirm) return;
+    setBusy(true);
+    try {
+      const updated = await concluirCombinado(combinado.id);
+      setCombinado(updated);
+      setShowFinishModal(false);
+      setFinishConfirm(false);
+      push("success", "Combinado encerrado com sucesso.");
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível encerrar o combinado."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   if (forbidden) return <Navigate to="/acesso-negado" replace />;
   if (loading) return <Spinner label="Carregando combinado..." />;
   if (error) {
@@ -51,32 +122,88 @@ export function CombinadoDetailPage() {
 
   return (
     <section className="mx-auto max-w-3xl rounded-2xl border border-line bg-card p-6">
-      <button
-        type="button"
-        className="mb-4 text-sm text-primary hover:underline"
-        onClick={() => navigate(-1)}
-      >
+      <Link to="/" className="mb-4 inline-block text-sm text-primary hover:underline">
         ← Voltar
-      </button>
+      </Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <h1 className="text-2xl font-semibold text-ink">{combinado.titulo}</h1>
         <StatusBadge status={combinado.status} />
       </div>
-      <p className="mt-3 text-sm text-ink">{combinado.descricao || "Sem descrição."}</p>
-      <p className="mt-4 text-sm text-muted">
-        {CATEGORIA_LABELS[combinado.categoria]} · Prazo{" "}
-        {combinado.dataPrazo
-          ? new Date(`${combinado.dataPrazo}T00:00:00`).toLocaleDateString("pt-BR")
-          : "não definido"}
-      </p>
-      <h2 className="mt-6 text-sm font-semibold text-ink">Participantes</h2>
-      <ul className="mt-2 space-y-1 text-sm text-muted">
-        {combinado.extras.participantes.map((p) => (
-          <li key={p.email}>
-            {p.nome} ({p.email}) {p.conviteStatus ? `— ${p.conviteStatus}` : ""}
-          </li>
-        ))}
-      </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <CategoryBadge categoria={combinado.categoria} />
+        <span className="rounded-full bg-bg px-2.5 py-1 text-xs text-muted">
+          Prazo{" "}
+          {combinado.dataPrazo
+            ? new Date(`${combinado.dataPrazo}T00:00:00`).toLocaleDateString("pt-BR")
+            : "não definido"}
+        </span>
+      </div>
+      <p className="mt-4 text-sm text-ink">{combinado.descricao || "Sem descrição."}</p>
+
+      <h2 className="mt-8 text-sm font-semibold text-ink">Participantes confirmados</h2>
+      <div className="mt-2">
+        <ParticipantConfirmedList
+          participantes={combinado.extras.participantes}
+          criadorNome={combinado.criadorNome}
+        />
+      </div>
+
+      {canRespondInvite ? (
+        <div className="mt-8 rounded-xl border border-warn/30 bg-warn-soft/40 p-4">
+          <p className="mb-3 text-sm text-ink">Este convite está pendente de resposta.</p>
+          <InviteActionButtons
+            busy={busy}
+            onAccept={() => void handleAccept()}
+            onRefuse={() => void handleRefuse()}
+          />
+        </div>
+      ) : null}
+
+      {isCreator && combinado.status === "ATIVO" ? (
+        <div className="mt-8 flex justify-end">
+          <button
+            type="button"
+            className="rounded-lg bg-mint px-4 py-2 text-sm font-semibold text-white"
+            onClick={() => setShowFinishModal(true)}
+          >
+            Encerrar combinado
+          </button>
+        </div>
+      ) : null}
+
+      {showFinishModal ? (
+        <Modal title="Encerrar combinado" onClose={() => setShowFinishModal(false)}>
+          <p className="text-sm text-muted">
+            Confirme que deseja marcar <strong>{combinado.titulo}</strong> como concluído. Esta ação
+            altera o status do acordo para encerrado.
+          </p>
+          <label className="mt-4 flex items-center gap-2 text-sm text-ink">
+            <input
+              type="checkbox"
+              checked={finishConfirm}
+              onChange={(event) => setFinishConfirm(event.target.checked)}
+            />
+            Confirmo que o combinado foi cumprido e pode ser encerrado.
+          </label>
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              className="rounded-lg border border-line px-3 py-2 text-sm"
+              onClick={() => setShowFinishModal(false)}
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              disabled={!finishConfirm || busy}
+              className="rounded-lg bg-mint px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              onClick={() => void handleFinish()}
+            >
+              {busy ? "Encerrando..." : "Confirmar encerramento"}
+            </button>
+          </div>
+        </Modal>
+      ) : null}
     </section>
   );
 }

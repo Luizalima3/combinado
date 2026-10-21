@@ -10,7 +10,7 @@ interface ParticipantPickerProps {
 }
 
 export function ParticipantPicker({ participants, onChange, error }: ParticipantPickerProps) {
-  const { user } = useAuth();
+  const { sessionUser: user } = useAuth();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<UsuarioResumo[]>([]);
   const [searchError, setSearchError] = useState("");
