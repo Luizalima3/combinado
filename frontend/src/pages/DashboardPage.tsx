@@ -12,8 +12,10 @@ import {
   aceitarConvite,
   getCombinadoById,
   listCriados,
+  listParticipantes,
   listRecebidos,
   recusarConvite,
+  type ParticipanteConvidado,
 } from "../services/combinadoService";
 import type { Combinado } from "../types/combinado";
 import { CATEGORIA_LABELS } from "../types/combinado";
@@ -31,6 +33,9 @@ export function DashboardPage() {
   const [error, setError] = useState("");
   const [busyId, setBusyId] = useState<number | null>(null);
   const [invite, setInvite] = useState<Combinado | null>(null);
+  const [inviteParticipants, setInviteParticipants] = useState<ParticipanteConvidado[]>([]);
+  const [participantsLoading, setParticipantsLoading] = useState(false);
+  const [participantsError, setParticipantsError] = useState("");
   const [acceptedInvite, setAcceptedInvite] = useState<Combinado | null>(null);
   const [refuseTarget, setRefuseTarget] = useState<Combinado | null>(null);
   const [refuseConfirmOpen, setRefuseConfirmOpen] = useState(false);
@@ -108,6 +113,21 @@ export function DashboardPage() {
         return;
       }
       setInvite(fresh);
+      setInviteParticipants([]);
+      setParticipantsError("");
+
+      if (tab === "criados") {
+        setParticipantsLoading(true);
+        try {
+          setInviteParticipants(await listParticipantes(fresh.id));
+        } catch (err) {
+          setParticipantsError(
+            getApiErrorMessage(err, "Não foi possível carregar os participantes."),
+          );
+        } finally {
+          setParticipantsLoading(false);
+        }
+      }
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível abrir o convite."));
     }
@@ -208,6 +228,30 @@ export function DashboardPage() {
               Prazo: {invite.dataPrazo ? new Date(`${invite.dataPrazo}T00:00:00`).toLocaleDateString("pt-BR") : "Não definido"}
             </span>
           </div>
+          {tab === "criados" ? (
+            <div className="mt-5">
+              <h4 className="text-sm font-semibold text-ink">Participantes convidados</h4>
+              {participantsLoading ? (
+                <p className="mt-2 text-sm text-muted">Carregando participantes...</p>
+              ) : participantsError ? (
+                <p className="mt-2 text-sm text-danger">{participantsError}</p>
+              ) : inviteParticipants.length ? (
+                <ul className="mt-2 divide-y divide-line rounded-lg border border-line">
+                  {inviteParticipants.map((participant) => (
+                    <li
+                      key={participant.id}
+                      className="px-3 py-2"
+                    >
+                      <p className="text-sm font-medium text-ink">{participant.nome}</p>
+                      <p className="mt-0.5 text-xs text-muted">{participant.email}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="mt-2 text-sm text-muted">Nenhum participante encontrado.</p>
+              )}
+            </div>
+          ) : null}
           {invite.extras.mensagemConvite ? (
             <p className="mt-4 rounded-lg bg-bg p-3 text-sm text-ink">
               “{invite.extras.mensagemConvite}”

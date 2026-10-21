@@ -3,6 +3,7 @@ import { MOCK_USERS } from "../data/mockUsers";
 import type {
   Combinado,
   CreateCombinadoPayload,
+  ConviteStatus,
   UsuarioResumo,
 } from "../types/combinado";
 import {
@@ -19,6 +20,13 @@ import {
 async function listAll(): Promise<Combinado[]> {
   const { data } = await http.get<CombinadoApi[]>("/combinados");
   return data.map(mapCombinado);
+}
+
+export interface ParticipanteConvidado {
+  id: number;
+  nome: string;
+  email: string;
+  status: ConviteStatus | "EXPIRADO";
 }
 
 /** US43 — combinados em que o usuário atual é o criador. */
@@ -41,6 +49,11 @@ export async function listRecebidos(user: UsuarioResumo): Promise<Combinado[]> {
 export async function getCombinadoById(id: number): Promise<Combinado> {
   const { data } = await http.get<CombinadoApi>(`/combinados/${id}`);
   return mapCombinado(data);
+}
+
+export async function listParticipantes(id: number): Promise<ParticipanteConvidado[]> {
+  const { data } = await http.get<ParticipanteConvidado[]>(`/combinados/${id}/participantes`);
+  return data;
 }
 
 /** US15, US16, US17, US25 — cria combinado (rascunho ou com convites). */
