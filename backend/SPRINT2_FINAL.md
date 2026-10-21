@@ -27,3 +27,34 @@ ROLE_ADMIN pode listar e consultar todos os combinados, inclusive rascunhos, seu
 e tarefas. Usuário comum continua limitado aos vínculos. A permissão global é somente de leitura:
 não concede edição, publicação, envio ou resposta de convites de terceiros. O filtro carrega
 o perfil atual do banco, em vez de confiar somente no perfil gravado no JWT.
+
+## Convites em lote e recebidos (#31079, #32243)
+
+`POST /api/combinados/{combinadoId}/convites/lote` recebe
+`{"participantesIds":[2,3],"mensagem":"Opcional"}`. Exige criador, 1 a 100 IDs distintos,
+existentes, sem o próprio criador. Aplica as regras do envio individual para estado do combinado,
+pendências existentes e aceite anterior. Todos os participantes são validados antes de `saveAll`.
+Convites PENDENTE, eventos ENVIO e notificações são persistidos na mesma transação; falha em
+qualquer etapa desfaz todo o lote. Não publica rascunhos nem altera o estado global do combinado.
+
+`GET /api/convites/recebidos?pagina=0&limite=20` usa o ID do JWT, nunca um ID enviado pelo cliente.
+O limite aceito é de 1 a 100 e a página começa em zero. Retorna convites de todos os status,
+do mais recente para o mais antigo, com título, categoria, criador, prazo, estado do combinado,
+status do convite e datas. Exclui rascunhos. ADMIN também vê apenas os seus convites recebidos.
+Reenvios aparecem como convites distintos, preservando o histórico de cada envio.
+
+## Swagger e timeline (#31427, #31428)
+
+`GET /api/convites/{id}/historico` expõe a timeline de eventos já persistidos, em ordem
+cronológica, com autorId, autorNome e ocorridoEm UTC. Exige destinatário ou criador do convite.
+O histórico também permanece disponível nos detalhes. Não inventa eventos legados.
+
+Swagger UI em `/swagger-ui/index.html`, OpenAPI JSON em `/v3/api-docs`, ambos públicos.
+As operações protegidas indicam bearerAuth e documentam envio individual/lote, recebidos,
+detalhes, aceite/recusa, histórico, respostas de erro e esquemas. O evento documenta os tipos
+ENVIO, ACEITE e RECUSA. RemetenteId do envio individual é legado e ignorado; respostas
+de aceite/recusa não recebem corpo, autor ou data fornecidos pelo cliente.
+
+Atualizado springdoc de 2.5.0 para 3.1.1: a linha 3 suporta Spring Boot 4, conforme a
+[matriz oficial](https://springdoc.org/#what-is-the-compatibility-matrix-of-springdoc-openapi-with-spring-boot).
+Os testes consultam o JSON gerado e a página Swagger para verificar a configuração em execução.
