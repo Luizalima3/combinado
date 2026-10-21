@@ -51,6 +51,16 @@ public class CombinadoController {
         return service.publicar(id, dados);
     }
 
+    @PatchMapping("/{id}/concluir")
+    public ResponseEntity<Combinado> concluir(@PathVariable Long id) {
+        return ResponseEntity.ok(service.concluir(id));
+    }
+
+    @PatchMapping("/{id}/cancelar")
+    public ResponseEntity<Combinado> cancelar(@PathVariable Long id) {
+        return ResponseEntity.ok(service.cancelar(id));
+    }
+
     @PatchMapping("/{id}/aceitar")
     public ResponseEntity<Combinado> aceitar(@PathVariable Long id, @RequestBody(required = false) Map<String, String> payload) {
         return ResponseEntity.ok(service.aceitar(id, parseTimestamp(payload, "respondidoEm")));

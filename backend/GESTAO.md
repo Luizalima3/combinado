@@ -38,6 +38,11 @@ AGUARDANDO_CONFIRMACAO → ATIVO ou CANCELADO; ATIVO → CONCLUIDO ou CANCELADO.
 CONCLUIDO e CANCELADO são terminais. Repetir o estado atual também é inválido.
 Aceitar/recusar aplica a validação antes de alterar estado e timestamps.
 
+`PATCH /api/combinados/{id}/concluir` e `PATCH /api/combinados/{id}/cancelar`
+exigem autenticação do criador. Concluir só é permitido para combinados ATIVO;
+cancelar segue as transições acima. A recusa individual de convite deve usar
+`PATCH /api/convites/{id}/recusar`; a rota legada do combinado não substitui essa ação.
+
 `GET /api/combinados/meus-rascunhos` lista somente rascunhos do usuário autenticado.
 Rascunhos são privados ao criador, inclusive na listagem geral e nos detalhes.
 `POST /api/combinados/{id}/publicar` exige criador e estado RASCUNHO.

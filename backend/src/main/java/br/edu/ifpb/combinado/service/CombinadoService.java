@@ -141,13 +141,31 @@ public class CombinadoService {
     }
 
     @Transactional
-    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
     public Combinado recusar(Long id, LocalDateTime respondidoEm) {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
         combinado.setRecusadoEm(respondidoEm != null ? respondidoEm : LocalDateTime.now());
         combinado.setAceitoEm(null);
+        return repository.save(combinado);
+    }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public Combinado concluir(Long id) {
+        Combinado combinado = buscarPorId(id);
+        combinado.getStatus().validarTransicao(StatusCombinado.CONCLUIDO);
+        combinado.setStatus(StatusCombinado.CONCLUIDO);
+        return repository.save(combinado);
+    }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public Combinado cancelar(Long id) {
+        Combinado combinado = buscarPorId(id);
+        combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
+        combinado.setStatus(StatusCombinado.CANCELADO);
         return repository.save(combinado);
     }
 

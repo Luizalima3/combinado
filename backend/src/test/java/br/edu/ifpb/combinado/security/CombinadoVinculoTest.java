@@ -131,6 +131,48 @@ class CombinadoVinculoTest {
         assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO, combinados.findById(id).orElseThrow().getStatus());
     }
 
+        @Test
+        void somenteCriadorPodeCancelarCombinado() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+
+            mvc.perform(patch("/api/combinados/{id}/recusar", id).header("Authorization", bearer(participante)))
+                .andExpect(status().isForbidden());
+        mvc.perform(patch("/api/combinados/{id}/cancelar", id).header("Authorization", bearer(participante)))
+            .andExpect(status().isForbidden());
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+            combinados.findById(id).orElseThrow().getStatus());
+
+        mvc.perform(patch("/api/combinados/{id}/cancelar", id).header("Authorization", bearer(criador)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELADO"));
+        assertEquals(StatusCombinado.CANCELADO, combinados.findById(id).orElseThrow().getStatus());
+        }
+
+        @Test
+        void somenteCriadorPodeConcluirCombinadoAtivo() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        Combinado combinado = combinados.findById(id).orElseThrow();
+        combinado.setStatus(StatusCombinado.ATIVO);
+        combinados.saveAndFlush(combinado);
+
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(participante)))
+            .andExpect(status().isForbidden());
+        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
+
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CONCLUIDO"));
+        assertEquals(StatusCombinado.CONCLUIDO, combinados.findById(id).orElseThrow().getStatus());
+        }
+
+        @Test
+        void naoDeveConcluirCombinadoQueAindaAguardaConfirmacao() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
+            .andExpect(status().isBadRequest());
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+            combinados.findById(id).orElseThrow().getStatus());
+        }
+
     @Test
     void conviteDeveConcederAcessoAoDestinatarioSemExporSenhas() throws Exception {
         Long id = criar(criador, "[]");
