@@ -23,6 +23,20 @@ import { userIsCreator, userIsParticipant } from "../utils/combinadoMapper";
 
 type Tab = "criados" | "recebidos";
 
+const PARTICIPANT_STATUS_LABEL: Record<ParticipanteConvidado["status"], string> = {
+  PENDENTE: "Pendente",
+  ACEITO: "Aceito",
+  RECUSADO: "Recusado",
+  EXPIRADO: "Expirado",
+};
+
+const PARTICIPANT_STATUS_CLASS: Record<ParticipanteConvidado["status"], string> = {
+  PENDENTE: "bg-warn-soft text-warn",
+  ACEITO: "bg-mint-soft text-mint-dark",
+  RECUSADO: "bg-danger-soft text-danger",
+  EXPIRADO: "bg-line text-muted",
+};
+
 export function DashboardPage() {
   const { user } = useAuth();
   const { push } = useToast();
@@ -240,10 +254,17 @@ export function DashboardPage() {
                   {inviteParticipants.map((participant) => (
                     <li
                       key={participant.id}
-                      className="px-3 py-2"
+                      className="flex items-center justify-between gap-3 px-3 py-2"
                     >
-                      <p className="text-sm font-medium text-ink">{participant.nome}</p>
-                      <p className="mt-0.5 text-xs text-muted">{participant.email}</p>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-ink">{participant.nome}</p>
+                        <p className="mt-0.5 truncate text-xs text-muted">{participant.email}</p>
+                      </div>
+                      <span
+                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${PARTICIPANT_STATUS_CLASS[participant.status]}`}
+                      >
+                        {PARTICIPANT_STATUS_LABEL[participant.status]}
+                      </span>
                     </li>
                   ))}
                 </ul>
