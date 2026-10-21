@@ -66,8 +66,9 @@ de convite; rascunhos são exceção, restritos ao criador. Sem vínculo ou ID i
 403; sem autenticação: 401. Status dos participantes fica no endpoint específico.
 
 A criação autenticada do combinado registra `CRIACAO` em `combinado_historico`,
-com autor, nome do autor no momento do evento e data/hora. O registro do combinado
-e o evento de histórico são persistidos na mesma transação.
+com tipo de evento, autor, descrição e data/hora. O registro do combinado e o evento
+de histórico são persistidos na mesma transação. A V10 adiciona a descrição aos
+registros existentes sem apagar o histórico anterior.
 
 ## Respostas e histórico de convites (#32231, #31229, #32393)
 

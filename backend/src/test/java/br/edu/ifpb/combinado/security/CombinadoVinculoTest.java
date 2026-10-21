@@ -98,6 +98,7 @@ class CombinadoVinculoTest {
         assertEquals(AcaoCombinadoHistorico.CRIACAO, eventos.getFirst().getAcao());
         assertEquals(criador.getId(), eventos.getFirst().getAutor().getId());
         assertEquals(criador.getNome(), eventos.getFirst().getAutorNome());
+        assertEquals("Combinado criado.", eventos.getFirst().getDescricao());
         assertNotNull(eventos.getFirst().getOcorridoEm());
     }
 

@@ -92,7 +92,8 @@ public class CombinadoService {
         combinado.setParticipantesUsuarios(participantes);
         Combinado salvo = repository.save(combinado);
         historicoRepository.save(new CombinadoHistorico(
-            salvo, criador, AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
+                salvo, criador, "Combinado criado.",
+                AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
         return salvo;
     }
 

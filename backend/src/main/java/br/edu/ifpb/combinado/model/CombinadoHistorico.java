@@ -24,6 +24,9 @@ public class CombinadoHistorico {
     @Column(nullable = false, updatable = false)
     private String autorNome;
 
+    @Column(nullable = false, updatable = false, length = 500)
+    private String descricao;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     private AcaoCombinadoHistorico acao;
@@ -36,12 +39,14 @@ public class CombinadoHistorico {
     public CombinadoHistorico(
             Combinado combinado,
             Usuario autor,
+            String descricao,
             AcaoCombinadoHistorico acao,
             Instant ocorridoEm
     ) {
         this.combinado = combinado;
         this.autor = autor;
         this.autorNome = autor.getNome();
+        this.descricao = descricao;
         this.acao = acao;
         this.ocorridoEm = ocorridoEm;
     }
@@ -50,6 +55,7 @@ public class CombinadoHistorico {
     public Combinado getCombinado() { return combinado; }
     public Usuario getAutor() { return autor; }
     public String getAutorNome() { return autorNome; }
+    public String getDescricao() { return descricao; }
     public AcaoCombinadoHistorico getAcao() { return acao; }
     public Instant getOcorridoEm() { return ocorridoEm; }
 }
