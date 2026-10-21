@@ -51,6 +51,11 @@ public class CombinadoController {
         return service.publicar(id, dados);
     }
 
+    @PutMapping("/rascunhos/{id}")
+    public CombinadoResumoDTO atualizarRascunho(@PathVariable Long id, @RequestBody CombinadoDTO dados) {
+        return service.atualizarRascunho(id, dados);
+    }
+
     @PatchMapping("/{id}/aceitar")
     public ResponseEntity<Combinado> aceitar(@PathVariable Long id, @RequestBody(required = false) Map<String, String> payload) {
         return ResponseEntity.ok(service.aceitar(id, parseTimestamp(payload, "respondidoEm")));

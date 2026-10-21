@@ -23,4 +23,11 @@ public class CombinadoAcessoService {
                 && authentication.getPrincipal() instanceof UsuarioPrincipal principal
                 && repository.existsByIdAndCriadorId(id, principal.usuario().getId());
     }
+
+    public boolean podeConsultar(Long id, Authentication authentication) {
+        boolean admin = authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UsuarioPrincipal
+                && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        return podeAcessar(id, authentication) || (admin && id != null && repository.existsById(id));
+    }
 }
