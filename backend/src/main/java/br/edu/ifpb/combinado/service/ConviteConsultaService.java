@@ -42,16 +42,4 @@ public class ConviteConsultaService {
                         .stream().map(ConviteHistoricoDTO::de).toList());
     }
     private UsuarioResumoDTO resumo(Usuario u) { return new UsuarioResumoDTO(u.getId(), u.getNome(), u.getEmail()); }
-
-    @Transactional(readOnly = true)
-    @PreAuthorize("isAuthenticated()")
-    public java.util.List<ConviteResumoDTO> recebidos(int pagina, int limite) {
-        if (pagina < 0 || limite < 1 || limite > 100) throw new IllegalArgumentException("Paginação inválida.");
-        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        var pageable = org.springframework.data.domain.PageRequest.of(pagina, limite,
-                org.springframework.data.domain.Sort.by("dataEnvio", "id").descending());
-        return convites.findByDestinatarioIdAndCombinadoStatusNot(principal.usuario().getId(),
-                br.edu.ifpb.combinado.model.enums.StatusCombinado.RASCUNHO, pageable)
-                .stream().map(ConviteResumoDTO::de).toList();
-    }
 }

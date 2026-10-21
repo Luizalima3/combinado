@@ -97,9 +97,9 @@ class CombinadoVinculoTest {
     }
 
     @Test
-    void deveNegarUsuarioSemVinculoMesmoComNomeIgual() throws Exception {
+    void deveNegarUsuarioSemVinculoMesmoComNomeIgualOuPerfilAdmin() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
-        for (Usuario usuario : new Usuario[]{intruso}) {
+        for (Usuario usuario : new Usuario[]{intruso, admin}) {
             mvc.perform(get("/api/combinados/" + id).header("Authorization", bearer(usuario)))
                     .andExpect(status().isForbidden()).andExpect(jsonPath("$.titulo").doesNotExist());
         }

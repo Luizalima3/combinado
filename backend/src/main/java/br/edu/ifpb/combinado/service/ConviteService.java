@@ -50,7 +50,22 @@ public class ConviteService {
         Usuario destinatario = usuarioRepository.findById(dto.destinatarioId())
                 .orElseThrow(() -> new IllegalArgumentException("Destinatário não encontrado: " + dto.destinatarioId()));
 
-        validarDestinatario(combinado, remetente, destinatario);
+        if (remetente.getId().equals(destinatario.getId())) {
+            throw new IllegalArgumentException("O criador não pode enviar convite para si mesmo.");
+        }
+
+        if (combinado.getCriador() == null || !remetente.getId().equals(combinado.getCriador().getId())) {
+            throw new AccessDeniedException("Somente o criador pode enviar convites.");
+        }
+        validarEstado(combinado);
+        if (conviteRepository.existsByCombinadoIdAndDestinatarioIdAndStatus(combinadoId,
+                destinatario.getId(), StatusConvite.PENDENTE)) {
+            throw new ConviteConflitoException("Já existe um convite pendente para este participante.");
+        }
+        if (conviteRepository.findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
+                combinadoId, destinatario.getId()).filter(v -> v.getStatus() == StatusConvite.ACEITO).isPresent()) {
+            throw new ConviteConflitoException("O participante já aceitou o convite.");
+        }
 
         Convite convite = new Convite();
         convite.setCombinado(combinado);
@@ -76,60 +91,6 @@ public class ConviteService {
     @Transactional
     @PreAuthorize("isAuthenticated()")
     public ConviteRespostaDTO recusar(Long id) { return responder(id, StatusConvite.RECUSADO); }
-
-    @Transactional
-    @PreAuthorize("@combinadoAcesso.eCriador(#combinadoId, authentication)")
-    public java.util.List<br.edu.ifpb.combinado.dto.ConviteResumoDTO> enviarLote(
-            Long combinadoId, br.edu.ifpb.combinado.dto.ConviteLoteDTO dados) {
-        var ids = dados.participantesIds();
-        if (ids == null || ids.isEmpty() || ids.size() > 100 || ids.stream().anyMatch(java.util.Objects::isNull)
-                || new java.util.HashSet<>(ids).size() != ids.size()) {
-            throw new IllegalArgumentException("Informe de 1 a 100 IDs distintos de participantes válidos.");
-        }
-        if (dados.mensagem() != null && dados.mensagem().length() > 255) {
-            throw new IllegalArgumentException("A mensagem deve ter até 255 caracteres.");
-        }
-        var combinado = combinadoRepository.buscarParaConvite(combinadoId).orElseThrow();
-        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Usuario remetente = usuarioRepository.findById(principal.usuario().getId()).orElseThrow();
-        java.util.List<Convite> novos = new java.util.ArrayList<>();
-        for (Long id : ids) {
-            Usuario destinatario = usuarioRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + id));
-            validarDestinatario(combinado, remetente, destinatario);
-            var convite = new Convite();
-            convite.setCombinado(combinado);
-            convite.setRemetente(remetente);
-            convite.setDestinatario(destinatario);
-            convite.setMensagem(dados.mensagem());
-            novos.add(convite);
-        }
-        var salvos = conviteRepository.saveAll(novos);
-        Instant agora = Instant.now();
-        historico.saveAll(salvos.stream().map(v -> new ConviteHistorico(v, remetente, AcaoConvite.ENVIO, agora)).toList());
-        notificacaoRepository.saveAll(salvos.stream().map(v -> new Notificacao(v.getDestinatario(),
-                "Novo Convite de Combinado", String.format("Você foi convidado por %s para o combinado '%s'.",
-                remetente.getNome(), combinado.getTitulo()))).toList());
-        return salvos.stream().map(br.edu.ifpb.combinado.dto.ConviteResumoDTO::de).toList();
-    }
-
-    private void validarDestinatario(Combinado combinado, Usuario remetente, Usuario destinatario) {
-        if (remetente.getId().equals(destinatario.getId())) {
-            throw new IllegalArgumentException("O criador não pode enviar convite para si mesmo.");
-        }
-        if (combinado.getCriador() == null || !remetente.getId().equals(combinado.getCriador().getId())) {
-            throw new AccessDeniedException("Somente o criador pode enviar convites.");
-        }
-        validarEstado(combinado);
-        if (conviteRepository.existsByCombinadoIdAndDestinatarioIdAndStatus(combinado.getId(),
-                destinatario.getId(), StatusConvite.PENDENTE)) {
-            throw new ConviteConflitoException("Já existe um convite pendente para este participante.");
-        }
-        if (conviteRepository.findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
-                combinado.getId(), destinatario.getId()).filter(v -> v.getStatus() == StatusConvite.ACEITO).isPresent()) {
-            throw new ConviteConflitoException("O participante já aceitou o convite.");
-        }
-    }
 
     private ConviteRespostaDTO responder(Long id, StatusConvite resposta) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();

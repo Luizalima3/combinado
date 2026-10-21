@@ -19,7 +19,7 @@ public class ParticipanteConsultaService {
         this.convites = convites;
     }
     @Transactional(readOnly = true)
-    @PreAuthorize("@combinadoAcesso.podeConsultar(#combinadoId, authentication)")
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#combinadoId, authentication)")
     public List<ParticipanteStatusDTO> listar(Long combinadoId) {
         var combinado = combinados.findById(combinadoId)
                 .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));

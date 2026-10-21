@@ -5,9 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ConviteRepository extends JpaRepository<Convite, Long> {
-    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"combinado", "combinado.criador"})
-    java.util.List<Convite> findByDestinatarioIdAndCombinadoStatusNot(Long destinatarioId,
-            br.edu.ifpb.combinado.model.enums.StatusCombinado status, org.springframework.data.domain.Pageable pageable);
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @org.springframework.data.jpa.repository.Query("select v from Convite v where v.id = :id")
     java.util.Optional<Convite> buscarParaResponder(@org.springframework.data.repository.query.Param("id") Long id);

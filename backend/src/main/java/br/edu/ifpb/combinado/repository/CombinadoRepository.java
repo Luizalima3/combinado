@@ -18,9 +18,6 @@ public interface CombinadoRepository extends JpaRepository<Combinado, Long> {
     @Query("select distinct c from Combinado c left join fetch c.criador left join c.participantes p where " + VINCULO + " order by c.id desc")
     List<Combinado> listarVinculados(@Param("usuarioId") Long usuarioId);
 
-    @Query("select c from Combinado c left join fetch c.criador order by c.id desc")
-    List<Combinado> listarGeral();
-
     @Query("select (count(c) > 0) from Combinado c left join c.participantes p where c.id = :id and " + VINCULO)
     boolean temVinculo(@Param("id") Long id, @Param("usuarioId") Long usuarioId);
 
