@@ -18,4 +18,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
 
     List<UsuarioResumoDTO> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+
+    List<UsuarioResumoDTO> findByNomeContainingIgnoreCaseAndIdNot(String nome, Long id, Pageable pageable);
 }

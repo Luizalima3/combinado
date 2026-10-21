@@ -51,6 +51,18 @@ class UsuarioBuscaEndpointTest {
     }
 
     @Test
+    void deveExcluirUsuarioLogadoMesmoQuandoSeuNomeCorrespondeAoTermo() throws Exception {
+        Usuario atual = usuarios.findByEmail("autor-busca@combinado.app").orElseThrow();
+        atual.setNome("Ana Autor");
+        usuarios.saveAndFlush(atual);
+
+        mvc.perform(get("/api/usuarios/buscar").header("Authorization", bearer).param("q", "ana"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].nome", contains("Ana Maria", "Mariana")))
+                .andExpect(jsonPath("$[*].id", not(hasItem(atual.getId().intValue()))));
+    }
+
+    @Test
     void devePaginarResultadosSemRepetirPrimeiraPagina() throws Exception {
         mvc.perform(get("/api/usuarios/buscar").header("Authorization", bearer).param("q", "ana").param("limite", "1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$[*].nome", contains("Ana Maria")));

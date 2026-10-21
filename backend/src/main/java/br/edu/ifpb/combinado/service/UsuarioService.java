@@ -11,6 +11,7 @@ import br.edu.ifpb.combinado.model.enums.PerfilUsuario;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.regex.Pattern;
@@ -73,16 +74,20 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
-    public List<UsuarioResumoDTO> buscarPorNome(String termo, int pagina, int limite) {
+    @PreAuthorize("isAuthenticated()")
+    public List<UsuarioResumoDTO> buscarPorNome(String termo, int pagina, int limite, Long usuarioLogadoId) {
         if (pagina < 0 || limite < 1 || limite > 50) {
             throw new IllegalArgumentException("Página deve ser não negativa e limite deve estar entre 1 e 50.");
+        }
+        if (usuarioLogadoId == null) {
+            throw new IllegalArgumentException("Usuário autenticado não informado.");
         }
         String nome = termo == null ? "" : termo.strip();
         if (nome.length() > 150) {
             throw new IllegalArgumentException("O termo deve conter no máximo 150 caracteres.");
         }
         if (nome.length() < 2) return List.of();
-        return usuarioRepository.findByNomeContainingIgnoreCase(nome,
+        return usuarioRepository.findByNomeContainingIgnoreCaseAndIdNot(nome, usuarioLogadoId,
                 PageRequest.of(pagina, limite, Sort.by("nome").ascending().and(Sort.by("id").ascending())));
     }
 
