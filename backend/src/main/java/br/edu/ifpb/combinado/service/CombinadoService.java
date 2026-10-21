@@ -40,16 +40,19 @@ public class CombinadoService {
     @PreAuthorize("isAuthenticated()")
     public List<Combinado> listarTodos() {
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return repository.listarGeral();
+        }
         return repository.listarVinculados(principal.usuario().getId());
     }
 
-    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
     @Transactional(readOnly = true)
     public CombinadoResumoDTO buscarDetalhes(Long id) {
         return CombinadoResumoDTO.de(buscarPorId(id));
     }
 
-    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
     public Combinado buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado com o id: " + id));
@@ -199,6 +202,36 @@ public class CombinadoService {
         combinado.setParticipanteNome(nomes);
         combinado.setParticipantes(participantes);
         combinado.setStatus(StatusCombinado.AGUARDANDO_CONFIRMACAO);
+        return CombinadoResumoDTO.de(repository.save(combinado));
+    }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public CombinadoResumoDTO atualizarRascunho(Long id, CombinadoDTO dados) {
+        var combinado = repository.buscarParaConvite(id)
+                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
+        if (combinado.getStatus() != StatusCombinado.RASCUNHO) {
+            throw new IllegalArgumentException("Somente rascunhos podem ser atualizados nesta rota.");
+        }
+        if (!dados.isTituloValido()) throw new IllegalArgumentException("O título do rascunho é obrigatório.");
+        var participantes = new java.util.HashSet<>(combinado.getParticipantes());
+        if (dados.participantesIds() != null) {
+            participantes.clear();
+            for (Long usuarioId : dados.participantesIds()) {
+                if (usuarioId == null) throw new IllegalArgumentException("ID de participante é obrigatório.");
+                participantes.add(usuarioRepository.findById(usuarioId)
+                        .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + usuarioId)));
+            }
+        }
+        combinado.setTitulo(dados.titulo().trim());
+        combinado.setDescricao(dados.descricao());
+        combinado.setCategoria(dados.categoria());
+        combinado.setDataPrazo(dados.dataPrazo());
+        combinado.setResponsabilidades(dados.responsabilidades());
+        combinado.setParticipantes(participantes);
+        combinado.setCriadorNome(combinado.getCriador().getNome());
+        combinado.setParticipanteNome(participantes.stream().map(Usuario::getNome).sorted()
+                .collect(java.util.stream.Collectors.joining(", ")));
         return CombinadoResumoDTO.de(repository.save(combinado));
     }
 
