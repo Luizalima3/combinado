@@ -40,6 +40,8 @@ class ConviteEnvioTest {
     @Mock
     private NotificacaoRepository notificacaoRepository;
 
+    @Mock private br.edu.ifpb.combinado.repository.ConviteHistoricoRepository historico;
+
     @InjectMocks
     private ConviteService conviteService;
 
@@ -58,6 +60,8 @@ class ConviteEnvioTest {
 
         destinatario = new Usuario("Bruno Lima", "bruno@combinado.app", "senha123", null);
         destinatario.setId(20L);
+        combinado.setCriador(remetente);
+        combinado.setStatus(br.edu.ifpb.combinado.model.enums.StatusCombinado.AGUARDANDO_CONFIRMACAO);
     }
 
     @Test
@@ -65,7 +69,7 @@ class ConviteEnvioTest {
     void deveCriarConviteComStatusPendenteEGerarNotificacao() {
         ConviteRequestDTO dto = new ConviteRequestDTO(10L, 20L, "Pode me emprestar a furadeira?");
 
-        when(combinadoRepository.findById(1L)).thenReturn(Optional.of(combinado));
+        when(combinadoRepository.buscarParaConvite(1L)).thenReturn(Optional.of(combinado));
         when(usuarioRepository.findById(10L)).thenReturn(Optional.of(remetente));
         when(usuarioRepository.findById(20L)).thenReturn(Optional.of(destinatario));
         when(conviteRepository.save(any(Convite.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -93,7 +97,7 @@ class ConviteEnvioTest {
     void deveCriarConviteSemMensagemPersonalizada() {
         ConviteRequestDTO dto = new ConviteRequestDTO(10L, 20L, null);
 
-        when(combinadoRepository.findById(1L)).thenReturn(Optional.of(combinado));
+        when(combinadoRepository.buscarParaConvite(1L)).thenReturn(Optional.of(combinado));
         when(usuarioRepository.findById(10L)).thenReturn(Optional.of(remetente));
         when(usuarioRepository.findById(20L)).thenReturn(Optional.of(destinatario));
         when(conviteRepository.save(any(Convite.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -111,7 +115,7 @@ class ConviteEnvioTest {
     void deveRejeitarConviteParaCombinadoInexistente() {
         ConviteRequestDTO dto = new ConviteRequestDTO(10L, 20L, "Mensagem");
 
-        when(combinadoRepository.findById(1L)).thenReturn(Optional.empty());
+        when(combinadoRepository.buscarParaConvite(1L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> conviteService.enviarConvite(1L, dto));
         verify(conviteRepository, never()).save(any());
@@ -123,7 +127,7 @@ class ConviteEnvioTest {
     void deveRejeitarConviteParaRemetenteInexistente() {
         ConviteRequestDTO dto = new ConviteRequestDTO(10L, 20L, "Mensagem");
 
-        when(combinadoRepository.findById(1L)).thenReturn(Optional.of(combinado));
+        when(combinadoRepository.buscarParaConvite(1L)).thenReturn(Optional.of(combinado));
         when(usuarioRepository.findById(10L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class, () -> conviteService.enviarConvite(1L, dto));
@@ -135,7 +139,7 @@ class ConviteEnvioTest {
     void deveRejeitarConviteParaDestinatarioInexistente() {
         ConviteRequestDTO dto = new ConviteRequestDTO(10L, 20L, "Mensagem");
 
-        when(combinadoRepository.findById(1L)).thenReturn(Optional.of(combinado));
+        when(combinadoRepository.buscarParaConvite(1L)).thenReturn(Optional.of(combinado));
         when(usuarioRepository.findById(10L)).thenReturn(Optional.of(remetente));
         when(usuarioRepository.findById(20L)).thenReturn(Optional.empty());
 
@@ -148,7 +152,7 @@ class ConviteEnvioTest {
     void deveRejeitarAutoConvite() {
         ConviteRequestDTO dto = new ConviteRequestDTO(10L, 10L, "Mensagem");
 
-        when(combinadoRepository.findById(1L)).thenReturn(Optional.of(combinado));
+        when(combinadoRepository.buscarParaConvite(1L)).thenReturn(Optional.of(combinado));
         when(usuarioRepository.findById(10L)).thenReturn(Optional.of(remetente));
 
         IllegalArgumentException excecao = assertThrows(IllegalArgumentException.class,

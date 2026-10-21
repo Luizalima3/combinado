@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.service;
 
 import br.edu.ifpb.combinado.dto.AtualizarNomeDTO;
 import br.edu.ifpb.combinado.dto.AtualizarSenhaDTO;
+import br.edu.ifpb.combinado.dto.AtualizarEmailDTO;
 import br.edu.ifpb.combinado.dto.UsuarioResponseDTO;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
@@ -60,6 +61,27 @@ public class UsuarioPerfilService {
         }
         usuario.setSenha(passwordEncoder.encode(dto.novaSenha()));
         usuarios.saveAndFlush(usuario);
+    }
+
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public UsuarioResponseDTO atualizarEmail(AtualizarEmailDTO dto) {
+        String email = dto.email();
+        if (email == null || email.length() > 150
+                || !email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new IllegalArgumentException("Informe um e-mail válido com até 150 caracteres.");
+        }
+        Usuario usuario = usuarioAutenticado();
+        if (dto.senhaAtual() == null || dto.senhaAtual().isBlank()
+                || dto.senhaAtual().getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72
+                || !passwordEncoder.matches(dto.senhaAtual(), usuario.getSenha())) {
+            throw new IllegalArgumentException("A senha atual é inválida.");
+        }
+        if (usuarios.existsByEmailIgnoreCaseAndIdNot(email, usuario.getId())) {
+            throw new EmailEmUsoException();
+        }
+        usuario.setEmail(email);
+        return UsuarioResponseDTO.fromEntity(usuarios.saveAndFlush(usuario));
     }
 
     private Usuario usuarioAutenticado() {

@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.dto.AtualizarNomeDTO;
 import br.edu.ifpb.combinado.dto.AtualizarSenhaDTO;
+import br.edu.ifpb.combinado.dto.AtualizarEmailDTO;
 import br.edu.ifpb.combinado.dto.UsuarioResponseDTO;
 import br.edu.ifpb.combinado.service.UsuarioPerfilService;
 import jakarta.validation.Valid;
@@ -23,6 +24,17 @@ public class UsuarioPerfilController {
     @PutMapping("/nome")
     public ResponseEntity<UsuarioResponseDTO> atualizarNome(@Valid @RequestBody AtualizarNomeDTO dto) {
         return ResponseEntity.ok(service.atualizarNome(dto));
+    }
+
+    @PutMapping("/email")
+    public ResponseEntity<UsuarioResponseDTO> atualizarEmail(@Valid @RequestBody AtualizarEmailDTO dto) {
+        return ResponseEntity.ok(service.atualizarEmail(dto));
+    }
+
+    @ExceptionHandler({br.edu.ifpb.combinado.service.EmailEmUsoException.class,
+            org.springframework.dao.DataIntegrityViolationException.class})
+    public ResponseEntity<Map<String, String>> emailEmUso(Exception exception) {
+        return ResponseEntity.status(409).body(Map.of("message", "Este e-mail já está em uso."));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

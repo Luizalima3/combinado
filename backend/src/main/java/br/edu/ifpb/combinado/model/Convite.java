@@ -33,6 +33,8 @@ public class Convite {
     @Column(nullable = false)
     private LocalDateTime dataEnvio = LocalDateTime.now();
 
+    private java.time.Instant dataResposta;
+
     public Convite() {}
 
     public Long getId() { return id; }
@@ -55,4 +57,6 @@ public class Convite {
 
     public LocalDateTime getDataEnvio() { return dataEnvio; }
     public void setDataEnvio(LocalDateTime dataEnvio) { this.dataEnvio = dataEnvio; }
+    public java.time.Instant getDataResposta() { return dataResposta; }
+    public void setDataResposta(java.time.Instant dataResposta) { this.dataResposta = dataResposta; }
 }
