@@ -5,6 +5,7 @@ import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.AccessDeniedException;
 import br.edu.ifpb.combinado.service.CombinadoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,13 +53,21 @@ public class CombinadoController {
     }
 
     @PatchMapping("/{id}/concluir")
-    public ResponseEntity<Combinado> concluir(@PathVariable Long id) {
-        return ResponseEntity.ok(service.concluir(id));
+    public ResponseEntity<?> concluir(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.concluir(id));
+        } catch (AccessDeniedException exception) {
+            return criadorObrigatorio("concluir");
+        }
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<Combinado> cancelar(@PathVariable Long id) {
-        return ResponseEntity.ok(service.cancelar(id));
+    public ResponseEntity<?> cancelar(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(service.cancelar(id));
+        } catch (AccessDeniedException exception) {
+            return criadorObrigatorio("cancelar");
+        }
     }
 
     @PatchMapping("/{id}/aceitar")
@@ -67,8 +76,21 @@ public class CombinadoController {
     }
 
     @PatchMapping("/{id}/recusar")
-    public ResponseEntity<Combinado> recusar(@PathVariable Long id, @RequestBody(required = false) Map<String, String> payload) {
-        return ResponseEntity.ok(service.recusar(id, parseTimestamp(payload, "respondidoEm")));
+    public ResponseEntity<?> recusar(@PathVariable Long id, @RequestBody(required = false) Map<String, String> payload) {
+        try {
+            return ResponseEntity.ok(service.recusar(id, parseTimestamp(payload, "respondidoEm")));
+        } catch (AccessDeniedException exception) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "message", "Somente o criador pode cancelar o combinado por esta rota. Para recusar um convite, use a rota de convites."
+            ));
+        }
+    }
+
+    private ResponseEntity<Map<String, String>> criadorObrigatorio(String acao) {
+        String message = acao.equals("concluir")
+                ? "Somente o criador do combinado pode concluí-lo."
+                : "Somente o criador do combinado pode cancelá-lo.";
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", message));
     }
 
     private LocalDateTime parseTimestamp(Map<String, String> payload, String key) {
