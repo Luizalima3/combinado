@@ -57,3 +57,26 @@ sem entidades de usuário. Permite criador, participante vinculado ou destinatá
 de convite; rascunhos são exceção, restritos ao criador. Sem vínculo ou ID inexistente:
 403; sem autenticação: 401. Status dos participantes fica no endpoint específico.
 
+## Respostas e histórico de convites (#32231, #31229, #32393)
+
+`PATCH /api/convites/{id}/aceitar` e `/recusar` exigem JWT e o destinatário do convite.
+Retornam id, combinadoId, status (ACEITO/RECUSADO) e dataResposta em UTC.
+O cliente não define autor nem data da resposta. Convites inexistentes ou de terceiros
+retornam 403; sem autenticação, 401. Respostas repetidas, convites antigos substituídos
+por reenvio e combinados em RASCUNHO/CONCLUIDO/CANCELADO retornam 409.
+
+O envio continua em `POST /api/combinados/{id}/convites`, restrito ao criador.
+Não permite convite para si, duplicação de pendência ou reenvio para quem já aceitou.
+Após uma recusa, um novo convite pode ser enviado, mantendo o anterior e seu histórico.
+Bloqueios de banco serializam envios por combinado e respostas por convite.
+
+A migration V8 adiciona dataResposta e `convite_historico`. Envio, aceite e recusa
+geram eventos com autorId, nome do autor no momento da ação e ocorridoEm.
+Resposta e evento são gravados na mesma transação: uma falha no histórico desfaz
+a alteração do status. `GET /api/convites/{id}` inclui a timeline em `historico`,
+em ordem cronológica, com a mesma permissão de detalhes. Datas de respostas antigas
+não são fabricadas; registros legados sem evidência permanecem sem data/histórico.
+
+Estes endpoints alteram o estado de cada convite. Não alteram automaticamente o
+estado global do combinado nem substituem os endpoints legados de resposta do combinado.
+

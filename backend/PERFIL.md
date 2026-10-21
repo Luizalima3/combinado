@@ -48,6 +48,20 @@ preservação do hash quando a alteração é recusada. Os testes HTTP verificam
 persistência real e login com a nova senha, rejeição da antiga e isolamento
 entre contas. Nenhum teste altera o PostgreSQL local.
 
+## #30944 — alteração de e-mail
+
+`PUT /api/usuarios/perfil/email`, com JWT e corpo `{"email":"novo@exemplo.com","senhaAtual":"..."}`,
+altera somente a conta autenticada. Exige senha atual correta e formato de e-mail válido
+com até 150 caracteres. Remove espaços nas extremidades e normaliza para minúsculas.
+Rejeita e-mail de outra conta sem distinguir maiúsculas/minúsculas (409); entradas inválidas
+ou senha incorreta retornam 400; sem autenticação, 401. Manter o próprio e-mail é permitido.
+
+O retorno 200 contém resumo do usuário, sem senha/hash. Nome, senha e perfil são preservados.
+Depois da troca, novos logins usam o novo e-mail. O ID do JWT continua sendo a identidade;
+tokens anteriores permanecem válidos e o filtro carrega o e-mail atual do banco.
+Esta task não envia mensagens nem implementa confirmação por e-mail.
+As regras de formato, unicidade e senha atual foram confirmadas pelo responsável da task.
+
 ## Executar testes
 
 No diretório `backend`, com JDK 21 configurado:

@@ -7,4 +7,5 @@ import java.util.List;
 public record ConviteDetalheDTO(Long id, Long combinadoId, String titulo, CategoriaCombinado categoria,
         StatusConvite status, String mensagem, LocalDateTime dataEnvio,
         UsuarioResumoDTO remetente, UsuarioResumoDTO destinatario,
-        List<ParticipanteStatusDTO> participantesConfirmados) {}
+        List<ParticipanteStatusDTO> participantesConfirmados,
+        java.time.Instant dataResposta, List<ConviteHistoricoDTO> historico) {}
