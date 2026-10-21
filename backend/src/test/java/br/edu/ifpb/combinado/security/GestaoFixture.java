@@ -46,7 +46,7 @@ abstract class GestaoFixture {
         combinado.setCriador(criador);
         combinado.setCriadorNome("Nome antigo");
         combinado.setParticipanteNome(participante.getNome());
-        combinado.getParticipantes().add(participante);
+        combinado.adicionarParticipante(participante);
         combinado.setDataPrazo(LocalDate.now().plusDays(10));
         combinado.setStatus(StatusCombinado.AGUARDANDO_CONFIRMACAO);
         combinados.saveAndFlush(combinado);

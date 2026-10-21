@@ -29,7 +29,7 @@ public class ParticipanteConsultaService {
             Usuario usuario = convite.getDestinatario();
             participantes.putIfAbsent(usuario.getId(), resumo(usuario, convite.getStatus()));
         }
-        for (Usuario usuario : combinado.getParticipantes()) {
+        for (Usuario usuario : combinado.getUsuariosParticipantes()) {
             participantes.putIfAbsent(usuario.getId(), resumo(usuario, StatusConvite.PENDENTE));
         }
         return participantes.values().stream().sorted(Comparator.comparing(ParticipanteStatusDTO::nome)

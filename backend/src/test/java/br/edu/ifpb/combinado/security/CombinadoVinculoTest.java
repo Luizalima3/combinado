@@ -85,7 +85,8 @@ class CombinadoVinculoTest {
         Combinado salvo = combinados.findById(id).orElseThrow();
         assertEquals(criador.getId(), salvo.getCriador().getId());
         assertEquals(criador.getNome(), salvo.getCriadorNome());
-        assertEquals(Set.of(participante), salvo.getParticipantes());
+        assertEquals(Set.of(participante), salvo.getUsuariosParticipantes());
+        assertEquals(1, salvo.getParticipantes().size());
     }
 
     @Test

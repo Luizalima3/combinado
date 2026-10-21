@@ -89,7 +89,7 @@ public class CombinadoService {
                 criador.getNome(), nomeParticipantes, dto.responsabilidades(), dto.status(), dto.participantesIds());
         Combinado combinado = criarCombinado(dados);
         combinado.setCriador(criador);
-        combinado.setParticipantes(participantes);
+        combinado.setParticipantesUsuarios(participantes);
         Combinado salvo = repository.save(combinado);
         historicoRepository.save(new CombinadoHistorico(
             salvo, criador, AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
@@ -200,7 +200,7 @@ public class CombinadoService {
         String titulo = dados == null ? combinado.getTitulo() : dados.titulo();
         var categoria = dados == null ? combinado.getCategoria() : dados.categoria();
         var prazo = dados == null ? combinado.getDataPrazo() : dados.dataPrazo();
-        var participantes = new java.util.HashSet<>(combinado.getParticipantes());
+        var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
         if (dados != null && dados.participantesIds() != null) {
             participantes.clear();
             for (Long usuarioId : dados.participantesIds()) {
@@ -227,7 +227,7 @@ public class CombinadoService {
         combinado.setResponsabilidades(responsabilidades);
         combinado.setCriadorNome(combinado.getCriador().getNome());
         combinado.setParticipanteNome(nomes);
-        combinado.setParticipantes(participantes);
+        combinado.setParticipantesUsuarios(participantes);
         combinado.setStatus(StatusCombinado.AGUARDANDO_CONFIRMACAO);
         return CombinadoResumoDTO.de(repository.save(combinado));
     }

@@ -21,10 +21,8 @@ public class Combinado {
     @JoinColumn(name = "criador_id")
     private Usuario criador;
 
-    @ManyToMany
-    @JoinTable(name = "combinado_participantes", joinColumns = @JoinColumn(name = "combinado_id"),
-            inverseJoinColumns = @JoinColumn(name = "usuario_id"))
-    private Set<Usuario> participantes = new HashSet<>();
+        @OneToMany(mappedBy = "combinado", cascade = CascadeType.ALL, orphanRemoval = true)
+        private Set<Participante> participantes = new HashSet<>();
 
     @Column(nullable = false)
     private String titulo;
@@ -74,8 +72,43 @@ public class Combinado {
     public void setCriador(Usuario criador) { this.criador = criador; }
 
     @JsonIgnore
-    public Set<Usuario> getParticipantes() { return participantes; }
-    public void setParticipantes(Set<Usuario> participantes) { this.participantes = participantes; }
+    public Set<Participante> getParticipantes() { return participantes; }
+
+    @JsonIgnore
+    public Set<Usuario> getUsuariosParticipantes() {
+        Set<Usuario> usuarios = new HashSet<>();
+        for (Participante participante : participantes) {
+            usuarios.add(participante.getUsuario());
+        }
+        return usuarios;
+    }
+
+    @JsonIgnore
+    public void setParticipantesUsuarios(Set<Usuario> usuarios) {
+        Set<Long> idsDesejados = new HashSet<>();
+        for (Usuario usuario : usuarios) {
+            if (usuario.getId() != null) idsDesejados.add(usuario.getId());
+        }
+
+        participantes.removeIf(participante ->
+                !idsDesejados.contains(participante.getUsuario().getId()));
+
+        Set<Long> idsAssociados = new HashSet<>();
+        for (Participante participante : participantes) {
+            idsAssociados.add(participante.getUsuario().getId());
+        }
+        for (Usuario usuario : usuarios) {
+            if (!idsAssociados.contains(usuario.getId())) adicionarParticipante(usuario);
+        }
+    }
+
+    public void adicionarParticipante(Usuario usuario) {
+        boolean jaAssociado = participantes.stream().anyMatch(
+                participante -> participante.getUsuario().equals(usuario));
+        if (!jaAssociado) participantes.add(new Participante(this, usuario));
+    }
+
+    public void limparParticipantes() { participantes.clear(); }
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }

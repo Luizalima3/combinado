@@ -10,6 +10,9 @@ O limite aceito é de 1 a 50, com página inicial 0 e ordenação por nome e ID.
 A busca por e-mail não faz parte deste endpoint.
 # Participantes e responsáveis (#31026, #32246)
 
+`combinado_participantes` é mapeada pela entidade JPA `Participante`, com chave
+composta de `combinado_id` e `usuario_id`, mantendo as FKs existentes da migration V5.
+
 `Tarefa` pertence a um combinado e permite vários usuários responsáveis pela tabela
 `tarefa_responsaveis`, com chave composta que impede duplicatas. Remover uma associação
 ou tarefa não exclui usuários. Esta task modela a persistência; não adiciona CRUD de tarefas

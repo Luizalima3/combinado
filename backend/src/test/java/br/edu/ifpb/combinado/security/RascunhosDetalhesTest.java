@@ -59,7 +59,7 @@ class RascunhosDetalhesTest extends GestaoFixture {
         rascunho();
         combinado.setCategoria(null);
         combinado.setDataPrazo(null);
-        combinado.getParticipantes().clear();
+        combinado.limparParticipantes();
         combinados.saveAndFlush(combinado);
         String body = """
                 {"titulo":"Publicado","categoria":"OUTRO","dataPrazo":"%s",
@@ -70,7 +70,7 @@ class RascunhosDetalhesTest extends GestaoFixture {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.titulo").value("Publicado"))
                 .andExpect(jsonPath("$.nomeCriador").value("Criador"))
                 .andExpect(jsonPath("$.status").value("AGUARDANDO_CONFIRMACAO"));
-        assertTrue(combinado.getParticipantes().contains(participante));
+        assertTrue(combinado.getUsuariosParticipantes().contains(participante));
     }
     @Test void deveRejeitarPublicacaoIncompletaSemAlterarDados() throws Exception {
         rascunho();
@@ -86,8 +86,8 @@ class RascunhosDetalhesTest extends GestaoFixture {
     }
     @Test void deveExigirParticipanteRealDiferenteDoCriador() throws Exception {
         rascunho();
-        combinado.getParticipantes().clear();
-        combinado.getParticipantes().add(criador);
+        combinado.limparParticipantes();
+        combinado.adicionarParticipante(criador);
         combinados.saveAndFlush(combinado);
         mvc.perform(post(url() + "/publicar").header("Authorization", bearer)).andExpect(status().isBadRequest());
         assertEquals(StatusCombinado.RASCUNHO, combinado.getStatus());
@@ -102,15 +102,18 @@ class RascunhosDetalhesTest extends GestaoFixture {
         assertEquals(StatusCombinado.CANCELADO, combinado.getStatus());
         assertNull(combinado.getAceitoEm());
     }
-    @Test void deveAceitarPendenteERecusarAtivoSemPermitirAceiteRepetido() throws Exception {
+    @Test void deveAceitarCombinadoERecusarConviteIndividualSemAlterarEstadoGlobal() throws Exception {
+        var convitePendente = convite(participante, StatusConvite.PENDENTE);
         mvc.perform(patch(url() + "/aceitar").header("Authorization", token(participante)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("ATIVO"));
         assertNotNull(combinado.getAceitoEm());
         mvc.perform(patch(url() + "/aceitar").header("Authorization", token(participante)))
                 .andExpect(status().isBadRequest());
-        mvc.perform(patch(url() + "/recusar").header("Authorization", token(participante)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELADO"));
-        assertNotNull(combinado.getRecusadoEm());
+        mvc.perform(patch("/api/convites/{id}/recusar", convitePendente.getId())
+                        .header("Authorization", token(participante)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("RECUSADO"));
+        assertEquals(StatusCombinado.ATIVO, combinado.getStatus());
+        assertEquals(StatusConvite.RECUSADO, convites.findById(convitePendente.getId()).orElseThrow().getStatus());
     }
     @Test void detalhesDevemSerProtegidosEConterInformacoesDoCombinado() throws Exception {
         mvc.perform(get(url()).header("Authorization", token(participante)))
