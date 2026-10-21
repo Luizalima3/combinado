@@ -19,8 +19,17 @@ class ParticipantesResponsaveisTest extends GestaoFixture {
         segunda.getResponsaveis().add(participante);
         tarefas.saveAndFlush(segunda);
         em.clear();
-        assertEquals(2, tarefas.findById(primeira.getId()).orElseThrow().getResponsaveis().size());
-        assertEquals(1, tarefas.findById(segunda.getId()).orElseThrow().getResponsaveis().size());
+        var primeiraRecuperada = tarefas.findById(primeira.getId()).orElseThrow();
+        var segundaRecuperada = tarefas.findById(segunda.getId()).orElseThrow();
+        assertEquals(2, primeiraRecuperada.getResponsaveis().size());
+        assertEquals(java.util.Set.of(criador.getId(), participante.getId()),
+            primeiraRecuperada.getResponsaveis().stream()
+                .map(usuario -> usuario.getId())
+                .collect(java.util.stream.Collectors.toSet()));
+        assertEquals(java.util.Set.of(participante.getId()),
+            segundaRecuperada.getResponsaveis().stream()
+                .map(usuario -> usuario.getId())
+                .collect(java.util.stream.Collectors.toSet()));
         tarefas.findById(primeira.getId()).orElseThrow().getResponsaveis().clear();
         tarefas.flush();
         tarefas.deleteById(segunda.getId());
