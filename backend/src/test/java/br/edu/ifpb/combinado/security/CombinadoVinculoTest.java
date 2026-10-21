@@ -6,6 +6,7 @@ import br.edu.ifpb.combinado.model.Convite;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.*;
 import br.edu.ifpb.combinado.repository.CombinadoRepository;
+import br.edu.ifpb.combinado.repository.CombinadoHistoricoRepository;
 import br.edu.ifpb.combinado.repository.ConviteRepository;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import br.edu.ifpb.combinado.service.CombinadoService;
@@ -44,6 +45,7 @@ class CombinadoVinculoTest {
     @Autowired WebApplicationContext context;
     @Autowired UsuarioRepository usuarios;
     @Autowired CombinadoRepository combinados;
+    @Autowired CombinadoHistoricoRepository historicos;
     @Autowired ConviteRepository convites;
     @Autowired CombinadoService service;
     @Autowired JwtService jwt;
@@ -84,6 +86,18 @@ class CombinadoVinculoTest {
         assertEquals(criador.getId(), salvo.getCriador().getId());
         assertEquals(criador.getNome(), salvo.getCriadorNome());
         assertEquals(Set.of(participante), salvo.getParticipantes());
+    }
+
+    @Test
+    void deveRegistrarCriacaoDoCombinadoComAutorEDataNoHistorico() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+
+        var eventos = historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id);
+        assertEquals(1, eventos.size());
+        assertEquals(AcaoCombinadoHistorico.CRIACAO, eventos.getFirst().getAcao());
+        assertEquals(criador.getId(), eventos.getFirst().getAutor().getId());
+        assertEquals(criador.getNome(), eventos.getFirst().getAutorNome());
+        assertNotNull(eventos.getFirst().getOcorridoEm());
     }
 
     @Test

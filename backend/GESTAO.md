@@ -62,6 +62,10 @@ sem entidades de usuário. Permite criador, participante vinculado ou destinatá
 de convite; rascunhos são exceção, restritos ao criador. Sem vínculo ou ID inexistente:
 403; sem autenticação: 401. Status dos participantes fica no endpoint específico.
 
+A criação autenticada do combinado registra `CRIACAO` em `combinado_historico`,
+com autor, nome do autor no momento do evento e data/hora. O registro do combinado
+e o evento de histórico são persistidos na mesma transação.
+
 ## Respostas e histórico de convites (#32231, #31229, #32393)
 
 `PATCH /api/convites/{id}/aceitar` e `/recusar` exigem JWT e o destinatário do convite.

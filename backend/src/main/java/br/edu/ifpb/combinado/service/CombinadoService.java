@@ -3,12 +3,15 @@ package br.edu.ifpb.combinado.service;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.model.CombinadoHistorico;
 import br.edu.ifpb.combinado.model.Usuario;
+import br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import br.edu.ifpb.combinado.model.enums.StatusCombinado;
 import br.edu.ifpb.combinado.repository.CombinadoRepository;
+import br.edu.ifpb.combinado.repository.CombinadoHistoricoRepository;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,10 +27,16 @@ public class CombinadoService {
             tools.jackson.databind.json.JsonMapper.builder().build();
 
     private final CombinadoRepository repository;
+    private final CombinadoHistoricoRepository historicoRepository;
     private final UsuarioRepository usuarioRepository;
 
-    public CombinadoService(CombinadoRepository repository, UsuarioRepository usuarioRepository) {
+    public CombinadoService(
+            CombinadoRepository repository,
+            CombinadoHistoricoRepository historicoRepository,
+            UsuarioRepository usuarioRepository
+    ) {
         this.repository = repository;
+        this.historicoRepository = historicoRepository;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -81,7 +90,10 @@ public class CombinadoService {
         Combinado combinado = criarCombinado(dados);
         combinado.setCriador(criador);
         combinado.setParticipantes(participantes);
-        return repository.save(combinado);
+        Combinado salvo = repository.save(combinado);
+        historicoRepository.save(new CombinadoHistorico(
+            salvo, criador, AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
+        return salvo;
     }
 
     @Transactional
