@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getPasswordStrength,
   isValidEmail,
+  participantAddErrorMessage,
   passwordsMatch,
 } from "./validation";
 
@@ -20,5 +21,13 @@ describe("validation", () => {
   it("confirma senhas iguais", () => {
     expect(passwordsMatch("abc123", "abc123")).toBe(true);
     expect(passwordsMatch("abc123", "abc124")).toBe(false);
+  });
+
+  it("diferencia e-mail inválido de usuário inexistente ao adicionar participante", () => {
+    expect(participantAddErrorMessage("email-invalido", false)).toBe("Informe um e-mail válido.");
+    expect(participantAddErrorMessage("ana@combinado.app", false)).toBe(
+      "Nenhum usuário encontrado com este e-mail.",
+    );
+    expect(participantAddErrorMessage("ana@combinado.app", true)).toBeNull();
   });
 });

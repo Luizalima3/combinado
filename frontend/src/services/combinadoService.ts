@@ -48,11 +48,6 @@ export async function listCriados(user: UsuarioResumo): Promise<Combinado[]> {
   return [...byId.values()].sort((a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""));
 }
 
-export async function listRascunhos(): Promise<Combinado[]> {
-  const { data } = await http.get<CombinadoApi[]>("/combinados/meus-rascunhos");
-  return data.map(mapCombinado);
-}
-
 /** US48 — combinados em que o usuário atual foi convidado. */
 export async function listRecebidos(user: UsuarioResumo): Promise<Combinado[]> {
   const all = await listAll();
@@ -69,11 +64,6 @@ export async function concluirCombinado(id: number): Promise<Combinado> {
 
 export async function getCombinadoById(id: number): Promise<Combinado> {
   const { data } = await http.get<CombinadoApi>(`/combinados/${id}`);
-  return mapCombinado(data);
-}
-
-export async function publicarRascunho(id: number): Promise<Combinado> {
-  const { data } = await http.post<CombinadoApi>(`/combinados/${id}/publicar`);
   return mapCombinado(data);
 }
 

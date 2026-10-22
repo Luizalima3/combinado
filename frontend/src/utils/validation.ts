@@ -31,3 +31,12 @@ export const PASSWORD_STRENGTH_LABEL: Record<PasswordStrength, string> = {
 export function passwordsMatch(password: string, confirmation: string) {
   return password.length > 0 && password === confirmation;
 }
+
+/** Mensagem ao adicionar participante por e-mail (formato vs usuário inexistente). */
+export function participantAddErrorMessage(email: string, userFound: boolean): string | null {
+  const trimmed = email.trim();
+  if (!trimmed) return "Informe o e-mail do participante.";
+  if (!isValidEmail(trimmed)) return "Informe um e-mail válido.";
+  if (!userFound) return "Nenhum usuário encontrado com este e-mail.";
+  return null;
+}

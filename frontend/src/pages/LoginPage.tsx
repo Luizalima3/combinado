@@ -15,6 +15,7 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [loginError, setLoginError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(event: FormEvent) {
@@ -24,13 +25,16 @@ export function LoginPage() {
       return;
     }
     setEmailError("");
+    setLoginError("");
     setSubmitting(true);
     try {
       await login(email, senha);
       push("success", "Login realizado com sucesso.");
       navigate(redirectTo, { replace: true });
     } catch (err) {
-      push("error", getApiErrorMessage(err, "E-mail ou senha inválidos."));
+      const message = getApiErrorMessage(err, "E-mail ou senha inválidos.");
+      setLoginError(message);
+      push("error", message);
     } finally {
       setSubmitting(false);
     }
@@ -51,6 +55,7 @@ export function LoginPage() {
               onChange={(event) => {
                 setEmail(event.target.value);
                 if (emailError && isValidEmail(event.target.value)) setEmailError("");
+                if (loginError) setLoginError("");
               }}
               onBlur={() => {
                 if (email && !isValidEmail(email)) setEmailError("Informe um e-mail válido.");
@@ -67,10 +72,18 @@ export function LoginPage() {
               type="password"
               autoComplete="current-password"
               value={senha}
-              onChange={(event) => setSenha(event.target.value)}
+              onChange={(event) => {
+                setSenha(event.target.value);
+                if (loginError) setLoginError("");
+              }}
               className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-primary"
             />
           </label>
+          {loginError ? (
+            <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger">
+              {loginError}
+            </p>
+          ) : null}
           <button
             type="submit"
             disabled={submitting}

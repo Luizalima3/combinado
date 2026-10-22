@@ -32,11 +32,10 @@ const CONVITE_CLASS: Record<ConviteStatus, string> = {
 interface CombinadoCardProps {
   combinado: Combinado;
   currentUser: UsuarioResumo;
-  variant: "criado" | "recebido" | "rascunho";
+  variant: "criado" | "recebido";
   onAccept?: (combinado: Combinado) => void;
   onRefuse?: (combinado: Combinado) => void;
   onOpen?: (combinado: Combinado) => void;
-  onPublish?: (combinado: Combinado) => void;
   busy?: boolean;
 }
 
@@ -47,7 +46,6 @@ export function CombinadoCard({
   onAccept,
   onRefuse,
   onOpen,
-  onPublish,
   busy,
 }: CombinadoCardProps) {
   const convite = useMemo(
@@ -112,24 +110,12 @@ export function CombinadoCard({
           Ver convite
         </button>
         {combinado.status === "RASCUNHO" ? (
-          <>
-            <Link
-              to={`/combinados/novo?from=${combinado.id}`}
-              className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg"
-            >
-              Continuar rascunho
-            </Link>
-            {variant === "rascunho" ? (
-              <button
-                type="button"
-                disabled={busy}
-                className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
-                onClick={() => onPublish?.(combinado)}
-              >
-                Publicar
-              </button>
-            ) : null}
-          </>
+          <Link
+            to={`/combinados/novo?from=${combinado.id}`}
+            className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg"
+          >
+            Continuar rascunho
+          </Link>
         ) : null}
         {pending ? (
           <>

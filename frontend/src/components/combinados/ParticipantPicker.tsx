@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { buscarUsuarioPorEmail, sugerirUsuarios } from "../../services/combinadoService";
 import type { ParticipanteCombinado, UsuarioResumo } from "../../types/combinado";
+import { isValidEmail, participantAddErrorMessage } from "../../utils/validation";
 
 interface ParticipantPickerProps {
   participants: ParticipanteCombinado[];
@@ -44,12 +45,18 @@ export function ParticipantPicker({ participants, onChange, error }: Participant
 
   async function addByEmail() {
     setSearchError("");
-    const found = await buscarUsuarioPorEmail(query);
-    if (!found) {
-      setSearchError("Nenhum usuário encontrado com este e-mail.");
+    const trimmed = query.trim();
+    if (!isValidEmail(trimmed)) {
+      setSearchError(participantAddErrorMessage(trimmed, false) ?? "Informe um e-mail válido.");
       return;
     }
-    addParticipant(found);
+    const found = await buscarUsuarioPorEmail(trimmed);
+    const feedback = participantAddErrorMessage(trimmed, Boolean(found));
+    if (feedback) {
+      setSearchError(feedback);
+      return;
+    }
+    addParticipant(found!);
   }
 
   function addParticipant(found: UsuarioResumo) {

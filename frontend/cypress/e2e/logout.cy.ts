@@ -22,5 +22,8 @@ describe("encerramento de sessão", () => {
     });
     cy.visit("/perfil");
     cy.url().should("include", "/login");
+    cy.window().then((win) => {
+      expect(win.localStorage.getItem("combinado.authUser")).to.be.null;
+    });
   });
 });

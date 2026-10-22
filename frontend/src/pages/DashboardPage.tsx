@@ -16,16 +16,14 @@ import {
   getCombinadoById,
   listCriados,
   listParticipantes,
-  listRascunhos,
   listRecebidos,
-  publicarRascunho,
   recusarConvite,
   type ParticipanteConvidado,
 } from "../services/combinadoService";
 import type { Combinado } from "../types/combinado";
 import { userIsCreator, userIsParticipant } from "../utils/combinadoMapper";
 
-type Tab = "criados" | "rascunhos" | "recebidos";
+type Tab = "criados" | "recebidos";
 
 function participantStatusBadge(status: ParticipanteConvidado["status"]) {
   if (status === "EXPIRADO") {
@@ -43,7 +41,6 @@ export function DashboardPage() {
   const { push } = useToast();
   const [tab, setTab] = useState<Tab>("criados");
   const [criados, setCriados] = useState<Combinado[]>([]);
-  const [rascunhos, setRascunhos] = useState<Combinado[]>([]);
   const [recebidos, setRecebidos] = useState<Combinado[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -53,8 +50,6 @@ export function DashboardPage() {
   const [participantsLoading, setParticipantsLoading] = useState(false);
   const [participantsError, setParticipantsError] = useState("");
   const [acceptedInvite, setAcceptedInvite] = useState<Combinado | null>(null);
-  const [draftToPublish, setDraftToPublish] = useState<Combinado | null>(null);
-  const [publishError, setPublishError] = useState("");
   const [refuseTarget, setRefuseTarget] = useState<Combinado | null>(null);
   const [refuseConfirmOpen, setRefuseConfirmOpen] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
@@ -63,13 +58,11 @@ export function DashboardPage() {
     setLoading(true);
     setError("");
     try {
-      const [created, drafts, received] = await Promise.all([
+      const [created, received] = await Promise.all([
         listCriados(user),
-        listRascunhos(),
         listRecebidos(user),
       ]);
       setCriados(created);
-      setRascunhos(drafts);
       setRecebidos(received);
     } catch (err) {
       setError(getApiErrorMessage(err, "Não foi possível carregar os combinados."));
@@ -125,30 +118,6 @@ export function DashboardPage() {
     }
   }
 
-  async function handlePublishDraft() {
-    if (!draftToPublish) return;
-    setBusyId(draftToPublish.id);
-    setPublishError("");
-    try {
-      const published = await publicarRascunho(draftToPublish.id);
-      setRascunhos((items) => items.filter((item) => item.id !== published.id));
-      setCriados((items) =>
-        [published, ...items.filter((item) => item.id !== published.id)].sort(
-          (a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""),
-        ),
-      );
-      setDraftToPublish(null);
-      setTab("criados");
-      push("success", "Rascunho publicado com sucesso.");
-    } catch (err) {
-      setPublishError(
-        getApiErrorMessage(err, "Não foi possível publicar o rascunho. Confira os dados obrigatórios."),
-      );
-    } finally {
-      setBusyId(null);
-    }
-  }
-
   async function openInvite(combinado: Combinado) {
     try {
       const fresh = await getCombinadoById(combinado.id);
@@ -177,7 +146,7 @@ export function DashboardPage() {
     }
   }
 
-  const list = tab === "criados" ? criados : tab === "rascunhos" ? rascunhos : recebidos;
+  const list = tab === "criados" ? criados : recebidos;
 
   return (
     <section>
@@ -199,14 +168,6 @@ export function DashboardPage() {
       <div className="mb-5 flex gap-2 border-b border-line">
         <TabButton active={tab === "criados"} onClick={() => setTab("criados")}>
           Combinados criados
-        </TabButton>
-        <TabButton active={tab === "rascunhos"} onClick={() => setTab("rascunhos")}>
-          Rascunhos
-          {rascunhos.length ? (
-            <span className="ml-2 rounded-full bg-line px-2 py-0.5 text-[11px] text-ink">
-              {rascunhos.length}
-            </span>
-          ) : null}
         </TabButton>
         <TabButton active={tab === "recebidos"} onClick={() => setTab("recebidos")}>
           Convites recebidos
@@ -243,19 +204,6 @@ export function DashboardPage() {
               </Link>
             }
           />
-        ) : tab === "rascunhos" ? (
-          <EmptyState
-            title="Você não tem rascunhos salvos"
-            description="Salve um combinado como rascunho para continuar preenchendo depois."
-            action={
-              <Link
-                to="/combinados/novo"
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white"
-              >
-                Criar combinado
-              </Link>
-            }
-          />
         ) : (
           <EmptyState
             title="Você não possui convites de combinados no momento"
@@ -269,15 +217,11 @@ export function DashboardPage() {
               key={combinado.id}
               combinado={combinado}
               currentUser={user}
-              variant={tab === "criados" ? "criado" : tab === "rascunhos" ? "rascunho" : "recebido"}
+              variant={tab === "criados" ? "criado" : "recebido"}
               busy={busyId === combinado.id}
               onOpen={openInvite}
               onAccept={handleAccept}
               onRefuse={(item) => setRefuseTarget(item)}
-              onPublish={(item) => {
-                setPublishError("");
-                setDraftToPublish(item);
-              }}
             />
           ))}
         </div>
@@ -372,39 +316,6 @@ export function DashboardPage() {
                 onClick={() => setAcceptedInvite(null)}
               >
                 Fechar
-              </button>
-            </div>
-          </div>
-        </Modal>
-      ) : null}
-
-      {draftToPublish ? (
-        <Modal title="Publicar rascunho" onClose={() => setDraftToPublish(null)}>
-          <div className="space-y-4">
-            <p className="text-sm text-muted">
-              Publicar <strong className="text-ink">{draftToPublish.titulo}</strong>? O sistema validará os campos obrigatórios e, se estiver tudo correto, o status passará para “Aguardando confirmação”.
-            </p>
-            {publishError ? (
-              <p className="rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-sm text-danger" role="alert">
-                {publishError}
-              </p>
-            ) : null}
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                disabled={busyId === draftToPublish.id}
-                className="rounded-lg border border-line px-3 py-2 text-sm font-medium text-ink"
-                onClick={() => setDraftToPublish(null)}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                disabled={busyId === draftToPublish.id}
-                className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:opacity-60"
-                onClick={() => void handlePublishDraft()}
-              >
-                {busyId === draftToPublish.id ? "Publicando..." : "Confirmar publicação"}
               </button>
             </div>
           </div>

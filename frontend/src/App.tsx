@@ -15,7 +15,11 @@ export default function App() {
 
   useEffect(() => {
     const onForbidden = () => navigate("/acesso-negado");
-    const onUnauthorized = () => navigate("/login", { replace: true });
+    const onUnauthorized = () => {
+      const path = window.location.pathname;
+      if (path === "/login" || path === "/cadastro") return;
+      navigate("/login", { replace: true });
+    };
     window.addEventListener("combinado:forbidden", onForbidden);
     window.addEventListener("combinado:unauthorized", onUnauthorized);
     return () => {

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { readToken, TOKEN_STORAGE_KEY } from "../auth/storage";
+import { isPublicAuthFailureRequest } from "./httpAuth";
 
 export const http = axios.create({
   baseURL: "/api",
@@ -19,7 +20,7 @@ http.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
-    if (status === 401) {
+    if (status === 401 && !isPublicAuthFailureRequest(error.config?.url)) {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
       window.dispatchEvent(new CustomEvent("combinado:unauthorized"));
     }

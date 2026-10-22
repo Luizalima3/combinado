@@ -20,6 +20,11 @@ describe("sessão e rotas privadas (#30932, #30935)", () => {
     expect(isSessionActive("jwt", user)).toBe(true);
     expect(isSessionActive(null, null)).toBe(false);
   });
+
+  it("bloqueia acesso autenticado após encerrar sessão", () => {
+    expect(isSessionActive(null, null)).toBe(false);
+    expect(userHasRole(null, "ROLE_USUARIO")).toBe(false);
+  });
 });
 
 describe("perfis de acesso (#30958)", () => {
