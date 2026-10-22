@@ -21,7 +21,7 @@ import {
   type ParticipanteConvidado,
 } from "../services/combinadoService";
 import type { Combinado } from "../types/combinado";
-import { userIsCreator, userIsParticipant } from "../utils/combinadoMapper";
+import { conviteStatusForUser, userIsCreator, userIsParticipant } from "../utils/combinadoMapper";
 
 type Tab = "criados" | "recebidos";
 
@@ -76,7 +76,9 @@ export function DashboardPage() {
   }, [user.email]);
 
   const pendingCount = recebidos.filter(
-    (item) => item.status === "AGUARDANDO_CONFIRMACAO",
+    (item) =>
+      item.status === "AGUARDANDO_CONFIRMACAO" &&
+      conviteStatusForUser(item, user) === "PENDENTE",
   ).length;
 
   async function handleAccept(combinado: Combinado) {
@@ -89,7 +91,6 @@ export function DashboardPage() {
       setRecebidos((items) =>
         items.map((item) => (item.id === updated.id ? updated : item)),
       );
-      await load();
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível aceitar o convite."));
     } finally {
@@ -110,7 +111,6 @@ export function DashboardPage() {
       setRecebidos((items) =>
         items.map((item) => (item.id === updated.id ? updated : item)),
       );
-      await load();
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível recusar o convite."));
     } finally {
