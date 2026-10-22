@@ -119,11 +119,25 @@ export async function recusarConvite(
   motivo?: string,
 ): Promise<Combinado> {
   const timestamp = new Date().toISOString();
-  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/recusar`, {
-    respondidoEm: timestamp,
-    motivo,
-  });
-  const combinado = mapCombinado(data);
+  let combinado: Combinado;
+  try {
+    const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/recusar`, {
+      respondidoEm: timestamp,
+      motivo,
+    });
+    combinado = mapCombinado(data);
+  } catch (err: unknown) {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "response" in err &&
+      (err as { response?: { status?: number } }).response?.status === 403
+    ) {
+      combinado = await getCombinadoById(id);
+    } else {
+      throw err;
+    }
+  }
   combinado.extras.recusaMotivo = motivo;
   return stampParticipant(combinado, user, "RECUSADO");
 }
