@@ -16,10 +16,15 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/combinados")
 @CrossOrigin(origins = "*")
+@Tag(name = "Combinados", description = "Gerenciamento do ciclo de vida, criação, rascunhos e consultas de combinados")
 public class CombinadoController {
 
     private final CombinadoService service;
@@ -29,6 +34,12 @@ public class CombinadoController {
     }
 
     @PostMapping
+    @Operation(summary = "Criar combinado ou salvar como rascunho", description = "Cria um novo combinado ativo (AGUARDANDO_CONFIRMACAO) ou salva como RASCUNHO sem disparar notificações.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Combinado ou rascunho criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Campos obrigatórios ausentes ou dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido")
+    })
     public ResponseEntity<Combinado> criar(@RequestBody CombinadoDTO combinado,
                                           @AuthenticationPrincipal UsuarioPrincipal principal) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.criarCombinado(combinado, principal.usuario()));
@@ -45,9 +56,21 @@ public class CombinadoController {
     }
 
     @GetMapping("/meus-rascunhos")
+    @Operation(summary = "Listar rascunhos do usuário autenticado", description = "Retorna exclusivamente os combinados em status RASCUNHO pertencentes ao criador autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de rascunhos retornada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido")
+    })
     public List<CombinadoResumoDTO> meusRascunhos() { return service.listarMeusRascunhos(); }
 
     @PostMapping("/{id}/publicar")
+    @Operation(summary = "Publicar rascunho de combinado", description = "Valida os campos obrigatórios de um rascunho e o publica como AGUARDANDO_CONFIRMACAO, enviando convites aos participantes.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Rascunho publicado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Rascunho incompleto ou inválido para publicação"),
+            @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Somente o criador pode publicar o rascunho")
+    })
     public CombinadoResumoDTO publicar(@PathVariable Long id, @RequestBody(required = false) CombinadoDTO dados) {
         return service.publicar(id, dados);
     }
