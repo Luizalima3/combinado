@@ -46,11 +46,22 @@ public class CombinadoController {
     }
 
     @GetMapping
+    @Operation(summary = "Listar combinados vinculados ao usuário", description = "Retorna os combinados criados pelo usuário ou recebidos como participante, com resumo de status, criador e prazo.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de combinados retornada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido")
+    })
     public ResponseEntity<List<CombinadoResumoDTO>> listar() {
         return ResponseEntity.ok(service.listarResumos());
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Consultar detalhes de um combinado por ID", description = "Retorna todos os detalhes, participantes, tarefas e histórico de auditoria do combinado para usuários vinculados.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Detalhes do combinado retornados com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Usuário não possui vínculo como criador ou participante do combinado")
+    })
     public ResponseEntity<CombinadoResumoDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarDetalhes(id));
     }
