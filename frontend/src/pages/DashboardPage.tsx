@@ -221,7 +221,10 @@ export function DashboardPage() {
               busy={busyId === combinado.id}
               onOpen={openInvite}
               onAccept={handleAccept}
-              onRefuse={(item) => setRefuseTarget(item)}
+              onRefuse={(item) => {
+                setRefuseTarget(item);
+                setRefuseConfirmOpen(true);
+              }}
             />
           ))}
         </div>
