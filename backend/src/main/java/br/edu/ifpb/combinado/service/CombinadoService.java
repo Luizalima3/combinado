@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.service;
 
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.model.CombinadoHistorico;
 import br.edu.ifpb.combinado.model.Convite;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CombinadoService {
@@ -68,6 +70,13 @@ public class CombinadoService {
     public Combinado buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado com o id: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
+    public List<CombinadoHistoricoDTO> buscarHistorico(Long id) {
+        return historicoRepository.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id)
+                .stream().map(CombinadoHistoricoDTO::de).toList();
     }
 
     @Transactional

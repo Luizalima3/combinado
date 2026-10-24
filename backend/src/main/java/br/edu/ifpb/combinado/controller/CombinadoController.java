@@ -3,6 +3,7 @@ package br.edu.ifpb.combinado.controller;
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.AccessDeniedException;
@@ -44,6 +45,11 @@ public class CombinadoController {
     @GetMapping("/{id}")
     public ResponseEntity<CombinadoResumoDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(service.buscarDetalhes(id));
+    }
+
+    @GetMapping("/{id}/historico")
+    public ResponseEntity<List<CombinadoHistoricoDTO>> buscarHistorico(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarHistorico(id));
     }
 
     @GetMapping("/meus-rascunhos")
