@@ -7,6 +7,7 @@ import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 import br.edu.ifpb.combinado.service.CombinadoService;
+import br.edu.ifpb.combinado.service.ParticipantesPendentesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +59,10 @@ public class CombinadoController {
             return ResponseEntity.ok(service.concluir(id));
         } catch (AccessDeniedException exception) {
             return criadorObrigatorio("concluir");
+        } catch (ParticipantesPendentesException exception) {
+            // US62: 422 com lista dos participantes que ainda não confirmaram
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(Map.of("message", exception.getMessage()));
         }
     }
 

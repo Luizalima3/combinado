@@ -4,8 +4,11 @@ import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.model.CombinadoHistorico;
+import br.edu.ifpb.combinado.model.Convite;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico;
+import br.edu.ifpb.combinado.model.enums.StatusConvite;
+import br.edu.ifpb.combinado.repository.ConviteRepository;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,15 +32,18 @@ public class CombinadoService {
     private final CombinadoRepository repository;
     private final CombinadoHistoricoRepository historicoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ConviteRepository conviteRepository;
 
     public CombinadoService(
             CombinadoRepository repository,
             CombinadoHistoricoRepository historicoRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            ConviteRepository conviteRepository
     ) {
         this.repository = repository;
         this.historicoRepository = historicoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.conviteRepository = conviteRepository;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -169,8 +175,34 @@ public class CombinadoService {
     public Combinado concluir(Long id) {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CONCLUIDO);
+        validarTodosAceitaram(combinado);
         combinado.setStatus(StatusCombinado.CONCLUIDO);
         return repository.save(combinado);
+    }
+
+    /**
+     * US62 - Task #31670: validação "todos aceitaram" para conclusão.
+     * DADO que o combinado possui participantes com status pendente ou recusado,
+     * QUANDO o criador tentar concluir o combinado,
+     * ENTÃO o sistema deve impedir a conclusão e exibir mensagem informando
+     * quais participantes ainda não confirmaram.
+     */
+    private void validarTodosAceitaram(Combinado combinado) {
+        List<String> naoConfirmados = combinado.getUsuariosParticipantes().stream()
+                .filter(participante -> conviteRepository
+                        .findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
+                                combinado.getId(), participante.getId())
+                        .map(Convite::getStatus)
+                        .filter(status -> status == StatusConvite.ACEITO)
+                        .isEmpty())
+                .map(Usuario::getNome)
+                .sorted()
+                .toList();
+        if (!naoConfirmados.isEmpty()) {
+            throw new ParticipantesPendentesException(
+                    "Não é possível concluir o combinado: os seguintes participantes ainda não confirmaram: "
+                            + String.join(", ", naoConfirmados) + ".");
+        }
     }
 
     @Transactional

@@ -166,16 +166,29 @@ class CombinadoVinculoTest {
     }
 
     @Test
-    void somenteCriadorPodeConcluirCombinadoAtivo() throws Exception {
+    void somenteCriadorPodeConcluirCombinadoAtivoComTodosAceites() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
         Combinado combinado = combinados.findById(id).orElseThrow();
         combinado.setStatus(StatusCombinado.ATIVO);
         combinados.saveAndFlush(combinado);
 
+        // US62: com convite ainda pendente/recusado, a conclusão deve ser bloqueada (422)
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message").value(containsString("ainda não confirmaram")));
+        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
+
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(participante)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("Somente o criador do combinado pode concluí-lo."));
-        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
+
+        // Todos aceitaram: conclusão permitida ao criador
+        Convite aceite = new Convite();
+        aceite.setCombinado(combinados.findById(id).orElseThrow());
+        aceite.setRemetente(criador);
+        aceite.setDestinatario(participante);
+        aceite.setStatus(StatusConvite.ACEITO);
+        convites.saveAndFlush(aceite);
 
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CONCLUIDO"));
