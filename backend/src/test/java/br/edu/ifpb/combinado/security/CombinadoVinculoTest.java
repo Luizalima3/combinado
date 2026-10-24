@@ -218,6 +218,38 @@ class CombinadoVinculoTest {
     }
 
     @Test
+    void naoDeveEditarCombinadoAtivo() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        Combinado combinado = combinados.findById(id).orElseThrow();
+        combinado.setStatus(StatusCombinado.ATIVO);
+        combinados.saveAndFlush(combinado);
+
+        // US63 / Task #31673: combinado ativo não pode mais ser editado
+        mvc.perform(patch("/api/combinados/{id}", id).header("Authorization", bearer(criador))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\":\"Novo título\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value(containsString("não pode mais ser alterado")));
+        assertEquals("Acordo privado", combinados.findById(id).orElseThrow().getTitulo());
+    }
+
+    @Test
+    void criadorPodeEditarCombinadoAntesDeFicarAtivo() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+                combinados.findById(id).orElseThrow().getStatus());
+
+        mvc.perform(patch("/api/combinados/{id}", id).header("Authorization", bearer(criador))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\":\"Título editado\",\"descricao\":\"Nova descrição\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.titulo").value("Título editado"));
+        Combinado salvo = combinados.findById(id).orElseThrow();
+        assertEquals("Título editado", salvo.getTitulo());
+        assertEquals("Nova descrição", salvo.getDescricao());
+    }
+
+    @Test
     void naoDeveConcluirCombinadoQueAindaAguardaConfirmacao() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
 

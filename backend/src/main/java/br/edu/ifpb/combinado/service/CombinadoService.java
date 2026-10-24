@@ -225,6 +225,56 @@ public class CombinadoService {
 
     @Transactional
     @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public CombinadoResumoDTO atualizar(Long id, CombinadoDTO dados) {
+        Combinado combinado = buscarPorId(id);
+        // US63 - Task #31673: verificação de status antes de permitir update do Combinado.
+        // DADO que o combinado está com status "Ativo" (ou já concluído/cancelado),
+        // QUANDO o usuário tentar editar título, descrição, categoria, prazo ou participantes,
+        // ENTÃO o sistema deve bloquear a edição e informar que o combinado não pode mais ser alterado.
+        if (combinado.getStatus() != StatusCombinado.RASCUNHO
+                && combinado.getStatus() != StatusCombinado.AGUARDANDO_CONFIRMACAO) {
+            throw new CombinadoNaoEditavelException(
+                    "Este combinado não pode mais ser alterado (status atual: "
+                            + combinado.getStatus() + ").");
+        }
+        if (dados == null) {
+            throw new IllegalArgumentException("Dados de atualização são obrigatórios.");
+        }
+        var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
+        if (dados.participantesIds() != null) {
+            participantes.clear();
+            for (Long usuarioId : dados.participantesIds()) {
+                if (usuarioId == null) throw new IllegalArgumentException("ID de participante é obrigatório.");
+                participantes.add(usuarioRepository.findById(usuarioId)
+                        .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + usuarioId)));
+            }
+        }
+        participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
+        if (participantes.isEmpty() && combinado.getStatus() == StatusCombinado.AGUARDANDO_CONFIRMACAO) {
+            throw new IllegalArgumentException("Informe ao menos um participante cadastrado diferente do criador.");
+        }
+        String nomes = participantes.isEmpty()
+                ? combinado.getParticipanteNome()
+                : participantes.stream().map(Usuario::getNome).sorted()
+                        .collect(java.util.stream.Collectors.joining(", "));
+        var titulo = dados.titulo() != null ? dados.titulo().trim() : combinado.getTitulo();
+        var categoria = dados.categoria() != null ? dados.categoria() : combinado.getCategoria();
+        var prazo = dados.dataPrazo() != null ? dados.dataPrazo() : combinado.getDataPrazo();
+        validarCamposObrigatorios(titulo, categoria, combinado.getCriador().getNome(), nomes);
+        validarPrazo(prazo);
+        // Validações precedem a alteração do registro gerenciado.
+        combinado.setTitulo(titulo);
+        combinado.setCategoria(categoria);
+        combinado.setDataPrazo(prazo);
+        if (dados.descricao() != null) combinado.setDescricao(dados.descricao());
+        if (dados.responsabilidades() != null) combinado.setResponsabilidades(dados.responsabilidades());
+        combinado.setParticipantesUsuarios(participantes);
+        combinado.setParticipanteNome(nomes);
+        return CombinadoResumoDTO.de(repository.save(combinado));
+    }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
     public CombinadoResumoDTO publicar(Long id, CombinadoDTO dados) {
         Combinado combinado = buscarPorId(id);
         if (combinado.getStatus() != StatusCombinado.RASCUNHO) {

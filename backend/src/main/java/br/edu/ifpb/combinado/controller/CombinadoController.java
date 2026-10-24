@@ -7,6 +7,7 @@ import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 import br.edu.ifpb.combinado.service.CombinadoService;
+import br.edu.ifpb.combinado.service.CombinadoNaoEditavelException;
 import br.edu.ifpb.combinado.service.ParticipantesPendentesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,18 @@ public class CombinadoController {
         return service.publicar(id, dados);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody CombinadoDTO dados) {
+        try {
+            return ResponseEntity.ok(service.atualizar(id, dados));
+        } catch (AccessDeniedException exception) {
+            return criadorObrigatorio("editar");
+        } catch (CombinadoNaoEditavelException exception) {
+            // US63: combinado ativo/concluído/cancelado não pode mais ser editado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/concluir")
     public ResponseEntity<?> concluir(@PathVariable Long id) {
         try {
@@ -96,7 +109,9 @@ public class CombinadoController {
     private ResponseEntity<Map<String, String>> criadorObrigatorio(String acao) {
         String message = acao.equals("concluir")
                 ? "Somente o criador do combinado pode concluí-lo."
-                : "Somente o criador do combinado pode cancelá-lo.";
+                : acao.equals("editar")
+                        ? "Somente o criador do combinado pode editá-lo."
+                        : "Somente o criador do combinado pode cancelá-lo.";
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", message));
     }
 
