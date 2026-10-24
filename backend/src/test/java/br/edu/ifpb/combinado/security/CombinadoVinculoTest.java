@@ -172,10 +172,12 @@ class CombinadoVinculoTest {
         combinado.setStatus(StatusCombinado.ATIVO);
         combinados.saveAndFlush(combinado);
 
-        // US62: com convite ainda pendente/recusado, a conclusão deve ser bloqueada (422)
+        // US62 / Task #31671: convite pendente → conclusão bloqueada com 422 e lista de pendentes
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
                 .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.message").value(containsString("ainda não confirmaram")));
+                .andExpect(jsonPath("$.message").value(containsString("ainda não confirmaram")))
+                .andExpect(jsonPath("$.pendentes", hasSize(1)))
+                .andExpect(jsonPath("$.pendentes[0]").value(participante.getNome()));
         assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
 
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(participante)))
@@ -189,10 +191,30 @@ class CombinadoVinculoTest {
         aceite.setDestinatario(participante);
         aceite.setStatus(StatusConvite.ACEITO);
         convites.saveAndFlush(aceite);
-
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CONCLUIDO"));
         assertEquals(StatusCombinado.CONCLUIDO, combinados.findById(id).orElseThrow().getStatus());
+    }
+
+    @Test
+    void naoDeveConcluirCombinadoComConviteRecusado() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        Combinado combinado = combinados.findById(id).orElseThrow();
+        combinado.setStatus(StatusCombinado.ATIVO);
+        combinados.saveAndFlush(combinado);
+
+        Convite recusa = new Convite();
+        recusa.setCombinado(combinado);
+        recusa.setRemetente(criador);
+        recusa.setDestinatario(participante);
+        recusa.setStatus(StatusConvite.RECUSADO);
+        convites.saveAndFlush(recusa);
+
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.pendentes", hasSize(1)))
+                .andExpect(jsonPath("$.pendentes[0]").value(participante.getNome()));
+        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
     }
 
     @Test

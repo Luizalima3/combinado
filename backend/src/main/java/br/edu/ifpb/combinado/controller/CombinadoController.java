@@ -60,9 +60,11 @@ public class CombinadoController {
         } catch (AccessDeniedException exception) {
             return criadorObrigatorio("concluir");
         } catch (ParticipantesPendentesException exception) {
-            // US62: 422 com lista dos participantes que ainda não confirmaram
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(Map.of("message", exception.getMessage()));
+            // US62 / Task #31671: 422 com lista dos participantes que ainda não confirmaram
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of(
+                    "message", exception.getMessage(),
+                    "pendentes", exception.getParticipantesPendentes()
+            ));
         }
     }
 

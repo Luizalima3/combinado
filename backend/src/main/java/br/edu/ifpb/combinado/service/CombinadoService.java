@@ -201,7 +201,8 @@ public class CombinadoService {
         if (!naoConfirmados.isEmpty()) {
             throw new ParticipantesPendentesException(
                     "Não é possível concluir o combinado: os seguintes participantes ainda não confirmaram: "
-                            + String.join(", ", naoConfirmados) + ".");
+                            + String.join(", ", naoConfirmados) + ".",
+                    naoConfirmados);
         }
     }
 
