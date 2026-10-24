@@ -171,7 +171,7 @@ public class CombinadoService {
     }
 
     @Transactional
-    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.podeConcluir(#id, authentication)")
     public Combinado concluir(Long id) {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CONCLUIDO);
@@ -182,7 +182,7 @@ public class CombinadoService {
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         historicoRepository.save(new CombinadoHistorico(
                 salvo, principal.usuario(),
-                "Combinado concluído pelo criador.",
+                "Combinado concluído.",
                 AcaoCombinadoHistorico.CONCLUSAO, java.time.Instant.now()));
         return salvo;
     }
