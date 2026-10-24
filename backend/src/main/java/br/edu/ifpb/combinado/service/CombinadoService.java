@@ -177,7 +177,14 @@ public class CombinadoService {
         combinado.getStatus().validarTransicao(StatusCombinado.CONCLUIDO);
         validarTodosAceitaram(combinado);
         combinado.setStatus(StatusCombinado.CONCLUIDO);
-        return repository.save(combinado);
+        Combinado salvo = repository.save(combinado);
+        // US64 - Task #31682: conclusão via PATCH /{id}/concluir registra histórico
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        historicoRepository.save(new CombinadoHistorico(
+                salvo, principal.usuario(),
+                "Combinado concluído pelo criador.",
+                AcaoCombinadoHistorico.CONCLUSAO, java.time.Instant.now()));
+        return salvo;
     }
 
     /**

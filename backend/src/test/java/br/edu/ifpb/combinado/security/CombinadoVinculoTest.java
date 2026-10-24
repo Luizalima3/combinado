@@ -194,6 +194,15 @@ class CombinadoVinculoTest {
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CONCLUIDO"));
         assertEquals(StatusCombinado.CONCLUIDO, combinados.findById(id).orElseThrow().getStatus());
+
+        // US64: conclusão registra evento no histórico do combinado
+        var eventos = historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id);
+        var conclusao = eventos.stream()
+                .filter(evento -> evento.getAcao() == AcaoCombinadoHistorico.CONCLUSAO)
+                .findFirst().orElseThrow();
+        assertEquals(criador.getId(), conclusao.getAutor().getId());
+        assertEquals("Combinado concluído pelo criador.", conclusao.getDescricao());
+        assertNotNull(conclusao.getOcorridoEm());
     }
 
     @Test
