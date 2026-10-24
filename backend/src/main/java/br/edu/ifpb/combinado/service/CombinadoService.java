@@ -219,7 +219,13 @@ public class CombinadoService {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
-        return repository.save(combinado);
+        Combinado salvo = repository.save(combinado);
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        historicoRepository.save(new CombinadoHistorico(
+                salvo, principal.usuario(),
+                "Combinado cancelado.",
+                AcaoCombinadoHistorico.CANCELAMENTO, java.time.Instant.now()));
+        return salvo;
     }
 
     @Transactional(readOnly = true)
