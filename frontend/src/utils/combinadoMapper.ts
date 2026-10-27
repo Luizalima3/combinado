@@ -160,9 +160,11 @@ export function conviteStatusForUser(combinado: Combinado, user: UsuarioResumo) 
   const found = combinado.extras.participantes.find(
     (p) => p.email.toLowerCase() === user.email.toLowerCase(),
   );
-  if (found?.conviteStatus) return found.conviteStatus;
+  if (found?.conviteStatus && found.conviteStatus !== "PENDENTE") {
+    return found.conviteStatus;
+  }
   if (combinado.status === "ATIVO") return "ACEITO";
   if (combinado.status === "CANCELADO") return "RECUSADO";
   if (combinado.status === "RASCUNHO") return "PENDENTE";
-  return "PENDENTE";
+  return found?.conviteStatus ?? "PENDENTE";
 }
