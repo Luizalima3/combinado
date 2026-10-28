@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
 import { CombinadoCard } from "../components/combinados/CombinadoCard";
@@ -13,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import {
   aceitarConvite,
+  concluirCombinado,
   getCombinadoById,
   listCriados,
   listParticipantes,
@@ -146,6 +148,34 @@ export function DashboardPage() {
     }
   }
 
+  /** US64 / Task #31681: conclusão a partir do card (criador ou participante aceito, status ATIVO). */
+  async function handleConclude(combinado: Combinado) {
+    setBusyId(combinado.id);
+    try {
+      const updated = await concluirCombinado(combinado.id);
+      push("success", "Combinado concluído com sucesso.");
+      setInvite(null);
+      setCriados((items) =>
+        items.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setRecebidos((items) =>
+        items.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      await load();
+    } catch (err) {
+      let mensagem = getApiErrorMessage(err, "Não foi possível concluir o combinado.");
+      if (axios.isAxiosError(err) && err.response?.status === 422) {
+        const pendentes = (err.response?.data as { pendentes?: string[] } | undefined)?.pendentes;
+        if (Array.isArray(pendentes) && pendentes.length) {
+          mensagem += ` (${pendentes.join(", ")})`;
+        }
+      }
+      push("error", mensagem);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const list = tab === "criados" ? criados : recebidos;
 
   return (
@@ -222,6 +252,7 @@ export function DashboardPage() {
               onOpen={openInvite}
               onAccept={handleAccept}
               onRefuse={(item) => setRefuseTarget(item)}
+              onConclude={handleConclude}
             />
           ))}
         </div>

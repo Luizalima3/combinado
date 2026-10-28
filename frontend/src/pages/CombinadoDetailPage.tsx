@@ -67,6 +67,12 @@ export function CombinadoDetailPage() {
     !isCreator &&
     conviteStatus === "PENDENTE";
 
+  // US64 / Task #31681 + Task #32340/US71: botão "Concluir" visível apenas quando
+  // o combinado está ATIVO e o usuário tem permissão (criador — US70; ou
+  // participante com convite aceito — US71). O backend valida novamente em PATCH /concluir.
+  const podeConcluir =
+    combinado?.status === "ATIVO" && (isCreator || conviteStatus === "ACEITO");
+
   async function handleAccept() {
     if (!combinado) return;
     setBusy(true);
@@ -170,20 +176,20 @@ export function CombinadoDetailPage() {
         </div>
       ) : null}
 
-      {isCreator && combinado.status === "ATIVO" ? (
+      {podeConcluir ? (
         <div className="mt-8 flex justify-end">
           <button
             type="button"
             className="rounded-lg bg-mint px-4 py-2 text-sm font-semibold text-white"
             onClick={() => setShowFinishModal(true)}
           >
-            Encerrar combinado
+            Concluir combinado
           </button>
         </div>
       ) : null}
 
       {showFinishModal ? (
-        <Modal title="Encerrar combinado" onClose={() => setShowFinishModal(false)}>
+        <Modal title="Concluir combinado" onClose={() => setShowFinishModal(false)}>
           <p className="text-sm text-muted">
             Confirme que deseja marcar <strong>{combinado.titulo}</strong> como concluído. Esta ação
             altera o status do acordo para encerrado.

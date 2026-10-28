@@ -36,6 +36,8 @@ interface CombinadoCardProps {
   onAccept?: (combinado: Combinado) => void;
   onRefuse?: (combinado: Combinado) => void;
   onOpen?: (combinado: Combinado) => void;
+  /** US64 / Task #31681: dispara a conclusão do combinado (criador OU participante aceito, status ATIVO). */
+  onConclude?: (combinado: Combinado) => void;
   busy?: boolean;
 }
 
@@ -46,6 +48,7 @@ export function CombinadoCard({
   onAccept,
   onRefuse,
   onOpen,
+  onConclude,
   busy,
 }: CombinadoCardProps) {
   const convite = useMemo(
@@ -53,6 +56,15 @@ export function CombinadoCard({
     [combinado, currentUser],
   );
   const pending = variant === "recebido" && convite === "PENDENTE";
+
+  // US64 / Task #31681: botão "Concluir" visível apenas quando o combinado
+  // está ATIVO e o usuário tem permissão (criador — CA01 US70; ou participante
+  // com convite ACEITO — Task #32340/US71).
+  const isCreator =
+    combinado.criadorEmail?.toLowerCase() === currentUser.email.toLowerCase() ||
+    combinado.criadorNome.trim().toLowerCase() === currentUser.nome.trim().toLowerCase();
+  const podeConcluir =
+    combinado.status === "ATIVO" && (isCreator || convite === "ACEITO");
 
   return (
     <article
@@ -136,6 +148,16 @@ export function CombinadoCard({
               Recusar
             </button>
           </>
+        ) : null}
+        {podeConcluir ? (
+          <button
+            type="button"
+            disabled={busy}
+            className="rounded-lg bg-mint px-3 py-1.5 text-sm font-semibold text-white hover:bg-mint-dark disabled:opacity-60"
+            onClick={() => onConclude?.(combinado)}
+          >
+            Concluir
+          </button>
         ) : null}
       </div>
     </article>
