@@ -1,4 +1,4 @@
-# Projeto COMBINADO — Exportação estruturada
+﻿# Projeto COMBINADO — Exportação estruturada
 
 COMBINADO - EXPORTAÇÃO COMPLETA
 ================================================================================
@@ -20146,22 +20146,3 @@ Atualizado: 2026-10-22T05:07:06.620Z
 
 
 *   **Impacto:** **Médio.** Impede o cumprimento integral da estória de usuário/critério de aceitação CA03, fazendo com que rascunhos indesejados fiquem acumulados indefinidamente na conta do usuário sem opção de limpeza.
-
-##### [BUG] #34296 — Aceite de proposta via interface pendente de validação em tela
-
-- Pai: 32382
-- Status: New
-- Responsável: Felipe Macedo
-- Prioridade: Normal
-- Autor: Maria Luiza
-- Início: 2026-09-16
-- Prazo: 2026-10-14
-- Progresso: Não informado
-- Estimativa: Não informado
-[Abrir no OpenProject](https://200.129.79.50:8104/projects/combinado/work_packages/34296/activity)
-
-**Descrição:**
-
-Criado: 2026-10-22T02:43:48.613Z
-Atualizado: 2026-10-22T05:07:13.239Z
-*   **Descrição:** A funcionalidade de aceite de proposta foi validada no backend com 100% de conformidade (quando o convite é aceito, o combinado passa para o status `ATIVO`, com cobertura de 8/8 testes unitários). No entanto, o fluxo ponta a ponta (E2E) através da interface gráfica (UI) não pôde ser completamente homologado por falta de um convite real gerado diretamente na tela.

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+
+import axios from "axios";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
 import { ParticipantConfirmedList } from "../components/combinados/ParticipantConfirmedList";
@@ -103,7 +105,16 @@ export function CombinadoDetailPage() {
       setFinishConfirm(false);
       push("success", "Combinado encerrado com sucesso.");
     } catch (err) {
-      push("error", getApiErrorMessage(err, "Não foi possível encerrar o combinado."));
+      // US62 / Task #31672: exibe mensagem específica com os participantes pendentes
+      let mensagem = getApiErrorMessage(err, "Não foi possível encerrar o combinado.");
+      const pendentes =
+        axios.isAxiosError(err) &&
+        err.response?.status === 422 &&
+        (err.response?.data as { pendentes?: string[] } | undefined)?.pendentes;
+      if (Array.isArray(pendentes) && pendentes.length > 0) {
+        mensagem += ` (${pendentes.join(", ")})`;
+      }
+      push("error", mensagem);
     } finally {
       setBusy(false);
     }
