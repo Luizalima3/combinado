@@ -2,7 +2,6 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { usePendingInvitesCount } from "../../hooks/usePendingInvitesCount";
 import { PERFIL_LABELS } from "../../types/auth";
-import { ToastHost } from "../ui/ToastHost";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `relative rounded-lg px-3 py-2 text-sm font-medium ${
@@ -66,7 +65,6 @@ export function AppLayout() {
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Outlet />
       </main>
-      <ToastHost />
     </div>
   );
 }
