@@ -8,9 +8,11 @@ interface ParticipantPickerProps {
   participants: ParticipanteCombinado[];
   onChange: (participants: ParticipanteCombinado[]) => void;
   error?: string;
+  /** US63 / Task #31674: desabilita busca, adição e remoção quando o combinado não é editável. */
+  disabled?: boolean;
 }
 
-export function ParticipantPicker({ participants, onChange, error }: ParticipantPickerProps) {
+export function ParticipantPicker({ participants, onChange, error, disabled = false }: ParticipantPickerProps) {
   const { sessionUser: user } = useAuth();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<UsuarioResumo[]>([]);
@@ -86,17 +88,19 @@ export function ParticipantPicker({ participants, onChange, error }: Participant
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
-            if (event.key === "Enter") {
+            if (event.key === "Enter" && !disabled) {
               event.preventDefault();
               void addByEmail();
             }
           }}
+          disabled={disabled}
           placeholder="Buscar por e-mail (ex: ana@combinado.app)"
-          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-primary"
+          className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-primary disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted"
         />
         <button
           type="button"
-          className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-dark"
+          disabled={disabled}
+          className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-white hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40"
           onClick={() => void addByEmail()}
         >
           Adicionar
@@ -109,7 +113,8 @@ export function ParticipantPicker({ participants, onChange, error }: Participant
             <li key={item.email}>
               <button
                 type="button"
-                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-primary-soft"
+                disabled={disabled}
+                className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-primary-soft disabled:cursor-not-allowed"
                 onClick={() => addParticipant(item)}
               >
                 <span className="font-medium text-ink">{item.nome}</span>
@@ -137,14 +142,16 @@ export function ParticipantPicker({ participants, onChange, error }: Participant
               className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-3 py-1 text-sm text-primary-dark"
             >
               {p.nome}
-              <button
-                type="button"
-                className="font-bold"
-                onClick={() => removeParticipant(p.email)}
-                aria-label={`Remover ${p.nome}`}
-              >
-                ×
-              </button>
+              {!disabled ? (
+                <button
+                  type="button"
+                  className="font-bold"
+                  onClick={() => removeParticipant(p.email)}
+                  aria-label={`Remover ${p.nome}`}
+                >
+                  ×
+                </button>
+              ) : null}
             </span>
           ))
         )}

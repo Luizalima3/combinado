@@ -6,10 +6,15 @@ import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.model.CombinadoHistorico;
 import br.edu.ifpb.combinado.model.Convite;
+import br.edu.ifpb.combinado.model.ConviteHistorico;
+import br.edu.ifpb.combinado.model.Notificacao;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico;
+import br.edu.ifpb.combinado.model.enums.AcaoConvite;
 import br.edu.ifpb.combinado.model.enums.StatusConvite;
+import br.edu.ifpb.combinado.repository.ConviteHistoricoRepository;
 import br.edu.ifpb.combinado.repository.ConviteRepository;
+import br.edu.ifpb.combinado.repository.NotificacaoRepository;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,17 +40,23 @@ public class CombinadoService {
     private final CombinadoHistoricoRepository historicoRepository;
     private final UsuarioRepository usuarioRepository;
     private final ConviteRepository conviteRepository;
+    private final ConviteHistoricoRepository conviteHistoricoRepository;
+    private final NotificacaoRepository notificacaoRepository;
 
     public CombinadoService(
             CombinadoRepository repository,
             CombinadoHistoricoRepository historicoRepository,
             UsuarioRepository usuarioRepository,
-            ConviteRepository conviteRepository
+            ConviteRepository conviteRepository,
+            ConviteHistoricoRepository conviteHistoricoRepository,
+            NotificacaoRepository notificacaoRepository
     ) {
         this.repository = repository;
         this.historicoRepository = historicoRepository;
         this.usuarioRepository = usuarioRepository;
         this.conviteRepository = conviteRepository;
+        this.conviteHistoricoRepository = conviteHistoricoRepository;
+        this.notificacaoRepository = notificacaoRepository;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -109,7 +120,29 @@ public class CombinadoService {
         historicoRepository.save(new CombinadoHistorico(
                 salvo, criador, "Combinado criado.",
                 AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
+        if (salvo.getStatus() != StatusCombinado.RASCUNHO) {
+            dispararConvites(salvo, criador);
+        }
         return salvo;
+    }
+
+    /** Dispara convites PENDENTE (Task #31058) com histórico e notificação por destinatário. */
+    private void dispararConvites(Combinado combinado, Usuario remetente) {
+        var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
+        participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
+        for (Usuario destinatario : participantes) {
+            Convite convite = new Convite();
+            convite.setCombinado(combinado);
+            convite.setRemetente(remetente);
+            convite.setDestinatario(destinatario);
+            convite.setStatus(StatusConvite.PENDENTE);
+            conviteRepository.save(convite);
+            conviteHistoricoRepository.save(new ConviteHistorico(
+                    convite, remetente, AcaoConvite.CRIACAO, java.time.Instant.now()));
+            notificacaoRepository.save(new Notificacao(
+                    destinatario, combinado, "Você foi convidado para o combinado '" + combinado.getTitulo() + "'.",
+                    "CONVITE"));
+        }
     }
 
     @Transactional
