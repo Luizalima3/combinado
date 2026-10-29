@@ -21,8 +21,12 @@ http.interceptors.response.use(
   (error) => {
     const status = error.response?.status;
     if (status === 401 && !isPublicAuthFailureRequest(error.config?.url)) {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      window.dispatchEvent(new CustomEvent("combinado:unauthorized"));
+      // Evita logout imediato em caso de erro de rede ou instabilidade, 
+      // permitindo que a aplicação tente recuperar a sessão ou exiba erro amigável.
+      if (error.response?.headers?.get("WWW-Authenticate")?.includes("Bearer")) {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        window.dispatchEvent(new CustomEvent("combinado:unauthorized"));
+      }
     }
     if (status === 403) {
       window.dispatchEvent(new CustomEvent("combinado:forbidden"));
