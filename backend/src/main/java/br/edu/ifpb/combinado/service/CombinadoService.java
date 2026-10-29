@@ -1,5 +1,6 @@
 package br.edu.ifpb.combinado.service;
 
+import br.edu.ifpb.combinado.dto.CancelamentoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
@@ -257,15 +258,19 @@ public class CombinadoService {
 
     @Transactional
     @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
-    public Combinado cancelar(Long id) {
+    public Combinado cancelar(Long id, CancelamentoDTO dados) {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
         Combinado salvo = repository.save(combinado);
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        // US69 / Task #31696: motivo (nullable) persistido junto ao evento de
+        // cancelamento na coluna `motivo` de combinado_historico. Quando não
+        // informado, permanece nulo (CA #31822 — aceita com ou sem motivo).
         historicoRepository.save(new CombinadoHistorico(
                 salvo, principal.usuario(),
                 "Combinado cancelado.",
+                dados == null ? null : dados.motivoNormalizado(),
                 AcaoCombinadoHistorico.CANCELAMENTO, java.time.Instant.now()));
         return salvo;
     }

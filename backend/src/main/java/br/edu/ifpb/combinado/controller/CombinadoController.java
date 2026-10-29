@@ -1,9 +1,11 @@
 package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.dto.CancelamentoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
+import jakarta.validation.Valid;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.AccessDeniedException;
@@ -88,9 +90,11 @@ public class CombinadoController {
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<?> cancelar(@PathVariable Long id) {
+    public ResponseEntity<?> cancelar(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) CancelamentoDTO payload) {
         try {
-            return ResponseEntity.ok(service.cancelar(id));
+            return ResponseEntity.ok(service.cancelar(id, payload));
         } catch (AccessDeniedException exception) {
             return criadorObrigatorio("cancelar");
         }

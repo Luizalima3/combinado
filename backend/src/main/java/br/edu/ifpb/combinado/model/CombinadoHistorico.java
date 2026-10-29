@@ -27,6 +27,13 @@ public class CombinadoHistorico {
     @Column(nullable = false, updatable = false, length = 500)
     private String descricao;
 
+    /**
+     * US69 / Task #31696 — motivo (nullable) do evento de cancelamento,
+     * persistido na coluna `motivo` (VARCHAR(500), nulo quando não informado).
+     */
+    @Column(nullable = true, updatable = false, length = 500)
+    private String motivo;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     private AcaoCombinadoHistorico acao;
@@ -51,11 +58,32 @@ public class CombinadoHistorico {
         this.ocorridoEm = ocorridoEm;
     }
 
+    /**
+     * US69 / Task #31696 — construtor com motivo (nullable) junto ao evento.
+     */
+    public CombinadoHistorico(
+            Combinado combinado,
+            Usuario autor,
+            String descricao,
+            String motivo,
+            AcaoCombinadoHistorico acao,
+            Instant ocorridoEm
+    ) {
+        this.combinado = combinado;
+        this.autor = autor;
+        this.autorNome = autor.getNome();
+        this.descricao = descricao;
+        this.motivo = motivo;
+        this.acao = acao;
+        this.ocorridoEm = ocorridoEm;
+    }
+
     public Long getId() { return id; }
     public Combinado getCombinado() { return combinado; }
     public Usuario getAutor() { return autor; }
     public String getAutorNome() { return autorNome; }
     public String getDescricao() { return descricao; }
+    public String getMotivo() { return motivo; }
     public AcaoCombinadoHistorico getAcao() { return acao; }
     public Instant getOcorridoEm() { return ocorridoEm; }
 }
