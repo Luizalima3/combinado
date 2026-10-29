@@ -43,6 +43,40 @@ public class CombinadoHistorico {
 
     protected CombinadoHistorico() {}
 
+    /**
+     * US72 / Task #31706 — todo evento de histórico deve gravar obrigatoriamente
+     * o usuário (autor_id) e o timestamp (ocorrido_em / criado_em).
+     *
+     * BDD:
+     * DADO que qualquer ação de mudança de status ocorre (concluir, cancelar)
+     * QUANDO a ação for executada
+     * ENTÃO o sistema deve registrar o usuário responsável e o timestamp da ação
+     *
+     * Validação fail-fast: se autor ou timestamp vierem nulos, o evento não é
+     * criado — garante a regra na origem, antes mesmo da checagem do banco
+     * (NOT NULL em autor_id/ocorrido_em nas migrations V8/V9).
+     */
+    private CombinadoHistorico(
+            Combinado combinado,
+            Usuario autor,
+            String descricao,
+            String motivo,
+            AcaoCombinadoHistorico acao,
+            Instant ocorridoEm
+    ) {
+        if (combinado == null) throw new IllegalArgumentException("Evento de histórico exige combinado.");
+        if (autor == null) throw new IllegalArgumentException("Evento de histórico exige autor (usuário_id).");
+        if (ocorridoEm == null) throw new IllegalArgumentException("Evento de histórico exige timestamp (criado_em).");
+        if (acao == null) throw new IllegalArgumentException("Evento de histórico exige ação.");
+        this.combinado = combinado;
+        this.autor = autor;
+        this.autorNome = autor.getNome();
+        this.descricao = descricao;
+        this.motivo = motivo;
+        this.acao = acao;
+        this.ocorridoEm = ocorridoEm;
+    }
+
     public CombinadoHistorico(
             Combinado combinado,
             Usuario autor,
@@ -50,12 +84,7 @@ public class CombinadoHistorico {
             AcaoCombinadoHistorico acao,
             Instant ocorridoEm
     ) {
-        this.combinado = combinado;
-        this.autor = autor;
-        this.autorNome = autor.getNome();
-        this.descricao = descricao;
-        this.acao = acao;
-        this.ocorridoEm = ocorridoEm;
+        this(combinado, autor, descricao, null, acao, ocorridoEm);
     }
 
     /**
@@ -69,13 +98,33 @@ public class CombinadoHistorico {
             AcaoCombinadoHistorico acao,
             Instant ocorridoEm
     ) {
-        this.combinado = combinado;
-        this.autor = autor;
-        this.autorNome = autor.getNome();
-        this.descricao = descricao;
-        this.motivo = motivo;
-        this.acao = acao;
-        this.ocorridoEm = ocorridoEm;
+        this(combinado, autor, descricao, motivo, acao, ocorridoEm);
+    }
+
+    /**
+     * US72 / Task #31706 — factory que padroniza o timestamp: sempre
+     * Instant.now() no momento da criação do evento, sem passagem manual.
+     */
+    public static CombinadoHistorico de(
+            Combinado combinado,
+            Usuario autor,
+            String descricao,
+            AcaoCombinadoHistorico acao
+    ) {
+        return new CombinadoHistorico(combinado, autor, descricao, null, acao, Instant.now());
+    }
+
+    /**
+     * US72 / Task #31706 — variante com motivo (nullable) para eventos de cancelamento.
+     */
+    public static CombinadoHistorico de(
+            Combinado combinado,
+            Usuario autor,
+            String descricao,
+            String motivo,
+            AcaoCombinadoHistorico acao
+    ) {
+        return new CombinadoHistorico(combinado, autor, descricao, motivo, acao, Instant.now());
     }
 
     public Long getId() { return id; }

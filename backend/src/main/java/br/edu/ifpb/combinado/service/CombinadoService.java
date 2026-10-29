@@ -72,6 +72,32 @@ public class CombinadoService {
         return repository.listarVinculados(principal.usuario().getId());
     }
 
+    /**
+     * US72 / Task #31706 — gravação centralizada de eventos de histórico.
+     *
+     * BDD:
+     * DADO que qualquer ação de mudança de status ocorre (concluir, cancelar)
+     * QUANDO a ação for executada
+     * ENTÃO o sistema deve registrar o usuário responsável e o timestamp da ação
+     *
+     * Garante que todo evento grava autor (usuário_id, extraído do principal
+     * autenticado) e timestamp (Instant.now() padronizado). O construtor da
+     * entidade valida fail-fast — nulos são rejeitados na origem.
+     */
+    private void registrarEvento(Combinado combinado, String descricao, AcaoCombinadoHistorico acao) {
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, acao));
+    }
+
+    /**
+     * US72 / Task #31706 — variante para eventos de cancelamento com motivo
+     * (nullable, US69 / Task #31696).
+     */
+    private void registrarEvento(Combinado combinado, String descricao, String motivo, AcaoCombinadoHistorico acao) {
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, motivo, acao));
+    }
+
     @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
     @Transactional(readOnly = true)
     public CombinadoResumoDTO buscarDetalhes(Long id) {
@@ -118,9 +144,10 @@ public class CombinadoService {
         combinado.setCriador(criador);
         combinado.setParticipantesUsuarios(participantes);
         Combinado salvo = repository.save(combinado);
-        historicoRepository.save(new CombinadoHistorico(
+        // US72 / Task #31706: autor e timestamp garantidos pelo factory.
+        historicoRepository.save(CombinadoHistorico.de(
                 salvo, criador, "Combinado criado.",
-                AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
+                AcaoCombinadoHistorico.CRIACAO));
         if (salvo.getStatus() != StatusCombinado.RASCUNHO) {
             dispararConvites(salvo, criador);
         }
@@ -222,11 +249,8 @@ public class CombinadoService {
         combinado.setStatus(StatusCombinado.CONCLUIDO);
         Combinado salvo = repository.save(combinado);
         // US64 - Task #31682: conclusão via PATCH /{id}/concluir registra histórico
-        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        historicoRepository.save(new CombinadoHistorico(
-                salvo, principal.usuario(),
-                "Combinado concluído.",
-                AcaoCombinadoHistorico.CONCLUSAO, java.time.Instant.now()));
+        // US72 / Task #31706: autor e timestamp garantidos pelo registrarEvento.
+        registrarEvento(salvo, "Combinado concluído.", AcaoCombinadoHistorico.CONCLUSAO);
         return salvo;
     }
 
@@ -263,15 +287,13 @@ public class CombinadoService {
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
         Combinado salvo = repository.save(combinado);
-        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         // US69 / Task #31696: motivo (nullable) persistido junto ao evento de
         // cancelamento na coluna `motivo` de combinado_historico. Quando não
         // informado, permanece nulo (CA #31822 — aceita com ou sem motivo).
-        historicoRepository.save(new CombinadoHistorico(
-                salvo, principal.usuario(),
-                "Combinado cancelado.",
+        // US72 / Task #31706: autor e timestamp garantidos pelo registrarEvento.
+        registrarEvento(salvo, "Combinado cancelado.",
                 dados == null ? null : dados.motivoNormalizado(),
-                AcaoCombinadoHistorico.CANCELAMENTO, java.time.Instant.now()));
+                AcaoCombinadoHistorico.CANCELAMENTO);
         return salvo;
     }
 
