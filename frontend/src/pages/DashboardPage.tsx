@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
 import { CombinadoCard } from "../components/combinados/CombinadoCard";
+import { CancelModal } from "../components/combinados/CancelModal";
 import { EmptyState } from "../components/ui/EmptyState";
 import { Modal } from "../components/ui/Modal";
 import { CardSkeleton } from "../components/ui/Spinner";
@@ -14,6 +15,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import {
   aceitarConvite,
+  cancelarCombinado,
   concluirCombinado,
   getCombinadoById,
   listCriados,
@@ -52,6 +54,9 @@ export function DashboardPage() {
   const [participantsLoading, setParticipantsLoading] = useState(false);
   const [participantsError, setParticipantsError] = useState("");
   const [acceptedInvite, setAcceptedInvite] = useState<Combinado | null>(null);
+  // US67 / Task #31692: combinado alvo do modal de confirmação do cancelamento.
+  const [cancelTarget, setCancelTarget] = useState<Combinado | null>(null);
+  const [cancelling, setCancelling] = useState(false);
   const [refuseTarget, setRefuseTarget] = useState<Combinado | null>(null);
   const [refuseConfirmOpen, setRefuseConfirmOpen] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
@@ -176,6 +181,32 @@ export function DashboardPage() {
     }
   }
 
+  /** US67 / Task #31692: abre o modal de confirmação do cancelamento. */
+  function openCancel(combinado: Combinado) {
+    setCancelTarget(combinado);
+  }
+
+  async function handleConfirmCancel(motivo?: string) {
+    if (!cancelTarget) return;
+    setCancelling(true);
+    try {
+      const updated = await cancelarCombinado(cancelTarget.id, motivo);
+      push("success", "Combinado cancelado.");
+      setCancelTarget(null);
+      setCriados((items) =>
+        items.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setRecebidos((items) =>
+        items.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      await load();
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível cancelar o combinado."));
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   const list = tab === "criados" ? criados : recebidos;
 
   return (
@@ -253,6 +284,7 @@ export function DashboardPage() {
               onAccept={handleAccept}
               onRefuse={(item) => setRefuseTarget(item)}
               onConclude={handleConclude}
+              onCancel={openCancel}
             />
           ))}
         </div>
@@ -397,6 +429,14 @@ export function DashboardPage() {
             </div>
           </div>
         </Modal>
+      ) : null}
+      {cancelTarget ? (
+        <CancelModal
+          titulo={cancelTarget.titulo}
+          busy={cancelling}
+          onConfirm={(motivo) => void handleConfirmCancel(motivo)}
+          onClose={() => setCancelTarget(null)}
+        />
       ) : null}
     </section>
   );

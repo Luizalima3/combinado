@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
 import { ParticipantConfirmedList } from "../components/combinados/ParticipantConfirmedList";
+import { CancelModal } from "../components/combinados/CancelModal";
 import { InviteActionButtons } from "../components/invites/InviteActionButtons";
 import { CategoryBadge } from "../components/ui/CategoryBadge";
 import { Modal } from "../components/ui/Modal";
@@ -13,6 +14,7 @@ import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
 import {
   aceitarConvite,
+  cancelarCombinado,
   concluirCombinado,
   getCombinadoById,
   recusarConvite,
@@ -35,6 +37,9 @@ export function CombinadoDetailPage() {
   const [busy, setBusy] = useState(false);
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [finishConfirm, setFinishConfirm] = useState(false);
+  // US67 / Task #31692: modal de confirmação do cancelamento.
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -72,6 +77,13 @@ export function CombinadoDetailPage() {
   // participante com convite aceito — US71). O backend valida novamente em PATCH /concluir.
   const podeConcluir =
     combinado?.status === "ATIVO" && (isCreator || conviteStatus === "ACEITO");
+  // US67 / CA #31691: "Cancelar" disponível em qualquer status, exceto
+  // Concluído/Cancelado, e apenas para o criador (US70).
+  const podeCancelar =
+    combinado != null &&
+    isCreator &&
+    combinado.status !== "CONCLUIDO" &&
+    combinado.status !== "CANCELADO";
 
   async function handleAccept() {
     if (!combinado) return;
@@ -123,6 +135,22 @@ export function CombinadoDetailPage() {
       push("error", mensagem);
     } finally {
       setBusy(false);
+    }
+  }
+
+  /** US67 / Task #31692: confirmação do cancelamento do combinado. */
+  async function handleCancel(motivo?: string) {
+    if (!combinado) return;
+    setCancelling(true);
+    try {
+      const updated = await cancelarCombinado(combinado.id, motivo);
+      setCombinado(updated);
+      setShowCancelModal(false);
+      push("success", "Combinado cancelado.");
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível cancelar o combinado."));
+    } finally {
+      setCancelling(false);
     }
   }
 
@@ -188,6 +216,19 @@ export function CombinadoDetailPage() {
         </div>
       ) : null}
 
+      {podeCancelar ? (
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            disabled={cancelling}
+            className="rounded-lg border border-danger px-4 py-2 text-sm font-semibold text-danger hover:bg-danger-soft disabled:opacity-60"
+            onClick={() => setShowCancelModal(true)}
+          >
+            Cancelar combinado
+          </button>
+        </div>
+      ) : null}
+
       {showFinishModal ? (
         <Modal title="Concluir combinado" onClose={() => setShowFinishModal(false)}>
           <p className="text-sm text-muted">
@@ -220,6 +261,15 @@ export function CombinadoDetailPage() {
             </button>
           </div>
         </Modal>
+      ) : null}
+
+      {showCancelModal ? (
+        <CancelModal
+          titulo={combinado.titulo}
+          busy={cancelling}
+          onConfirm={(motivo) => void handleCancel(motivo)}
+          onClose={() => setShowCancelModal(false)}
+        />
       ) : null}
     </section>
   );

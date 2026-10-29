@@ -38,6 +38,8 @@ interface CombinadoCardProps {
   onOpen?: (combinado: Combinado) => void;
   /** US64 / Task #31681: dispara a conclusão do combinado (criador OU participante aceito, status ATIVO). */
   onConclude?: (combinado: Combinado) => void;
+  /** US67 / Task #31692: abre o modal de confirmação do cancelamento (apenas criador). */
+  onCancel?: (combinado: Combinado) => void;
   busy?: boolean;
 }
 
@@ -49,6 +51,7 @@ export function CombinadoCard({
   onRefuse,
   onOpen,
   onConclude,
+  onCancel,
   busy,
 }: CombinadoCardProps) {
   const convite = useMemo(
@@ -65,6 +68,10 @@ export function CombinadoCard({
     combinado.criadorNome.trim().toLowerCase() === currentUser.nome.trim().toLowerCase();
   const podeConcluir =
     combinado.status === "ATIVO" && (isCreator || convite === "ACEITO");
+  // US67 / CA #31691: botão "Cancelar" disponível em qualquer status, exceto
+  // Concluído/Cancelado, e apenas para o criador (US70 / CA #31691).
+  const podeCancelar =
+    isCreator && combinado.status !== "CONCLUIDO" && combinado.status !== "CANCELADO";
 
   return (
     <article
@@ -157,6 +164,16 @@ export function CombinadoCard({
             onClick={() => onConclude?.(combinado)}
           >
             Concluir
+          </button>
+        ) : null}
+        {podeCancelar && onCancel ? (
+          <button
+            type="button"
+            disabled={busy}
+            className="rounded-lg border border-danger px-3 py-1.5 text-sm font-semibold text-danger hover:bg-danger-soft disabled:opacity-60"
+            onClick={() => onCancel(combinado)}
+          >
+            Cancelar
           </button>
         ) : null}
       </div>
