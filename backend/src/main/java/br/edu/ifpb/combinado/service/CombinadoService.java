@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 @Service
 public class CombinadoService {
 
-    private static final tools.jackson.databind.json.JsonMapper JSON =
-            tools.jackson.databind.json.JsonMapper.builder().build();
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON =
+            new com.fasterxml.jackson.databind.ObjectMapper();
 
     private final CombinadoRepository repository;
     private final CombinadoHistoricoRepository historicoRepository;
@@ -126,6 +126,7 @@ public class CombinadoService {
 
     @Transactional
     public Combinado criarCombinado(CombinadoDTO dto, Usuario criador) {
+        System.out.println(">>> Iniciando criação de combinado para o usuário: " + criador.getEmail());
         var participantes = new java.util.HashSet<Usuario>();
         if (dto.participantesIds() != null) {
             for (Long participanteId : dto.participantesIds()) {
@@ -144,12 +145,16 @@ public class CombinadoService {
         combinado.setCriador(criador);
         combinado.setParticipantesUsuarios(participantes);
         Combinado salvo = repository.save(combinado);
-        // US72 / Task #31706: autor e timestamp garantidos pelo factory.
+        System.out.println(">>> Combinado salvo com ID: " + salvo.getId());
+        
         historicoRepository.save(CombinadoHistorico.de(
                 salvo, criador, "Combinado criado.",
                 AcaoCombinadoHistorico.CRIACAO));
+        
         if (salvo.getStatus() != StatusCombinado.RASCUNHO) {
+            System.out.println(">>> Disparando convites para " + participantes.size() + " participantes...");
             dispararConvites(salvo, criador);
+            System.out.println(">>> Convites processados com sucesso.");
         }
         return salvo;
     }
@@ -159,17 +164,21 @@ public class CombinadoService {
         var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
         participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
         for (Usuario destinatario : participantes) {
-            Convite convite = new Convite();
-            convite.setCombinado(combinado);
-            convite.setRemetente(remetente);
-            convite.setDestinatario(destinatario);
-            convite.setStatus(StatusConvite.PENDENTE);
-            conviteRepository.save(convite);
-            conviteHistoricoRepository.save(new ConviteHistorico(
-                    convite, remetente, AcaoConvite.CRIACAO, java.time.Instant.now()));
-            notificacaoRepository.save(new Notificacao(
-                    destinatario, combinado, "Você foi convidado para o combinado '" + combinado.getTitulo() + "'.",
-                    "CONVITE"));
+            try {
+                Convite convite = new Convite();
+                convite.setCombinado(combinado);
+                convite.setRemetente(remetente);
+                convite.setDestinatario(destinatario);
+                convite.setStatus(StatusConvite.PENDENTE);
+                conviteRepository.save(convite);
+                conviteHistoricoRepository.save(new ConviteHistorico(
+                        convite, remetente, AcaoConvite.ENVIO, java.time.Instant.now()));
+                notificacaoRepository.save(new Notificacao(
+                        destinatario, "Convite para Combinado", "Você foi convidado para o combinado '" + combinado.getTitulo() + "'."));
+            } catch (Exception e) {
+                // Logar erro mas não abortar a criação do combinado
+                System.err.println("Erro ao enviar convite para " + destinatario.getEmail() + ": " + e.getMessage());
+            }
         }
     }
 
@@ -402,11 +411,11 @@ public class CombinadoService {
         if (responsabilidades == null || !responsabilidades.stripLeading().startsWith("{")) return responsabilidades;
         try {
             var json = JSON.readTree(responsabilidades);
-            if (json instanceof tools.jackson.databind.node.ObjectNode objeto && objeto.has("rascunho")) {
+            if (json instanceof com.fasterxml.jackson.databind.node.ObjectNode objeto && objeto.has("rascunho")) {
                 objeto.put("rascunho", false);
                 return JSON.writeValueAsString(objeto);
             }
-        } catch (tools.jackson.core.JacksonException ignored) {
+        } catch (Exception ignored) {
             // Texto legado livre não é convertido nem descartado.
         }
         return responsabilidades;

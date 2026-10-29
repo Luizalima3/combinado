@@ -89,17 +89,18 @@ public class CombinadoHistorico {
 
     /**
      * US69 / Task #31696 — construtor com motivo (nullable) junto ao evento.
+     * Este construtor foi removido pois era duplicado do construtor privado na linha 59.
      */
-    public CombinadoHistorico(
-            Combinado combinado,
-            Usuario autor,
-            String descricao,
-            String motivo,
-            AcaoCombinadoHistorico acao,
-            Instant ocorridoEm
-    ) {
-        this(combinado, autor, descricao, motivo, acao, ocorridoEm);
-    }
+    // public CombinadoHistorico(
+    //         Combinado combinado,
+    //         Usuario autor,
+    //         String descricao,
+    //         String motivo,
+    //         AcaoCombinadoHistorico acao,
+    //         Instant ocorridoEm
+    // ) {
+    //     this(combinado, autor, descricao, motivo, acao, ocorridoEm);
+    // }
 
     /**
      * US72 / Task #31706 — factory que padroniza o timestamp: sempre

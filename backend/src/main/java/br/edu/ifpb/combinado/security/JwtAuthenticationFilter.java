@@ -69,7 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             request.setAttribute(TOKEN_ATTRIBUTE, token);
         } catch (JWTVerificationException | IllegalArgumentException | BadCredentialsException exception) {
             SecurityContextHolder.clearContext();
-            entryPoint.commence(request, response, new BadCredentialsException("Token inválido."));
+            // Não dispara entryPoint aqui para evitar respostas 401 prematuras em rotas que podem ser públicas
+            // ou que tratam a ausência de autenticação de forma diferente.
+            chain.doFilter(request, response);
             return;
         }
         chain.doFilter(request, response);
