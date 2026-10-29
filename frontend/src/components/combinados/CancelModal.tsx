@@ -13,14 +13,19 @@ interface CancelModalProps {
 
 /**
  * US67 / Task #31692 — Botão "Cancelar" com modal de confirmação.
+ * US69 / Task #31695 — Campo opcional "Motivo" no modal de cancelamento.
  *
  * BDD:
  * DADO que o combinado não está concluído nem já cancelado
  * QUANDO o usuário autorizado clicar em "Cancelar"
  * ENTÃO o status do combinado deve mudar para "Cancelado"
+ * DADO que o usuário está cancelando um combinado
+ * QUANDO ele preencher (ou não) o campo de motivo
+ * ENTÃO o sistema deve aceitar o cancelamento com ou sem motivo informado
  *
  * CA #31818: pede confirmação antes de efetivar o cancelamento.
  * CA #31819: bloqueia novas ações (busy) após confirmar.
+ * CA #31637: o motivo é opcional (CA03 US69).
  */
 export function CancelModal({ titulo, busy, onConfirm, onClose }: CancelModalProps) {
   const [motivo, setMotivo] = useState("");
@@ -35,9 +40,11 @@ export function CancelModal({ titulo, busy, onConfirm, onClose }: CancelModalPro
         Motivo (opcional)
         <textarea
           rows={4}
+          maxLength={500}
           disabled={busy}
           value={motivo}
           onChange={(event) => setMotivo(event.target.value)}
+          aria-label="Motivo do cancelamento (opcional)"
           placeholder="Descreva o motivo do cancelamento (opcional)"
           className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-primary disabled:opacity-60"
         />
