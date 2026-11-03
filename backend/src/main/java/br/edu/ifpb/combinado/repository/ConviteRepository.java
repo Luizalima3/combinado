@@ -4,7 +4,12 @@ import br.edu.ifpb.combinado.model.Convite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface ConviteRepository extends JpaRepository<Convite, Long> {
+public interface ConviteRepository extends JpaRepository<Convite, Long>,
+        org.springframework.data.jpa.repository.JpaSpecificationExecutor<Convite> {
+    @Override
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"combinado", "combinado.criador"})
+    org.springframework.data.domain.Page<Convite> findAll(
+            org.springframework.data.jpa.domain.Specification<Convite> spec, org.springframework.data.domain.Pageable pageable);
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"combinado", "combinado.criador"})
     java.util.List<Convite> findByDestinatarioIdAndCombinadoStatusNot(Long destinatarioId,
             br.edu.ifpb.combinado.model.enums.StatusCombinado status, org.springframework.data.domain.Pageable pageable);

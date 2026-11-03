@@ -15,3 +15,15 @@ A busca e a ordenação ocorrem no banco, juntamente com as permissões.
 
 Usuários comuns só consultam registros vinculados. Rascunhos de terceiros ficam
 privados. ADMIN tem consulta global, mas não recebe permissões adicionais de escrita.
+
+## Busca, status e ordem dos convites (#32307, #32295, #32292)
+
+GET /api/convites/recebidos aceita titulo com as mesmas regras da busca em criados.
+status aceita PENDENTE, ACEITO ou RECUSADO e filtra o convite, não o estado do combinado.
+Sem status, mantém todos. Os filtros ocorrem no banco antes de pagina/limite.
+
+O padrão continua dataEnvio desc, id desc. sort=criadoEm,desc é um alias para a data
+do envio do convite, como solicitado pela task. sort=dataEnvio,asc também é aceito.
+Nunca usa a data de criação do combinado para essa ordenação. Desempates usam id desc.
+Mesmo com filtros e como ADMIN, o usuário consulta somente os próprios convites
+recebidos. Rascunhos de terceiros não aparecem. Resultado sem correspondências é [].

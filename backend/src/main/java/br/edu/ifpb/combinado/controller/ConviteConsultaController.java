@@ -23,10 +23,13 @@ public class ConviteConsultaController {
     public ConviteDetalheDTO buscar(@PathVariable Long id) { return service.buscar(id); }
 
     @GetMapping("/recebidos")
-    @Operation(summary = "Listar meus convites recebidos", description = "Usa exclusivamente o usuário do JWT, inclusive para ADMIN. Exclui rascunhos e ordena do mais recente para o mais antigo.")
+    @Operation(summary = "Listar meus convites recebidos", description = "Usa exclusivamente o usuário do JWT, inclusive para ADMIN. Exclui rascunhos. Aceita titulo, status=PENDENTE|ACEITO|RECUSADO e sort=criadoEm,desc (data do envio). Filtros precedem a paginação.")
     public List<ConviteResumoDTO> recebidos(@RequestParam(defaultValue = "0") int pagina,
-                                           @RequestParam(defaultValue = "20") int limite) {
-        return service.recebidos(pagina, limite);
+                                           @RequestParam(defaultValue = "20") int limite,
+                                           @RequestParam(required = false) String titulo,
+                                           @RequestParam(required = false) br.edu.ifpb.combinado.model.enums.StatusConvite status,
+                                           @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
+        return service.recebidos(pagina, limite, titulo, status, parametros.get("sort"));
     }
 
     @GetMapping("/{id}/historico")

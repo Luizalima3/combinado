@@ -46,12 +46,23 @@ public class ConviteConsultaService {
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public java.util.List<ConviteResumoDTO> recebidos(int pagina, int limite) {
+        return recebidos(pagina, limite, null, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("isAuthenticated()")
+    public java.util.List<ConviteResumoDTO> recebidos(int pagina, int limite, String titulo,
+            StatusConvite status, java.util.List<String> ordenacoes) {
         if (pagina < 0 || limite < 1 || limite > 100) throw new IllegalArgumentException("Paginação inválida.");
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var pageable = org.springframework.data.domain.PageRequest.of(pagina, limite,
-                org.springframework.data.domain.Sort.by("dataEnvio", "id").descending());
-        return convites.findByDestinatarioIdAndCombinadoStatusNot(principal.usuario().getId(),
-                br.edu.ifpb.combinado.model.enums.StatusCombinado.RASCUNHO, pageable)
-                .stream().map(ConviteResumoDTO::de).toList();
+                OrdenacaoConsulta.convites(ordenacoes));
+        String busca = TextoConsulta.titulo(titulo);
+        org.springframework.data.jpa.domain.Specification<br.edu.ifpb.combinado.model.Convite> filtro = (raiz, consulta, cb) ->
+                cb.and(cb.equal(raiz.get("destinatario").get("id"), principal.usuario().getId()),
+                        cb.notEqual(raiz.get("combinado").get("status"), br.edu.ifpb.combinado.model.enums.StatusCombinado.RASCUNHO),
+                        cb.like(cb.lower(raiz.get("combinado").get("titulo")), busca, '!'),
+                        status == null ? cb.conjunction() : cb.equal(raiz.get("status"), status));
+        return convites.findAll(filtro, pageable).getContent().stream().map(ConviteResumoDTO::de).toList();
     }
 }
