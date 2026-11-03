@@ -6,6 +6,12 @@ import java.util.List;
 
 public interface ConviteRepository extends JpaRepository<Convite, Long>,
         org.springframework.data.jpa.repository.JpaSpecificationExecutor<Convite> {
+    @org.springframework.data.jpa.repository.Query("select new br.edu.ifpb.combinado.dto.ConviteIdentificacaoDTO(v.combinado.id, v.destinatario.id) from Convite v where v.id = :id")
+    java.util.Optional<br.edu.ifpb.combinado.dto.ConviteIdentificacaoDTO> identificar(
+            @org.springframework.data.repository.query.Param("id") Long id);
+    @org.springframework.data.jpa.repository.Query("select v.id from Convite v where v.combinado.id = :combinadoId and v.destinatario.id = :usuarioId order by v.dataEnvio desc, v.id desc")
+    List<Long> ultimosIds(@org.springframework.data.repository.query.Param("combinadoId") Long combinadoId,
+            @org.springframework.data.repository.query.Param("usuarioId") Long usuarioId, org.springframework.data.domain.Pageable pageable);
     @Override
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"combinado", "combinado.criador"})
     org.springframework.data.domain.Page<Convite> findAll(

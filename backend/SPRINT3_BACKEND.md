@@ -58,7 +58,9 @@ Swagger UI em `/swagger-ui/index.html`, OpenAPI JSON em `/v3/api-docs`, ambos p�
 As operações protegidas indicam bearerAuth e documentam envio individual/lote, recebidos,
 detalhes, aceite/recusa, histórico, respostas de erro e esquemas. O evento documenta os tipos
 ENVIO, ACEITE e RECUSA. RemetenteId do envio individual é legado e ignorado; respostas
-de aceite/recusa não recebem corpo, autor ou data fornecidos pelo cliente.
+de aceite não recebem corpo. Recusa aceita motivo opcional de até 500 caracteres.
+Autor e data são sempre obtidos pelo servidor. Desde #32268, o último aceite
+ativa o combinado aguardando confirmação. Ver homologacao/SPRINT3_RESPOSTAS_CONVITES.md.
 
 Atualizado springdoc de 2.5.0 para 3.1.1: a linha 3 suporta Spring Boot 4, conforme a
 [matriz oficial](https://springdoc.org/#what-is-the-compatibility-matrix-of-springdoc-openapi-with-spring-boot).

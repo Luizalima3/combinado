@@ -54,6 +54,7 @@ public class ConviteService {
                 .orElseThrow(() -> new IllegalArgumentException("Destinatário não encontrado: " + dto.destinatarioId()));
 
         validarDestinatario(combinado, remetente, destinatario);
+        combinado.adicionarParticipante(destinatario);
 
         Convite convite = new Convite();
         convite.setCombinado(combinado);
@@ -74,12 +75,12 @@ public class ConviteService {
 
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public ConviteRespostaDTO aceitar(Long id) { return responder(id, StatusConvite.ACEITO); }
+    public ConviteRespostaDTO aceitar(Long id) { return responder(id, StatusConvite.ACEITO, null); }
 
     @Transactional
     @PreAuthorize("@combinadoAcesso.podeAcessar(#combinadoId, authentication)")
     public Combinado aceitarPorCombinado(Long combinadoId) {
-        var combinado = combinadoRepository.findById(combinadoId)
+        var combinado = combinadoRepository.buscarParaConvite(combinadoId)
                 .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
         validarEstado(combinado);
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -92,7 +93,16 @@ public class ConviteService {
 
     @Transactional
     @PreAuthorize("isAuthenticated()")
-    public ConviteRespostaDTO recusar(Long id) { return responder(id, StatusConvite.RECUSADO); }
+    public ConviteRespostaDTO recusar(Long id) { return responder(id, StatusConvite.RECUSADO, null); }
+
+    @Transactional
+    @PreAuthorize("isAuthenticated()")
+    public ConviteRespostaDTO recusar(Long id, br.edu.ifpb.combinado.dto.RecusaConviteDTO dados) {
+        String motivo = dados == null ? null : dados.motivo();
+        if (motivo != null && motivo.length() > 500) throw new IllegalArgumentException("O motivo deve ter até 500 caracteres.");
+        return responder(id, StatusConvite.RECUSADO, motivo);
+    }
+
 
     @Transactional
     @PreAuthorize("@combinadoAcesso.eCriador(#combinadoId, authentication)")
@@ -121,6 +131,7 @@ public class ConviteService {
             convite.setMensagem(dados.mensagem());
             novos.add(convite);
         }
+        novos.forEach(v -> combinado.adicionarParticipante(v.getDestinatario()));
         var salvos = conviteRepository.saveAll(novos);
         Instant agora = Instant.now();
         historico.saveAll(salvos.stream().map(v -> new ConviteHistorico(v, remetente, AcaoConvite.ENVIO, agora)).toList());
@@ -148,18 +159,28 @@ public class ConviteService {
         }
     }
 
-    private ConviteRespostaDTO responder(Long id, StatusConvite resposta) {
+    private UsuarioPrincipal principal() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof UsuarioPrincipal principal)) {
             throw new AccessDeniedException("Autenticação necessária.");
         }
+        return principal;
+    }
+
+    private ConviteRespostaDTO responder(Long id, StatusConvite resposta, String motivo) {
+        var principal = principal();
+        var identificacao = conviteRepository.identificar(id)
+                .orElseThrow(() -> new AccessDeniedException("Convite indisponível."));
+        if (!identificacao.destinatarioId().equals(principal.usuario().getId())) {
+            throw new AccessDeniedException("Somente o destinatário pode responder ao convite.");
+        }
+        // Ordem uniforme com o envio: combinado primeiro, convite depois.
+        Combinado combinado = combinadoRepository.buscarParaConvite(identificacao.combinadoId()).orElseThrow();
         Convite convite = conviteRepository.buscarParaResponder(id)
                 .orElseThrow(() -> new AccessDeniedException("Convite indisponível."));
         if (!convite.getDestinatario().getId().equals(principal.usuario().getId())) {
             throw new AccessDeniedException("Somente o destinatário pode responder ao convite.");
         }
-        var combinado = combinadoRepository.buscarParaConvite(convite.getCombinado().getId())
-                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
         validarEstado(combinado);
         if (convite.getStatus() != StatusConvite.PENDENTE) {
             throw new ConviteConflitoException("Este convite já foi respondido.");
@@ -178,13 +199,22 @@ public class ConviteService {
         Instant agora = Instant.now();
         convite.setStatus(resposta);
         convite.setDataResposta(agora);
+        convite.setMotivoRecusa(resposta == StatusConvite.RECUSADO ? motivo : null);
         conviteRepository.save(convite);
-        historico.save(new ConviteHistorico(convite, convite.getDestinatario(), acao, agora));
+        historico.save(new ConviteHistorico(convite, convite.getDestinatario(),
+                acao, agora, convite.getMotivoRecusa()));
         if (resposta == StatusConvite.ACEITO) {
             combinadoService.ativarSeTodosAceitaram(combinado);
+        } else {
+            Usuario criador = combinado.getCriador() == null ? convite.getRemetente() : combinado.getCriador();
+            String texto = convite.getDestinatario().getNome() + " recusou o convite para o combinado '" + combinado.getTitulo() + "'.";
+            if (motivo != null) texto += " Motivo: " + motivo;
+            notificacaoRepository.save(new Notificacao(criador, "Convite recusado", texto));
         }
-        return new ConviteRespostaDTO(convite.getId(), convite.getCombinado().getId(), resposta, agora);
+        return new ConviteRespostaDTO(convite.getId(), combinado.getId(), resposta, agora,
+                convite.getMotivoRecusa(), combinado.getStatus());
     }
+
 
     private void validarEstado(Combinado combinado) {
         if (combinado.getStatus() != StatusCombinado.AGUARDANDO_CONFIRMACAO

@@ -39,7 +39,7 @@ public class ConviteConsultaService {
                 combinado.getCategoria(), convite.getStatus(), convite.getMensagem(), convite.getDataEnvio(),
                 resumo(convite.getRemetente()), resumo(convite.getDestinatario()), confirmados,
                 convite.getDataResposta(), historico.findByConviteIdOrderByOcorridoEmAscIdAsc(id)
-                        .stream().map(ConviteHistoricoDTO::de).toList());
+                        .stream().map(ConviteHistoricoDTO::de).toList(), convite.getMotivoRecusa());
     }
     private UsuarioResumoDTO resumo(Usuario u) { return new UsuarioResumoDTO(u.getId(), u.getNome(), u.getEmail()); }
 

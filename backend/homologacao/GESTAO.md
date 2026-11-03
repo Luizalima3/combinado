@@ -90,6 +90,8 @@ a alteração do status. `GET /api/convites/{id}` inclui a timeline em `historic
 em ordem cronológica, com a mesma permissão de detalhes. Datas de respostas antigas
 não são fabricadas; registros legados sem evidência permanecem sem data/histórico.
 
-Estes endpoints alteram o estado de cada convite. Não alteram automaticamente o
-estado global do combinado nem substituem os endpoints legados de resposta do combinado.
+Na entrega da sprint 2, estes endpoints alteravam somente o estado de cada convite.
+Na sprint 3 (#32268, #32271, #32274), o último aceite passa a ativar o combinado
+aguardando confirmação e a recusa notifica o criador, com motivo opcional.
+O aceite legado usa a mesma regra. Ver SPRINT3_RESPOSTAS_CONVITES.md.
 

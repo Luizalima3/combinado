@@ -24,8 +24,15 @@ public class ConviteRespostaController {
     @Operation(summary = "Aceitar convite pendente", description = "Sem corpo. Autor é o destinatário autenticado; dataResposta vem do servidor em UTC. O combinado passa para ATIVO somente quando todos os participantes aceitarem.")
     public ConviteRespostaDTO aceitar(@PathVariable Long id) { return service.aceitar(id); }
     @PatchMapping("/{id}/recusar")
-    @Operation(summary = "Recusar convite pendente", description = "Sem corpo. Registra RECUSA com autor e data do servidor. Nova tentativa de resposta retorna 409.")
-    public ConviteRespostaDTO recusar(@PathVariable Long id) { return service.recusar(id); }
+    @Operation(summary = "Recusar convite pendente", description = "Corpo opcional com motivo de até 500 caracteres. Registra RECUSA, preserva o estado global e notifica o criador. Nova resposta retorna 409.")
+    public ConviteRespostaDTO recusar(@PathVariable Long id,
+            @jakarta.validation.Valid @RequestBody(required = false) br.edu.ifpb.combinado.dto.RecusaConviteDTO dados) {
+        return service.recusar(id, dados);
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> dadosInvalidos(IllegalArgumentException exception) {
+        return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+    }
     @ExceptionHandler(ConviteConflitoException.class)
     public ResponseEntity<Map<String, String>> conflito(ConviteConflitoException exception) {
         return ResponseEntity.status(409).body(Map.of("message", exception.getMessage()));

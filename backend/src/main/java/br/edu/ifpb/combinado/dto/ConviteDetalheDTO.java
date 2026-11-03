@@ -8,4 +8,4 @@ public record ConviteDetalheDTO(Long id, Long combinadoId, String titulo, Catego
         StatusConvite status, String mensagem, LocalDateTime dataEnvio,
         UsuarioResumoDTO remetente, UsuarioResumoDTO destinatario,
         List<ParticipanteStatusDTO> participantesConfirmados,
-        java.time.Instant dataResposta, List<ConviteHistoricoDTO> historico) {}
+        java.time.Instant dataResposta, List<ConviteHistoricoDTO> historico, String motivoRecusa) {}

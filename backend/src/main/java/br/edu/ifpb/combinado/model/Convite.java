@@ -34,6 +34,8 @@ public class Convite {
     private LocalDateTime dataEnvio = LocalDateTime.now();
 
     private java.time.Instant dataResposta;
+    @Column(length = 500)
+    private String motivoRecusa;
 
     public Convite() {}
 
@@ -59,4 +61,6 @@ public class Convite {
     public void setDataEnvio(LocalDateTime dataEnvio) { this.dataEnvio = dataEnvio; }
     public java.time.Instant getDataResposta() { return dataResposta; }
     public void setDataResposta(java.time.Instant dataResposta) { this.dataResposta = dataResposta; }
+    public String getMotivoRecusa() { return motivoRecusa; }
+    public void setMotivoRecusa(String motivoRecusa) { this.motivoRecusa = motivoRecusa; }
 }

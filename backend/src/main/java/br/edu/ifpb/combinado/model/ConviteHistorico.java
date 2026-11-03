@@ -21,18 +21,25 @@ public class ConviteHistorico {
     private AcaoConvite acao;
     @Column(nullable = false, updatable = false)
     private Instant ocorridoEm;
+    @Column(length = 500, updatable = false)
+    private String motivo;
 
     protected ConviteHistorico() {}
     public ConviteHistorico(Convite convite, Usuario autor, AcaoConvite acao, Instant ocorridoEm) {
+        this(convite, autor, acao, ocorridoEm, null);
+    }
+    public ConviteHistorico(Convite convite, Usuario autor, AcaoConvite acao, Instant ocorridoEm, String motivo) {
         this.convite = convite;
         this.autor = autor;
         this.autorNome = autor.getNome();
         this.acao = acao;
         this.ocorridoEm = ocorridoEm;
+        this.motivo = motivo;
     }
     public Long getId() { return id; }
     public Usuario getAutor() { return autor; }
     public String getAutorNome() { return autorNome; }
     public AcaoConvite getAcao() { return acao; }
     public Instant getOcorridoEm() { return ocorridoEm; }
+    public String getMotivo() { return motivo; }
 }
