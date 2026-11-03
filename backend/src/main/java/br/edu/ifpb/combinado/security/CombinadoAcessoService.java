@@ -54,4 +54,11 @@ n     * QUANDO um participante (não necessariamente o criador) tenta concluí-l
         return conviteRepository.existsByCombinadoIdAndDestinatarioIdAndStatus(
                 id, usuarioId, StatusConvite.ACEITO);
     }
+
+    public boolean podeConsultar(Long id, Authentication authentication) {
+        boolean admin = authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof UsuarioPrincipal
+                && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        return podeAcessar(id, authentication) || (admin && id != null && combinadoRepository.existsById(id));
+    }
 }
