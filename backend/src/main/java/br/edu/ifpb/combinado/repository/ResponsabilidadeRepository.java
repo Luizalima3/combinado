@@ -8,4 +8,6 @@ import java.util.List;
 public interface ResponsabilidadeRepository extends JpaRepository<Responsabilidade, Long> {
     @EntityGraph(attributePaths = "responsaveis")
     List<Responsabilidade> findByCombinadoIdOrderByIdAsc(Long combinadoId);
+    @EntityGraph(attributePaths = "responsaveis")
+    java.util.Optional<Responsabilidade> findByIdAndCombinadoId(Long id, Long combinadoId);
 }
