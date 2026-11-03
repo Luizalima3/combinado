@@ -29,10 +29,13 @@ public class CombinadoController {
 
     private final CombinadoService service;
     private final br.edu.ifpb.combinado.service.CombinadoConsultaService consultas;
+    private final br.edu.ifpb.combinado.service.CombinadoDetalheService detalhes;
 
-    public CombinadoController(CombinadoService service, br.edu.ifpb.combinado.service.CombinadoConsultaService consultas) {
+    public CombinadoController(CombinadoService service, br.edu.ifpb.combinado.service.CombinadoConsultaService consultas,
+            br.edu.ifpb.combinado.service.CombinadoDetalheService detalhes) {
         this.service = service;
         this.consultas = consultas;
+        this.detalhes = detalhes;
     }
 
     @PostMapping
@@ -62,8 +65,8 @@ public class CombinadoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CombinadoResumoDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarDetalhes(id));
+    public ResponseEntity<br.edu.ifpb.combinado.dto.CombinadoDetalheDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(detalhes.buscar(id));
     }
 
     @GetMapping("/{id}/historico")

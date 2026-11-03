@@ -274,16 +274,10 @@ public class CombinadoService {
      * quais participantes ainda não confirmaram.
      */
     private void validarTodosAceitaram(Combinado combinado) {
-        List<String> naoConfirmados = combinado.getUsuariosParticipantes().stream()
-                .filter(participante -> conviteRepository
+        List<String> naoConfirmados = ConfirmacaoCombinado.pendentes(combinado, participanteId -> conviteRepository
                         .findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
-                                combinado.getId(), participante.getId())
-                        .map(Convite::getStatus)
-                        .filter(status -> status == StatusConvite.ACEITO)
-                        .isEmpty())
-                .map(Usuario::getNome)
-                .sorted()
-                .toList();
+                                combinado.getId(), participanteId)
+                        .map(Convite::getStatus));
         if (!naoConfirmados.isEmpty()) {
             throw new ParticipantesPendentesException(
                     "Não é possível concluir o combinado: os seguintes participantes ainda não confirmaram: "

@@ -108,7 +108,8 @@ class CombinadoVinculoTest {
         for (Usuario usuario : new Usuario[]{criador, participante}) {
             mvc.perform(get("/api/combinados/" + id).header("Authorization", bearer(usuario)))
                     .andExpect(status().isOk()).andExpect(jsonPath("$.titulo").value("Acordo privado"))
-                    .andExpect(jsonPath("$.criador").doesNotExist()).andExpect(jsonPath("$.participantes").doesNotExist());
+                    .andExpect(jsonPath("$.criador").doesNotExist()).andExpect(jsonPath("$.participantes").isArray())
+                    .andExpect(jsonPath("$.participantes[0].senha").doesNotExist());
         }
     }
 

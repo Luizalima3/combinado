@@ -121,7 +121,8 @@ class RascunhosDetalhesTest extends GestaoFixture {
                 .andExpect(jsonPath("$.categoria").value("OUTRO"))
                 .andExpect(jsonPath("$.prazo").value(combinado.getDataPrazo().toString()))
                 .andExpect(jsonPath("$.nomeCriador").value("Criador"))
-                .andExpect(jsonPath("$.criador").doesNotExist()).andExpect(jsonPath("$.participantes").doesNotExist());
+                .andExpect(jsonPath("$.criador").doesNotExist()).andExpect(jsonPath("$.participantes").isArray())
+                .andExpect(jsonPath("$.participantes[0].senha").doesNotExist());
         mvc.perform(get(url()).header("Authorization", token(externo))).andExpect(status().isForbidden());
         mvc.perform(get("/api/combinados/999999").header("Authorization", bearer)).andExpect(status().isForbidden());
         mvc.perform(get(url())).andExpect(status().isUnauthorized());
