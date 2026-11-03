@@ -20,11 +20,19 @@ public class CombinadoConsultaService {
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public List<CombinadoResumoDTO> listar(boolean apenasCriados, String titulo, List<String> ordenacoes) {
+        return listar(apenasCriados, titulo, ordenacoes, null, null, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("isAuthenticated()")
+    public List<CombinadoResumoDTO> listar(boolean apenasCriados, String titulo, List<String> ordenacoes,
+            StatusCombinado status, String categoria, java.time.LocalDate dataInicio, java.time.LocalDate dataFim) {
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long usuarioId = principal.usuario().getId();
         boolean admin = principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
         String busca = TextoConsulta.titulo(titulo);
         var ordem = OrdenacaoConsulta.combinados(ordenacoes);
+        var periodoCategoria = FiltroPeriodoCategoria.de(categoria, dataInicio, dataFim);
         Specification<Combinado> filtro = (raiz, consulta, cb) -> {
             var autor = cb.equal(raiz.get("criador").get("id"), usuarioId);
             var acesso = cb.conjunction();
@@ -44,7 +52,9 @@ public class CombinadoConsultaService {
                 acesso = cb.or(autor, cb.and(cb.notEqual(raiz.get("status"), StatusCombinado.RASCUNHO),
                         cb.or(cb.exists(participantes), cb.exists(convites))));
             }
-            return cb.and(acesso, cb.like(cb.lower(raiz.get("titulo")), busca, '!'));
+            return cb.and(acesso, cb.like(cb.lower(raiz.get("titulo")), busca, '!'),
+                    status == null ? cb.conjunction() : cb.equal(raiz.get("status"), status),
+                    periodoCategoria.predicado(raiz, cb));
         };
         return combinados.findAll(filtro, ordem).stream().map(CombinadoResumoDTO::de).toList();
     }

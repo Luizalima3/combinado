@@ -53,16 +53,26 @@ public class ConviteConsultaService {
     @PreAuthorize("isAuthenticated()")
     public java.util.List<ConviteResumoDTO> recebidos(int pagina, int limite, String titulo,
             StatusConvite status, java.util.List<String> ordenacoes) {
+        return recebidos(pagina, limite, titulo, status, ordenacoes, null, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("isAuthenticated()")
+    public java.util.List<ConviteResumoDTO> recebidos(int pagina, int limite, String titulo,
+            StatusConvite status, java.util.List<String> ordenacoes, String categoria,
+            java.time.LocalDate dataInicio, java.time.LocalDate dataFim) {
         if (pagina < 0 || limite < 1 || limite > 100) throw new IllegalArgumentException("Paginação inválida.");
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         var pageable = org.springframework.data.domain.PageRequest.of(pagina, limite,
                 OrdenacaoConsulta.convites(ordenacoes));
         String busca = TextoConsulta.titulo(titulo);
+        var periodoCategoria = FiltroPeriodoCategoria.de(categoria, dataInicio, dataFim);
         org.springframework.data.jpa.domain.Specification<br.edu.ifpb.combinado.model.Convite> filtro = (raiz, consulta, cb) ->
                 cb.and(cb.equal(raiz.get("destinatario").get("id"), principal.usuario().getId()),
                         cb.notEqual(raiz.get("combinado").get("status"), br.edu.ifpb.combinado.model.enums.StatusCombinado.RASCUNHO),
                         cb.like(cb.lower(raiz.get("combinado").get("titulo")), busca, '!'),
-                        status == null ? cb.conjunction() : cb.equal(raiz.get("status"), status));
+                        status == null ? cb.conjunction() : cb.equal(raiz.get("status"), status),
+                        periodoCategoria.predicado(raiz.get("combinado"), cb));
         return convites.findAll(filtro, pageable).getContent().stream().map(ConviteResumoDTO::de).toList();
     }
 }

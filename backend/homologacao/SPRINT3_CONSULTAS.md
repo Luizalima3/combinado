@@ -27,3 +27,20 @@ do envio do convite, como solicitado pela task. sort=dataEnvio,asc também é ac
 Nunca usa a data de criação do combinado para essa ordenação. Desempates usam id desc.
 Mesmo com filtros e como ADMIN, o usuário consulta somente os próprios convites
 recebidos. Rascunhos de terceiros não aparecem. Resultado sem correspondências é [].
+
+## Categoria, estado e período (#32310, #32313, #32316)
+
+As consultas /api/combinados e /api/combinados/criados aceitam status do combinado,
+como RASCUNHO, AGUARDANDO_CONFIRMACAO, ATIVO, CONCLUIDO e CANCELADO.
+/api/convites/recebidos mantém status do convite (PENDENTE, ACEITO ou RECUSADO).
+
+As três listagens aceitam categoria. Preservam os enums atuais, como EMPRESTIMO_OBJETO
+e DIVISAO_DESPESA, com aliases EMPRESTIMO e DESPESA. Categoria inválida retorna 400.
+Os filtros são combináveis com título, status e ordenação, antes de paginar recebidos.
+
+Conforme regra confirmada pelo usuário, dataInicio é o limite inferior da criação
+do combinado (a partir de 00:00 do dia informado) e dataFim é o limite superior
+do prazo de vencimento (inclusive). Formato: YYYY-MM-DD. Podem ser usados separados.
+Intervalo invertido e datas inválidas retornam 400. Sem prazo, o registro não aparece
+quando dataFim é informado. Em recebidos, dataInicio continua sendo a criação do
+combinado, enquanto sort=criadoEm ordena pela data do convite.

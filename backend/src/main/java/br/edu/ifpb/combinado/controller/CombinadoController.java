@@ -43,14 +43,22 @@ public class CombinadoController {
 
     @GetMapping
     public ResponseEntity<List<CombinadoResumoDTO>> listar(@RequestParam(required = false) String titulo,
+            @RequestParam(required = false) br.edu.ifpb.combinado.model.enums.StatusCombinado status,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim,
             @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
-        return ResponseEntity.ok(consultas.listar(false, titulo, parametros.get("sort")));
+        return ResponseEntity.ok(consultas.listar(false, titulo, parametros.get("sort"), status, categoria, dataInicio, dataFim));
     }
 
     @GetMapping("/criados")
     public List<CombinadoResumoDTO> criados(@RequestParam(required = false) String titulo,
+            @RequestParam(required = false) br.edu.ifpb.combinado.model.enums.StatusCombinado status,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim,
             @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
-        return consultas.listar(true, titulo, parametros.get("sort"));
+        return consultas.listar(true, titulo, parametros.get("sort"), status, categoria, dataInicio, dataFim);
     }
 
     @GetMapping("/{id}")
