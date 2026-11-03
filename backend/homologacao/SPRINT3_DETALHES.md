@@ -11,8 +11,7 @@ GET /api/combinados/{id} mantém todos os campos anteriores do resumo e acrescen
 EDITAR e ADICIONAR_TAREFAS exigem criador e estado RASCUNHO/AGUARDANDO_CONFIRMACAO.
 PUBLICAR exige criador e RASCUNHO. Os dados obrigatórios continuam sendo validados
 na publicação. CANCELAR exige criador e estado não final.
-CONCLUIR exige ATIVO, papel autorizado pela regra atual (criador ou participante
-aceito) e confirmação de todos os participantes vinculados. O cálculo usa a mesma
+CONCLUIR exige ATIVO, criador e confirmação de todos os participantes vinculados. O cálculo usa a mesma
 regra de confirmação aplicada pela conclusão efetiva.
 VER_HISTORICO aparece para quem pode consultar o combinado.
 

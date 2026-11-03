@@ -289,6 +289,12 @@ public class CombinadoService {
         return salvo;
     }
 
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public br.edu.ifpb.combinado.dto.CombinadoConclusaoDTO concluirComResposta(Long id) {
+        return br.edu.ifpb.combinado.dto.CombinadoConclusaoDTO.de(concluir(id));
+    }
+
     /**
      * US62 - Task #31670: validação "todos aceitaram" para conclusão.
      * DADO que o combinado possui participantes com status pendente ou recusado,

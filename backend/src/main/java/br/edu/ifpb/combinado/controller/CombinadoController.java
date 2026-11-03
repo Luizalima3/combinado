@@ -111,9 +111,15 @@ public class CombinadoController {
     }
 
     @PatchMapping("/{id}/concluir")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Concluir combinado ativo",
+            description = "Exige o criador e confirmação de todos os participantes vinculados. Registra autor e data no histórico.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+            description = "Combinado concluído com sucesso",
+            content = @io.swagger.v3.oas.annotations.media.Content(schema = @io.swagger.v3.oas.annotations.media.Schema(
+                    implementation = br.edu.ifpb.combinado.dto.CombinadoConclusaoDTO.class)))
     public ResponseEntity<?> concluir(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(service.concluir(id));
+            return ResponseEntity.ok(service.concluirComResposta(id));
         } catch (AccessDeniedException exception) {
             return criadorObrigatorio("concluir");
         } catch (ParticipantesPendentesException exception) {

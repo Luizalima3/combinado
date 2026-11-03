@@ -66,13 +66,11 @@ class CombinadoDetalheCompletoTest extends GestaoFixture {
         mvc.perform(get(url()).header("Authorization", bearer))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.acoesPermitidas", not(hasItem("CONCLUIR"))));
         convite.setStatus(StatusConvite.ACEITO); convites.saveAndFlush(convite);
-        for (String acesso : new String[]{bearer, token(participante)}) {
-            mvc.perform(get(url()).header("Authorization", acesso)).andExpect(status().isOk())
-                    .andExpect(jsonPath("$.acoesPermitidas", hasItem("CONCLUIR")))
-                    .andExpect(jsonPath("$.acoesPermitidas", not(hasItem("EDITAR"))));
-        }
+        mvc.perform(get(url()).header("Authorization", bearer)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.acoesPermitidas", hasItem("CONCLUIR")))
+                .andExpect(jsonPath("$.acoesPermitidas", not(hasItem("EDITAR"))));
         mvc.perform(get(url()).header("Authorization", token(participante)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.acoesPermitidas", not(hasItem("CANCELAR"))));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.acoesPermitidas", contains("VER_HISTORICO")));
         assertEquals(StatusCombinado.ATIVO, combinado.getStatus());
     }
     @Test void estadosFinaisSoDevemOferecerHistorico() throws Exception {
