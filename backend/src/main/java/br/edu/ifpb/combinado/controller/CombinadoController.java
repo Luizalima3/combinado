@@ -76,6 +76,12 @@ public class CombinadoController {
         return ResponseEntity.ok(detalhes.buscar(id));
     }
 
+    @GetMapping("/{id}/status")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Consultar status para polling",
+            description = "Consulta leve, sugerida a cada 10 segundos. Retorna estado, status dos participantes e ações permitidas, sem carregar tarefas. Exige vínculo ou ADMIN.")
+    public ResponseEntity<br.edu.ifpb.combinado.dto.CombinadoStatusDTO> consultarStatus(@PathVariable Long id) {
+        return ResponseEntity.ok().cacheControl(org.springframework.http.CacheControl.noStore()).body(detalhes.consultarStatus(id));
+    }
 
     @GetMapping("/meus-rascunhos")
     public List<CombinadoResumoDTO> meusRascunhos() { return service.listarMeusRascunhos(); }
@@ -119,6 +125,8 @@ public class CombinadoController {
     }
 
     @PatchMapping("/{id}/cancelar")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Cancelar combinado",
+            description = "Somente o criador. Permitido em RASCUNHO, AGUARDANDO_CONFIRMACAO e ATIVO. CONCLUIDO e CANCELADO bloqueiam nova transição. Motivo opcional.")
     public ResponseEntity<?> cancelar(
             @PathVariable Long id,
             @Valid @RequestBody(required = false) CancelamentoDTO payload) {

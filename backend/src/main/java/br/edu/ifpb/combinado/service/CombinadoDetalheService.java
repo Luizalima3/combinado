@@ -32,6 +32,21 @@ public class CombinadoDetalheService {
         var combinado = combinados.findById(id).orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
         var pessoas = participantes.listar(id);
         var atividades = tarefas.listar(id);
+        return CombinadoDetalheDTO.de(CombinadoResumoDTO.de(combinado), pessoas, atividades, acoes(combinado, pessoas));
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
+    public CombinadoStatusDTO consultarStatus(Long id) {
+        var combinado = combinados.findById(id).orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
+        var pessoas = participantes.listar(id);
+        return new CombinadoStatusDTO(id, combinado.getStatus(), pessoas,
+                List.copyOf(acoes(combinado, pessoas)), java.time.Instant.now());
+    }
+
+    private List<AcaoPermitidaCombinado> acoes(br.edu.ifpb.combinado.model.Combinado combinado,
+                                             List<ParticipanteStatusDTO> pessoas) {
+        Long id = combinado.getId();
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         var principal = (UsuarioPrincipal) authentication.getPrincipal();
         boolean criador = combinado.getCriador() != null
@@ -51,6 +66,6 @@ public class CombinadoDetalheService {
             }
         }
         acoes.add(AcaoPermitidaCombinado.VER_HISTORICO);
-        return CombinadoDetalheDTO.de(CombinadoResumoDTO.de(combinado), pessoas, atividades, acoes);
+        return acoes;
     }
 }
