@@ -28,9 +28,11 @@ import java.util.Map;
 public class CombinadoController {
 
     private final CombinadoService service;
+    private final br.edu.ifpb.combinado.service.CombinadoConsultaService consultas;
 
-    public CombinadoController(CombinadoService service) {
+    public CombinadoController(CombinadoService service, br.edu.ifpb.combinado.service.CombinadoConsultaService consultas) {
         this.service = service;
+        this.consultas = consultas;
     }
 
     @PostMapping
@@ -40,8 +42,15 @@ public class CombinadoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CombinadoResumoDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumos());
+    public ResponseEntity<List<CombinadoResumoDTO>> listar(@RequestParam(required = false) String titulo,
+            @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
+        return ResponseEntity.ok(consultas.listar(false, titulo, parametros.get("sort")));
+    }
+
+    @GetMapping("/criados")
+    public List<CombinadoResumoDTO> criados(@RequestParam(required = false) String titulo,
+            @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
+        return consultas.listar(true, titulo, parametros.get("sort"));
     }
 
     @GetMapping("/{id}")
