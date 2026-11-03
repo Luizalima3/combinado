@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 class CombinadoConvitesTest {
 
     @Mock private CombinadoRepository combinadoRepository;
-    @Mock private CombinadoHistoricoRepository combinadoHistoricoRepository;
+    @Mock private br.edu.ifpb.combinado.service.HistoricoService historicoService;
     @Mock private UsuarioRepository usuarioRepository;
     @Mock private ConviteRepository conviteRepository;
     @Mock private ConviteHistoricoRepository conviteHistoricoRepository;
@@ -133,13 +133,9 @@ class CombinadoConvitesTest {
         verify(conviteHistoricoRepository).save(historicoCaptor.capture());
         assertEquals(AcaoConvite.ENVIO, historicoCaptor.getValue().getAcao());
         verify(notificacaoRepository).save(any(Notificacao.class));
-        ArgumentCaptor<br.edu.ifpb.combinado.model.CombinadoHistorico> combinadoHistoricoCaptor =
-                ArgumentCaptor.forClass(br.edu.ifpb.combinado.model.CombinadoHistorico.class);
-        verify(combinadoHistoricoRepository).save(combinadoHistoricoCaptor.capture());
-        assertEquals(br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico.ALTERACAO_STATUS,
-                combinadoHistoricoCaptor.getValue().getAcao());
-        assertEquals("Status alterado de RASCUNHO para AGUARDANDO_CONFIRMACAO.",
-                combinadoHistoricoCaptor.getValue().getDescricao());
+        verify(historicoService).registrar(rascunho, criador,
+                "Status alterado de RASCUNHO para AGUARDANDO_CONFIRMACAO.", null,
+                br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico.ALTERACAO_STATUS);
     }
 
     private CombinadoDTO dados(List<Long> participantesIds) {

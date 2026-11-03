@@ -8,7 +8,9 @@ public record CombinadoHistoricoDTO(
     String autorNome,
     String descricao,
     String acao,
-    Instant ocorridoEm
+    Instant ocorridoEm,
+    Long autorId,
+    String motivo
 ) {
     public static CombinadoHistoricoDTO de(CombinadoHistorico historico) {
         return new CombinadoHistoricoDTO(
@@ -16,7 +18,9 @@ public record CombinadoHistoricoDTO(
             historico.getAutorNome(),
             historico.getDescricao(),
             historico.getAcao().name(),
-            historico.getOcorridoEm()
+            historico.getOcorridoEm(),
+            historico.getAutor().getId(),
+            historico.getMotivo()
         );
     }
 }

@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 
 public interface CombinadoHistoricoRepository extends JpaRepository<CombinadoHistorico, Long> {
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = "autor")
     List<CombinadoHistorico> findByCombinadoIdOrderByOcorridoEmAscIdAsc(Long combinadoId);
 
     @Query("""
@@ -21,6 +22,7 @@ public interface CombinadoHistoricoRepository extends JpaRepository<CombinadoHis
               and (:fim is null or h.ocorridoEm <= :fim)
             order by h.ocorridoEm asc, h.id asc
             """)
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = "autor")
     List<CombinadoHistorico> buscarPorCombinadoPeriodoAutorETipo(@Param("combinadoId") Long combinadoId,
             @Param("autorId") Long autorId, @Param("tipo") AcaoCombinadoHistorico tipo,
             @Param("inicio") Instant inicio, @Param("fim") Instant fim);

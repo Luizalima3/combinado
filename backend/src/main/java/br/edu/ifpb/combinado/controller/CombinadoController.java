@@ -76,19 +76,6 @@ public class CombinadoController {
         return ResponseEntity.ok(detalhes.buscar(id));
     }
 
-    @GetMapping("/{id}/historico")
-    @Operation(summary = "Consultar linha do tempo do combinado",
-            description = "Retorna eventos em ordem cronológica crescente, com filtros opcionais por autor, tipo e datas inclusivas em UTC. Restrito a usuários com acesso ao combinado.")
-    public ResponseEntity<List<CombinadoHistoricoDTO>> buscarHistorico(
-            @PathVariable Long id,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(
-                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(
-                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim,
-            @RequestParam(required = false) Long autorId,
-            @RequestParam(required = false) AcaoCombinadoHistorico tipo) {
-        return ResponseEntity.ok(service.buscarHistorico(id, dataInicio, dataFim, autorId, tipo));
-    }
 
     @GetMapping("/meus-rascunhos")
     public List<CombinadoResumoDTO> meusRascunhos() { return service.listarMeusRascunhos(); }

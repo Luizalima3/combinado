@@ -41,7 +41,7 @@ public class CombinadoService {
             new com.fasterxml.jackson.databind.ObjectMapper();
 
     private final CombinadoRepository repository;
-    private final CombinadoHistoricoRepository historicoRepository;
+    private final HistoricoService historicoService;
     private final UsuarioRepository usuarioRepository;
     private final ConviteRepository conviteRepository;
     private final ConviteHistoricoRepository conviteHistoricoRepository;
@@ -49,14 +49,14 @@ public class CombinadoService {
 
     public CombinadoService(
             CombinadoRepository repository,
-            CombinadoHistoricoRepository historicoRepository,
+            HistoricoService historicoService,
             UsuarioRepository usuarioRepository,
             ConviteRepository conviteRepository,
             ConviteHistoricoRepository conviteHistoricoRepository,
             NotificacaoRepository notificacaoRepository
     ) {
         this.repository = repository;
-        this.historicoRepository = historicoRepository;
+        this.historicoService = historicoService;
         this.usuarioRepository = usuarioRepository;
         this.conviteRepository = conviteRepository;
         this.conviteHistoricoRepository = conviteHistoricoRepository;
@@ -85,8 +85,8 @@ public class CombinadoService {
             throw new AccessDeniedException("Autenticação necessária.");
         }
         String descricao = "Status alterado de " + statusAnterior + " para " + statusNovo + ".";
-        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, motivo,
-                AcaoCombinadoHistorico.ALTERACAO_STATUS));
+        historicoService.registrar(combinado, principal.usuario(), descricao, motivo,
+                AcaoCombinadoHistorico.ALTERACAO_STATUS);
     }
 
     @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
@@ -124,13 +124,7 @@ public class CombinadoService {
     @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
     public List<CombinadoHistoricoDTO> buscarHistorico(Long id, LocalDate dataInicio, LocalDate dataFim,
             Long autorId, AcaoCombinadoHistorico tipo) {
-        if (dataInicio != null && dataFim != null && dataInicio.isAfter(dataFim)) {
-            throw new IllegalArgumentException("dataInicio não pode ser posterior a dataFim.");
-        }
-        var inicio = dataInicio == null ? null : dataInicio.atStartOfDay().toInstant(ZoneOffset.UTC);
-        var fim = dataFim == null ? null : dataFim.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
-        return historicoRepository.buscarPorCombinadoPeriodoAutorETipo(id, autorId, tipo, inicio, fim)
-                .stream().map(CombinadoHistoricoDTO::de).toList();
+        return historicoService.listar(id, dataInicio, dataFim, autorId, tipo);
     }
 
     @Transactional
@@ -187,9 +181,7 @@ public class CombinadoService {
         Combinado salvo = repository.save(combinado);
         System.out.println(">>> Combinado salvo com ID: " + salvo.getId());
         
-        historicoRepository.save(CombinadoHistorico.de(
-                salvo, criador, "Combinado criado.",
-                AcaoCombinadoHistorico.CRIACAO));
+        historicoService.registrar(salvo, criador, "Combinado criado.", AcaoCombinadoHistorico.CRIACAO);
         
         if (salvo.getStatus() != StatusCombinado.RASCUNHO) {
             System.out.println(">>> Disparando convites para " + participantes.size() + " participantes...");
