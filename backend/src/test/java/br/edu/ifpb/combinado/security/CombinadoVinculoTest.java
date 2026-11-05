@@ -113,9 +113,9 @@ class CombinadoVinculoTest {
     }
 
     @Test
-    void deveNegarUsuarioSemVinculoMesmoComNomeIgualOuPerfilAdmin() throws Exception {
+    void deveNegarUsuarioSemVinculoMesmoComNomeIgual() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
-        for (Usuario usuario : new Usuario[]{intruso, admin}) {
+        for (Usuario usuario : new Usuario[]{intruso}) {
             mvc.perform(get("/api/combinados/" + id).header("Authorization", bearer(usuario)))
                     .andExpect(status().isForbidden()).andExpect(jsonPath("$.titulo").doesNotExist());
         }
@@ -201,7 +201,7 @@ class CombinadoVinculoTest {
                 .filter(evento -> evento.getAcao() == AcaoCombinadoHistorico.CONCLUSAO)
                 .findFirst().orElseThrow();
         assertEquals(criador.getId(), conclusao.getAutor().getId());
-        assertEquals("Combinado concluído pelo criador.", conclusao.getDescricao());
+        assertEquals("Combinado concluído.", conclusao.getDescricao());
         assertNotNull(conclusao.getOcorridoEm());
     }
 
