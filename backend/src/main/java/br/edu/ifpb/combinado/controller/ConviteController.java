@@ -11,21 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import br.edu.ifpb.combinado.dto.*;
-import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.responses.*;
-import io.swagger.v3.oas.annotations.media.*;
 
 @RestController
 @RequestMapping("/api/combinados/{combinadoId}/convites")
 @CrossOrigin(origins = "*")
-@Tag(name = "Convites")
-@ApiResponses({@ApiResponse(responseCode = "400", description = "Participantes ou mensagem inválidos"),
-        @ApiResponse(responseCode = "401", description = "JWT ausente ou inválido"),
-        @ApiResponse(responseCode = "403", description = "Somente o criador pode enviar"),
-        @ApiResponse(responseCode = "409", description = "Estado do combinado ou convite existente impede o envio")})
+@Tag(name = "Convites", description = "Endpoints para envio e gerenciamento de convites de combinados")
 public class ConviteController {
 
     private final ConviteService conviteService;
@@ -35,8 +29,14 @@ public class ConviteController {
     }
 
     @PostMapping
-    @Operation(summary = "Enviar convite individual", description = "O remetente é obtido do JWT; remetenteId informado no corpo é ignorado. Cria notificação e evento ENVIO.")
-    @ApiResponse(responseCode = "201", description = "Convite criado", content = @Content(schema = @Schema(implementation = Convite.class)))
+    @Operation(summary = "Enviar convite para participante", description = "Envia um convite vinculado ao combinado para o destinatário informado e gera notificação automática.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Convite enviado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos na requisição"),
+            @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Somente o criador do combinado pode enviar convites"),
+            @ApiResponse(responseCode = "409", description = "Conflito com convite pendente/aceito ou estado do combinado")
+    })
     @PreAuthorize("@combinadoAcesso.eCriador(#combinadoId, authentication)")
     public ResponseEntity<?> enviarConvite(@PathVariable Long combinadoId, @RequestBody ConviteRequestDTO dto,
                                            @AuthenticationPrincipal UsuarioPrincipal principal) {
