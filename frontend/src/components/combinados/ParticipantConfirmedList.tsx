@@ -15,17 +15,13 @@ export function ParticipantConfirmedList({
   participantes: ParticipanteCombinado[];
   criadorNome: string;
 }) {
-  const confirmed = participantes.filter(
-    (p) => p.conviteStatus === "ACEITO" || p.nome.trim().toLowerCase() === criadorNome.trim().toLowerCase(),
-  );
-
-  if (!confirmed.length) {
-    return <p className="text-sm text-muted">Nenhum participante confirmou o convite ainda.</p>;
+  if (!participantes.length) {
+    return <p className="text-sm text-muted">Nenhum participante convidado.</p>;
   }
 
   return (
     <ul className="space-y-2">
-      {confirmed.map((p) => (
+      {participantes.map((p) => (
         <li
           key={p.email}
           className="flex items-center justify-between gap-3 rounded-xl border border-line bg-bg px-3 py-2"

@@ -42,3 +42,18 @@ body {
   min-height: 100svh;
   display: block;
 }
+
+/* US66 - Mensagem de sucesso ao concluir: barra de progresso do SuccessToast
+   (duração alinhada ao auto-dismiss de 4200ms do ToastProvider). */
+@keyframes toast-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-toast-progress {
+  animation: toast-progress 4.2s linear forwards;
+}

@@ -1,11 +1,21 @@
 package br.edu.ifpb.combinado.service;
 
+import br.edu.ifpb.combinado.dto.CancelamentoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
 import br.edu.ifpb.combinado.model.Combinado;
 import br.edu.ifpb.combinado.model.CombinadoHistorico;
+import br.edu.ifpb.combinado.model.Convite;
+import br.edu.ifpb.combinado.model.ConviteHistorico;
+import br.edu.ifpb.combinado.model.Notificacao;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico;
+import br.edu.ifpb.combinado.model.enums.AcaoConvite;
+import br.edu.ifpb.combinado.model.enums.StatusConvite;
+import br.edu.ifpb.combinado.repository.ConviteHistoricoRepository;
+import br.edu.ifpb.combinado.repository.ConviteRepository;
+import br.edu.ifpb.combinado.repository.NotificacaoRepository;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,25 +29,35 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CombinadoService {
 
-    private static final tools.jackson.databind.json.JsonMapper JSON =
-            tools.jackson.databind.json.JsonMapper.builder().build();
+    private static final com.fasterxml.jackson.databind.ObjectMapper JSON =
+            new com.fasterxml.jackson.databind.ObjectMapper();
 
     private final CombinadoRepository repository;
     private final CombinadoHistoricoRepository historicoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ConviteRepository conviteRepository;
+    private final ConviteHistoricoRepository conviteHistoricoRepository;
+    private final NotificacaoRepository notificacaoRepository;
 
     public CombinadoService(
             CombinadoRepository repository,
             CombinadoHistoricoRepository historicoRepository,
-            UsuarioRepository usuarioRepository
+            UsuarioRepository usuarioRepository,
+            ConviteRepository conviteRepository,
+            ConviteHistoricoRepository conviteHistoricoRepository,
+            NotificacaoRepository notificacaoRepository
     ) {
         this.repository = repository;
         this.historicoRepository = historicoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.conviteRepository = conviteRepository;
+        this.conviteHistoricoRepository = conviteHistoricoRepository;
+        this.notificacaoRepository = notificacaoRepository;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -49,19 +69,55 @@ public class CombinadoService {
     @PreAuthorize("isAuthenticated()")
     public List<Combinado> listarTodos() {
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return repository.listarGeral();
+        }
         return repository.listarVinculados(principal.usuario().getId());
     }
 
-    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
+    /**
+     * US72 / Task #31706 — gravação centralizada de eventos de histórico.
+     *
+     * BDD:
+     * DADO que qualquer ação de mudança de status ocorre (concluir, cancelar)
+     * QUANDO a ação for executada
+     * ENTÃO o sistema deve registrar o usuário responsável e o timestamp da ação
+     *
+     * Garante que todo evento grava autor (usuário_id, extraído do principal
+     * autenticado) e timestamp (Instant.now() padronizado). O construtor da
+     * entidade valida fail-fast — nulos são rejeitados na origem.
+     */
+    private void registrarEvento(Combinado combinado, String descricao, AcaoCombinadoHistorico acao) {
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, acao));
+    }
+
+    /**
+     * US72 / Task #31706 — variante para eventos de cancelamento com motivo
+     * (nullable, US69 / Task #31696).
+     */
+    private void registrarEvento(Combinado combinado, String descricao, String motivo, AcaoCombinadoHistorico acao) {
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, motivo, acao));
+    }
+
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
     @Transactional(readOnly = true)
     public CombinadoResumoDTO buscarDetalhes(Long id) {
         return CombinadoResumoDTO.de(buscarPorId(id));
     }
 
-    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
     public Combinado buscarPorId(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado com o id: " + id));
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
+    public List<CombinadoHistoricoDTO> buscarHistorico(Long id) {
+        return historicoRepository.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id)
+                .stream().map(CombinadoHistoricoDTO::de).toList();
     }
 
     @Transactional
@@ -73,6 +129,7 @@ public class CombinadoService {
 
     @Transactional
     public Combinado criarCombinado(CombinadoDTO dto, Usuario criador) {
+        System.out.println(">>> Iniciando criação de combinado para o usuário: " + criador.getEmail());
         var participantes = new java.util.HashSet<Usuario>();
         if (dto.participantesIds() != null) {
             for (Long participanteId : dto.participantesIds()) {
@@ -91,10 +148,41 @@ public class CombinadoService {
         combinado.setCriador(criador);
         combinado.setParticipantesUsuarios(participantes);
         Combinado salvo = repository.save(combinado);
-        historicoRepository.save(new CombinadoHistorico(
+        System.out.println(">>> Combinado salvo com ID: " + salvo.getId());
+        
+        historicoRepository.save(CombinadoHistorico.de(
                 salvo, criador, "Combinado criado.",
-                AcaoCombinadoHistorico.CRIACAO, java.time.Instant.now()));
+                AcaoCombinadoHistorico.CRIACAO));
+        
+        if (salvo.getStatus() != StatusCombinado.RASCUNHO) {
+            System.out.println(">>> Disparando convites para " + participantes.size() + " participantes...");
+            dispararConvites(salvo, criador);
+            System.out.println(">>> Convites processados com sucesso.");
+        }
         return salvo;
+    }
+
+    /** Dispara convites PENDENTE (Task #31058) com histórico e notificação por destinatário. */
+    private void dispararConvites(Combinado combinado, Usuario remetente) {
+        var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
+        participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
+        for (Usuario destinatario : participantes) {
+            try {
+                Convite convite = new Convite();
+                convite.setCombinado(combinado);
+                convite.setRemetente(remetente);
+                convite.setDestinatario(destinatario);
+                convite.setStatus(StatusConvite.PENDENTE);
+                conviteRepository.save(convite);
+                conviteHistoricoRepository.save(new ConviteHistorico(
+                        convite, remetente, AcaoConvite.ENVIO, java.time.Instant.now()));
+                notificacaoRepository.save(new Notificacao(
+                        destinatario, "Convite para Combinado", "Você foi convidado para o combinado '" + combinado.getTitulo() + "'."));
+            } catch (Exception e) {
+                // Logar erro mas não abortar a criação do combinado
+                System.err.println("Erro ao enviar convite para " + destinatario.getEmail() + ": " + e.getMessage());
+            }
+        }
     }
 
     @Transactional
@@ -165,21 +253,60 @@ public class CombinadoService {
     }
 
     @Transactional
-    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.podeConcluir(#id, authentication)")
     public Combinado concluir(Long id) {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CONCLUIDO);
+        validarTodosAceitaram(combinado);
         combinado.setStatus(StatusCombinado.CONCLUIDO);
-        return repository.save(combinado);
+        Combinado salvo = repository.save(combinado);
+        // US64 - Task #31682: conclusão via PATCH /{id}/concluir registra histórico
+        // US72 / Task #31706: autor e timestamp garantidos pelo registrarEvento.
+        registrarEvento(salvo, "Combinado concluído.", AcaoCombinadoHistorico.CONCLUSAO);
+        return salvo;
+    }
+
+    /**
+     * US62 - Task #31670: validação "todos aceitaram" para conclusão.
+     * DADO que o combinado possui participantes com status pendente ou recusado,
+     * QUANDO o criador tentar concluir o combinado,
+     * ENTÃO o sistema deve impedir a conclusão e exibir mensagem informando
+     * quais participantes ainda não confirmaram.
+     */
+    private void validarTodosAceitaram(Combinado combinado) {
+        List<String> naoConfirmados = combinado.getUsuariosParticipantes().stream()
+                .filter(participante -> conviteRepository
+                        .findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
+                                combinado.getId(), participante.getId())
+                        .map(Convite::getStatus)
+                        .filter(status -> status == StatusConvite.ACEITO)
+                        .isEmpty())
+                .map(Usuario::getNome)
+                .sorted()
+                .toList();
+        if (!naoConfirmados.isEmpty()) {
+            throw new ParticipantesPendentesException(
+                    "Não é possível concluir o combinado: os seguintes participantes ainda não confirmaram: "
+                            + String.join(", ", naoConfirmados) + ".",
+                    naoConfirmados);
+        }
     }
 
     @Transactional
     @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
-    public Combinado cancelar(Long id) {
+    public Combinado cancelar(Long id, CancelamentoDTO dados) {
         Combinado combinado = buscarPorId(id);
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
-        return repository.save(combinado);
+        Combinado salvo = repository.save(combinado);
+        // US69 / Task #31696: motivo (nullable) persistido junto ao evento de
+        // cancelamento na coluna `motivo` de combinado_historico. Quando não
+        // informado, permanece nulo (CA #31822 — aceita com ou sem motivo).
+        // US72 / Task #31706: autor e timestamp garantidos pelo registrarEvento.
+        registrarEvento(salvo, "Combinado cancelado.",
+                dados == null ? null : dados.motivoNormalizado(),
+                AcaoCombinadoHistorico.CANCELAMENTO);
+        return salvo;
     }
 
     @Transactional(readOnly = true)
@@ -188,6 +315,56 @@ public class CombinadoService {
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return repository.findByCriadorIdAndStatusOrderByIdDesc(principal.usuario().getId(), StatusCombinado.RASCUNHO)
                 .stream().map(CombinadoResumoDTO::de).toList();
+    }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public CombinadoResumoDTO atualizar(Long id, CombinadoDTO dados) {
+        Combinado combinado = buscarPorId(id);
+        // US63 - Task #31673: verificação de status antes de permitir update do Combinado.
+        // DADO que o combinado está com status "Ativo" (ou já concluído/cancelado),
+        // QUANDO o usuário tentar editar título, descrição, categoria, prazo ou participantes,
+        // ENTÃO o sistema deve bloquear a edição e informar que o combinado não pode mais ser alterado.
+        if (combinado.getStatus() != StatusCombinado.RASCUNHO
+                && combinado.getStatus() != StatusCombinado.AGUARDANDO_CONFIRMACAO) {
+            throw new CombinadoNaoEditavelException(
+                    "Este combinado não pode mais ser alterado (status atual: "
+                            + combinado.getStatus() + ").");
+        }
+        if (dados == null) {
+            throw new IllegalArgumentException("Dados de atualização são obrigatórios.");
+        }
+        var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
+        if (dados.participantesIds() != null) {
+            participantes.clear();
+            for (Long usuarioId : dados.participantesIds()) {
+                if (usuarioId == null) throw new IllegalArgumentException("ID de participante é obrigatório.");
+                participantes.add(usuarioRepository.findById(usuarioId)
+                        .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + usuarioId)));
+            }
+        }
+        participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
+        if (participantes.isEmpty() && combinado.getStatus() == StatusCombinado.AGUARDANDO_CONFIRMACAO) {
+            throw new IllegalArgumentException("Informe ao menos um participante cadastrado diferente do criador.");
+        }
+        String nomes = participantes.isEmpty()
+                ? combinado.getParticipanteNome()
+                : participantes.stream().map(Usuario::getNome).sorted()
+                        .collect(java.util.stream.Collectors.joining(", "));
+        var titulo = dados.titulo() != null ? dados.titulo().trim() : combinado.getTitulo();
+        var categoria = dados.categoria() != null ? dados.categoria() : combinado.getCategoria();
+        var prazo = dados.dataPrazo() != null ? dados.dataPrazo() : combinado.getDataPrazo();
+        validarCamposObrigatorios(titulo, categoria, combinado.getCriador().getNome(), nomes);
+        validarPrazo(prazo);
+        // Validações precedem a alteração do registro gerenciado.
+        combinado.setTitulo(titulo);
+        combinado.setCategoria(categoria);
+        combinado.setDataPrazo(prazo);
+        if (dados.descricao() != null) combinado.setDescricao(dados.descricao());
+        if (dados.responsabilidades() != null) combinado.setResponsabilidades(dados.responsabilidades());
+        combinado.setParticipantesUsuarios(participantes);
+        combinado.setParticipanteNome(nomes);
+        return CombinadoResumoDTO.de(repository.save(combinado));
     }
 
     @Transactional
@@ -233,15 +410,45 @@ public class CombinadoService {
         return CombinadoResumoDTO.de(repository.save(combinado));
     }
 
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public CombinadoResumoDTO atualizarRascunho(Long id, CombinadoDTO dados) {
+        var combinado = repository.buscarParaConvite(id)
+                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
+        if (combinado.getStatus() != StatusCombinado.RASCUNHO) {
+            throw new IllegalArgumentException("Somente rascunhos podem ser atualizados nesta rota.");
+        }
+        if (!dados.isTituloValido()) throw new IllegalArgumentException("O título do rascunho é obrigatório.");
+        var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
+        if (dados.participantesIds() != null) {
+            participantes.clear();
+            for (Long usuarioId : dados.participantesIds()) {
+                if (usuarioId == null) throw new IllegalArgumentException("ID de participante é obrigatório.");
+                participantes.add(usuarioRepository.findById(usuarioId)
+                        .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + usuarioId)));
+            }
+        }
+        combinado.setTitulo(dados.titulo().trim());
+        combinado.setDescricao(dados.descricao());
+        combinado.setCategoria(dados.categoria());
+        combinado.setDataPrazo(dados.dataPrazo());
+        combinado.setResponsabilidades(dados.responsabilidades());
+        combinado.setParticipantesUsuarios(participantes);
+        combinado.setCriadorNome(combinado.getCriador().getNome());
+        combinado.setParticipanteNome(participantes.stream().map(Usuario::getNome).sorted()
+                .collect(java.util.stream.Collectors.joining(", ")));
+        return CombinadoResumoDTO.de(repository.save(combinado));
+    }
+
     private String removerMarcadorRascunho(String responsabilidades) {
         if (responsabilidades == null || !responsabilidades.stripLeading().startsWith("{")) return responsabilidades;
         try {
             var json = JSON.readTree(responsabilidades);
-            if (json instanceof tools.jackson.databind.node.ObjectNode objeto && objeto.has("rascunho")) {
+            if (json instanceof com.fasterxml.jackson.databind.node.ObjectNode objeto && objeto.has("rascunho")) {
                 objeto.put("rascunho", false);
                 return JSON.writeValueAsString(objeto);
             }
-        } catch (tools.jackson.core.JacksonException ignored) {
+        } catch (Exception ignored) {
             // Texto legado livre não é convertido nem descartado.
         }
         return responsabilidades;

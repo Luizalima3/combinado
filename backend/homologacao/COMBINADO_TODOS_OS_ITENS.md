@@ -1,10 +1,10 @@
-# Projeto COMBINADO — Exportação estruturada
+﻿# Projeto COMBINADO — Exportação estruturada para IA
 
 COMBINADO - EXPORTAÇÃO COMPLETA
 ================================================================================
-Exportado em: 22/10/2026, 00:02:16
-Total informado pela API: 942
-Total coletado: 942
+Exportado em: 29/10/2026, 02:04:23
+Total informado pela API: 943
+Total coletado: 943
 Filtros de status, tipo e responsável: NENHUM
 CONTAGEM POR TIPO
 Epic: 41
@@ -12,12 +12,14 @@ Feature: 34
 User story: 123
 Task: 437
 Critério de Aceitação: 293
-Bug: 12
+Bug: 13
 Melhoria: 2
 CONTAGEM POR STATUS
-New: 744
-Closed: 191
-In progress: 7
+In progress: 14
+New: 707
+Developed: 9
+Closed: 212
+On hold: 1
 ================================================================================
 
 ## Hierarquia
@@ -25,7 +27,7 @@ In progress: 7
 ### [EPIC] #30564 — 01 — Autenticação e Usuários
 
 - Pai: Não informado
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -38,13 +40,13 @@ In progress: 7
 **Descrição:**
 
 Criado: 2026-09-02T18:54:02.752Z
-Atualizado: 2026-10-21T01:17:09.022Z
+Atualizado: 2026-10-22T04:52:15.084Z
 Este EPIC contempla as funcionalidades relacionadas ao cadastro, autenticação e gerenciamento dos usuários da plataforma Combinado, incluindo cadastro, login, logout, edição de perfil e controle de acesso aos dados.
 
 #### [EPIC] #30609 — 01.1 — Cadastro de Usuário
 
 - Pai: 30564
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -57,13 +59,13 @@ Este EPIC contempla as funcionalidades relacionadas ao cadastro, autenticação 
 **Descrição:**
 
 Criado: 2026-09-02T21:34:19.617Z
-  Atualizado: 2026-10-22T02:11:18.412Z
+  Atualizado: 2026-10-22T04:52:18.681Z
 Tela e lógica para novos usuários se registrarem com nome, e-mail e senha.
 
 ##### [FEATURE] #30668 — F01 — Cadastro de Usuário
 
 - Pai: 30609
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -76,7 +78,7 @@ Tela e lógica para novos usuários se registrarem com nome, e-mail e senha.
 **Descrição:**
 
 Criado: 2026-09-02T22:26:01.477Z
-    Atualizado: 2026-10-22T02:11:18.380Z
+    Atualizado: 2026-10-22T04:52:23.087Z
 F01 — Cadastro de Usuário
 Funcionalidade responsável por permitir que novos usuários realizem seu cadastro na plataforma Combinado, informando nome, e-mail e senha.
 Critérios de Aceitação:
@@ -98,7 +100,7 @@ Quando houver dados inválidos, o sistema deve apresentar mensagens de erro clar
 ###### [USER STORY] #30703 — US01 - Cadastro básico de usuário com nome, e-mail e senha
 
 - Pai: 30668
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -111,7 +113,7 @@ Quando houver dados inválidos, o sistema deve apresentar mensagens de erro clar
 **Descrição:**
 
 Criado: 2026-09-03T00:18:38.781Z
-      Atualizado: 2026-10-22T02:11:18.347Z
+      Atualizado: 2026-10-22T04:52:27.327Z
 História do Usuário
 Como usuário não cadastrado,  
 quero realizar meu cadastro informando nome, e-mail e senha,  
@@ -226,7 +228,7 @@ Realizar testes do fluxo de cadastro com dados válidos e inválidos, verificand
 ###### [USER STORY] #30704 — US02 - Cadastro de usuário com validação de formato de e-mail
 
 - Pai: 30668
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -239,7 +241,7 @@ Realizar testes do fluxo de cadastro com dados válidos e inválidos, verificand
 **Descrição:**
 
 Criado: 2026-09-03T00:19:37.228Z
-      Atualizado: 2026-10-22T02:02:45.969Z
+      Atualizado: 2026-10-22T04:52:32.357Z
 História do Usuário
 Como usuário não cadastrado,  
 quero que o sistema valide o e-mail informado no cadastro,  
@@ -335,7 +337,7 @@ Testar em tela o bloqueio de envio e a exibição correta da mensagem de feedbac
 ###### [USER STORY] #30705 — US03 - Cadastro de usuário com validação de força de senha
 
 - Pai: 30668
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -348,7 +350,7 @@ Testar em tela o bloqueio de envio e a exibição correta da mensagem de feedbac
 **Descrição:**
 
 Criado: 2026-09-03T00:20:15.908Z
-      Atualizado: 2026-10-22T02:12:00.136Z
+      Atualizado: 2026-10-22T04:52:41.579Z
 História do Usuário  
 Como usuário não cadastrado,  
 quero que o sistema valide os requisitos mínimos de segurança da senha (mínimo de 6 caracteres),  
@@ -444,7 +446,7 @@ Validar se as mensagens de erro exibidas atendem aos critérios CA04 e CA07 e ho
 ###### [USER STORY] #30706 — US04 - Cadastro de usuário com confirmação de senha
 
 - Pai: 30668
-- Status: New
+- Status: In progress
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -457,7 +459,7 @@ Validar se as mensagens de erro exibidas atendem aos critérios CA04 e CA07 e ho
 **Descrição:**
 
 Criado: 2026-09-03T00:22:03.100Z
-      Atualizado: 2026-10-22T02:12:39.604Z
+      Atualizado: 2026-10-22T04:52:50.195Z
 História do Usuário  
 Como usuário não cadastrado,  
 quero confirmar minha senha digitando-a novamente no formulário de cadastro,  
@@ -705,7 +707,7 @@ Quando houver dados inválidos, o sistema deve apresentar mensagens de erro clar
 #### [EPIC] #30610 — 01.2 — Login e Logout
 
 - Pai: 30564
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -718,13 +720,13 @@ Quando houver dados inválidos, o sistema deve apresentar mensagens de erro clar
 **Descrição:**
 
 Criado: 2026-09-02T21:38:53.234Z
-  Atualizado: 2026-10-22T02:08:45.779Z
+  Atualizado: 2026-10-22T04:49:10.209Z
 Autenticação com JWT, gerenciamento de sessão e logout.
 
 ##### [FEATURE] #30671 — F02 — Entrar e Sair
 
 - Pai: 30610
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -737,7 +739,7 @@ Autenticação com JWT, gerenciamento de sessão e logout.
 **Descrição:**
 
 Criado: 2026-09-02T23:58:05.016Z
-    Atualizado: 2026-10-22T02:08:45.758Z
+    Atualizado: 2026-10-22T04:49:17.003Z
 F02 — Entrar e Sair  
 Funcionalidade responsável por gerenciar o acesso autenticado de usuários à plataforma Combinado através de login com e-mail e senha, geração de tokens JWT seguros, invalidação de sessão no logout e proteção das rotas privadas.
 Critérios de Aceitação:  
@@ -755,7 +757,7 @@ O sistema deve impedir o acesso a rotas restritas por usuários não autenticado
 ###### [USER STORY] #30707 — US05 - Login básico com e-mail e senha
 
 - Pai: 30671
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -768,7 +770,7 @@ O sistema deve impedir o acesso a rotas restritas por usuários não autenticado
 **Descrição:**
 
 Criado: 2026-09-03T00:22:53.848Z
-      Atualizado: 2026-10-22T02:03:38.072Z
+      Atualizado: 2026-10-22T04:49:30.618Z
 História do Usuário  
 Como usuário cadastrado,  
 quero realizar login informando meu e-mail e minha senha,  
@@ -870,7 +872,7 @@ Homologar o comportamento funcional do login em conformidade com os critérios C
 ###### [USER STORY] #30708 — US06 - Login com geração de token JWT
 
 - Pai: 30671
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -883,7 +885,7 @@ Homologar o comportamento funcional do login em conformidade com os critérios C
 **Descrição:**
 
 Criado: 2026-09-03T00:23:22.510Z
-      Atualizado: 2026-10-22T02:08:45.739Z
+      Atualizado: 2026-10-22T04:49:33.975Z
 História do Usuário  
 Como usuário autenticado,  
 quero que o sistema gere um token JWT após o login bem-sucedido,  
@@ -976,7 +978,7 @@ Validar se o token gerado cumpre as regras de negócio e os parâmetros definido
 ###### [USER STORY] #30709 — US07 - Logout com invalidação de token
 
 - Pai: 30671
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -989,7 +991,7 @@ Validar se o token gerado cumpre as regras de negócio e os parâmetros definido
 **Descrição:**
 
 Criado: 2026-09-03T00:23:46.896Z
-      Atualizado: 2026-10-22T02:08:25.701Z
+      Atualizado: 2026-10-22T04:49:43.272Z
 História do Usuário  
 Como usuário autenticado,  
 quero realizar logout da plataforma a qualquer momento,  
@@ -1082,7 +1084,7 @@ Homologar o fluxo de saída do usuário e confirmar redirecionamento seguro para
 ###### [USER STORY] #30710 — US08 - Proteção de rotas para usuários não autenticados
 
 - Pai: 30671
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -1095,7 +1097,7 @@ Homologar o fluxo de saída do usuário e confirmar redirecionamento seguro para
 **Descrição:**
 
 Criado: 2026-09-03T00:24:17.708Z
-      Atualizado: 2026-10-22T02:01:43.741Z
+      Atualizado: 2026-10-22T04:49:46.409Z
 História do Usuário  
 Como usuário não autenticado,  
 quero ser impedido de acessar páginas ou dados privados da plataforma sem realizar login,  
@@ -1302,7 +1304,7 @@ O sistema deve impedir que usuários não autenticados acessem rotas protegidas 
 #### [EPIC] #30611 — 01.3 — Edição de Perfil
 
 - Pai: 30564
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -1315,13 +1317,13 @@ O sistema deve impedir que usuários não autenticados acessem rotas protegidas 
 **Descrição:**
 
 Criado: 2026-09-02T21:39:37.562Z
-  Atualizado: 2026-10-22T01:58:24.265Z
+  Atualizado: 2026-10-22T04:49:50.398Z
 Permitir que o usuário edite seus dados básicos (nome, e-mail, senha).
 
 ##### [FEATURE] #30672 — F03 — Edição de Perfil
 
 - Pai: 30611
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -1334,7 +1336,7 @@ Permitir que o usuário edite seus dados básicos (nome, e-mail, senha).
 **Descrição:**
 
 Criado: 2026-09-02T23:58:45.811Z
-    Atualizado: 2026-10-22T01:58:24.244Z
+    Atualizado: 2026-10-22T04:49:58.327Z
 F03 — Edição de Perfil  
 Funcionalidade responsável por permitir que o usuário autenticado visualize e atualize suas informações cadastrais (nome, e-mail e senha) com validação de integridade e segurança.
 Critérios de Aceitação:  
@@ -1350,7 +1352,7 @@ O sistema deve exibir confirmação de sucesso ao salvar alterações e mensagen
 ###### [USER STORY] #30711 — US09 - Edição básica do nome do usuário
 
 - Pai: 30672
-- Status: New
+- Status: Developed
 - Responsável: Não informado
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
@@ -1363,7 +1365,7 @@ O sistema deve exibir confirmação de sucesso ao salvar alterações e mensagen
 **Descrição:**
 
 Criado: 2026-09-03T00:24:45.801Z
-      Atualizado: 2026-10-22T01:59:39.338Z
+      Atualizado: 2026-10-22T04:50:02.503Z
 História do Usuário  
 Como usuário autenticado,  
 quero editar meu nome de exibição no meu perfil,  
@@ -1985,7 +1987,7 @@ Configurar anotação @PreAuthorize(&quot;hasRole(&#39;ADMIN&#39;) or ...&quot;)
 
 - Pai: 30715
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -1997,14 +1999,14 @@ Configurar anotação @PreAuthorize(&quot;hasRole(&#39;ADMIN&#39;) or ...&quot;)
 **Descrição:**
 
 Criado: 2026-09-04T20:17:52.207Z
-        Atualizado: 2026-09-04T21:48:14.100Z
+        Atualizado: 2026-10-24T17:13:21.938Z
 Criar painel ou filtro na interface React que identifica o perfil ADMIN e exibe a opção de visualização de todos os acordos da plataforma.
 
 ###### [TASK] #30964 — [testes] Testar autorização e consultas com perfil de ADMIN
 
 - Pai: 30715
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -2016,14 +2018,14 @@ Criar painel ou filtro na interface React que identifica o perfil ADMIN e exibe 
 **Descrição:**
 
 Criado: 2026-09-04T20:18:27.765Z
-        Atualizado: 2026-09-04T21:48:24.867Z
+        Atualizado: 2026-10-24T16:59:05.773Z
 Criar testes unitários e de integração com JUnit/Mockito validando que usuários com perfil ADMIN recebem status 200 OK ao acessar combinados dos quais não são criadores nem participantes.
 
 ###### [TASK] #30965 — [po/validação] Homologar regras de visualização e permissão de ADMIN (#31463)
 
 - Pai: 30715
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -2035,7 +2037,7 @@ Criar testes unitários e de integração com JUnit/Mockito validando que usuár
 **Descrição:**
 
 Criado: 2026-09-04T20:19:24.201Z
-        Atualizado: 2026-09-05T21:17:34.499Z
+        Atualizado: 2026-10-24T17:08:13.245Z
 Homologar as regras de acesso do perfil administrativo e atestar cumprimento integral do critério CA02.
 
 ###### [USER STORY] #30716 — US14 - Permissão de acesso apenas para criador e participantes do combinado
@@ -2966,7 +2968,7 @@ Criar entidade Responsabilidade/Tarefa, mapeando o relacionamento ManyToOne com 
 
 - Pai: 30721
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -2978,14 +2980,14 @@ Criar entidade Responsabilidade/Tarefa, mapeando o relacionamento ManyToOne com 
 **Descrição:**
 
 Criado: 2026-09-04T20:44:45.828Z
-        Atualizado: 2026-09-04T20:44:45.875Z
+        Atualizado: 2026-10-24T17:13:50.249Z
 Construir componente React para adicionar tarefa com campo de texto e select box com os participantes disponíveis para vinculação (atende CA01).
 
 ###### [TASK] #31018 — [testes] Testar criação e vínculo de tarefas a participantes
 
 - Pai: 30721
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -2997,14 +2999,14 @@ Construir componente React para adicionar tarefa com campo de texto e select box
 **Descrição:**
 
 Criado: 2026-09-04T20:45:17.586Z
-        Atualizado: 2026-09-04T20:45:17.626Z
+        Atualizado: 2026-10-24T16:59:16.540Z
 Criar testes unitários com JUnit validando persistência da tarefa, obrigatoriedade de descrição e associação correta da chave estrangeira do usuário (atende CA01 e CA04).
 
 ###### [TASK] #31019 — [po/validação] Homologar associação de tarefa a participante (#31487, #31491)
 
 - Pai: 30721
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -3016,7 +3018,7 @@ Criar testes unitários com JUnit validando persistência da tarefa, obrigatorie
 **Descrição:**
 
 Criado: 2026-09-04T20:45:46.746Z
-        Atualizado: 2026-09-05T21:34:53.212Z
+        Atualizado: 2026-10-24T17:08:23.076Z
 Homologar o fluxo visual de inclusão de tarefa, verificando se a lista reflete com fidelidade o participante atribuído conforme o critério CA01.
 
 ###### [USER STORY] #30722 — US20 - Definição de múltiplas tarefas em um combinado
@@ -3073,7 +3075,7 @@ Ajustar a API no Spring Boot para retornar a coleção completa de tarefas assoc
 
 - Pai: 30722
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -3085,14 +3087,14 @@ Ajustar a API no Spring Boot para retornar a coleção completa de tarefas assoc
 **Descrição:**
 
 Criado: 2026-09-04T20:47:11.856Z
-        Atualizado: 2026-09-04T20:47:11.893Z
+        Atualizado: 2026-10-24T17:14:00.903Z
 Construir componente visual em React com botão &quot;+ Adicionar Nova Tarefa&quot;, renderizando dinamicamente a grade de itens cadastrados com descrição e responsável (atende CA02).
 
 ###### [TASK] #31022 — [testes] Testar integridade da coleção de tarefas por combinado
 
 - Pai: 30722
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -3104,14 +3106,14 @@ Construir componente visual em React com botão &quot;+ Adicionar Nova Tarefa&qu
 **Descrição:**
 
 Criado: 2026-09-04T20:47:36.405Z
-        Atualizado: 2026-09-04T20:47:36.439Z
+        Atualizado: 2026-10-24T16:59:25.831Z
 Criar testes unitários com JUnit validando que combinados com 2 ou mais tarefas associadas são recuperados integralmente sem perdas ou duplicidades no banco de dados (atende CA02).
 
 ###### [TASK] #31024 — [po/validação] Homologar listagem e inclusão de múltiplas tarefas (#31489)
 
 - Pai: 30722
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -3123,7 +3125,7 @@ Criar testes unitários com JUnit validando que combinados com 2 ou mais tarefas
 **Descrição:**
 
 Criado: 2026-09-04T20:48:01.356Z
-        Atualizado: 2026-09-05T21:35:08.069Z
+        Atualizado: 2026-10-24T17:08:33.947Z
 Homologar o comportamento da interface ao adicionar múltiplas responsabilidades sucessivas, garantindo estabilidade e visualização correta da lista.
 
 ###### [USER STORY] #30723 — US21 - Atribuição de múltiplos responsáveis por uma tarefa
@@ -4014,7 +4016,7 @@ Criar endpoint PUT /api/combinados/rascunhos/{id} no Spring Boot, validando se o
 
 - Pai: 30728
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -4026,14 +4028,14 @@ Criar endpoint PUT /api/combinados/rascunhos/{id} no Spring Boot, validando se o
 **Descrição:**
 
 Criado: 2026-09-04T21:06:23.378Z
-        Atualizado: 2026-09-04T21:06:23.420Z
+        Atualizado: 2026-10-24T17:14:20.763Z
 Carregar dados existentes do rascunho no formulário React, permitindo modificação dos campos e disparando requisição de atualização para a API (atende CA02).
 
 ###### [TASK] #31068 — [testes] Testar regras de atualização de rascunho e bloqueio de não criadores
 
 - Pai: 30728
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -4045,14 +4047,14 @@ Carregar dados existentes do rascunho no formulário React, permitindo modifica�
 **Descrição:**
 
 Criado: 2026-09-04T21:06:59.172Z
-        Atualizado: 2026-09-04T21:06:59.229Z
+        Atualizado: 2026-10-24T16:59:37.990Z
 Criar testes unitários com JUnit validando que alterações em rascunhos são persistidas com sucesso e que tentativas de modificação por outros usuários retornam HTTP 403 (atende CA02).
 
 ###### [TASK] #31069 — [po/validação] Homologar retomada e publicação a partir de rascunho (#31511, #31513)
 
 - Pai: 30728
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -4064,7 +4066,7 @@ Criar testes unitários com JUnit validando que alterações em rascunhos são p
 **Descrição:**
 
 Criado: 2026-09-04T21:07:27.451Z
-        Atualizado: 2026-09-05T21:45:53.742Z
+        Atualizado: 2026-10-24T16:59:54.400Z
 Homologar funcionalmente o fluxo de abertura, alteração e salvamento de um rascunho, certificando que nenhum dado foi corrompido ou perdido conforme o critério CA02.
 
 ###### [USER STORY] #30729 — US27 - Exclusão de rascunho do combinado
@@ -4517,7 +4519,7 @@ Criar método com @Transactional no Spring Boot para receber a lista de IDs de p
 
 - Pai: 30731
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -4529,14 +4531,14 @@ Criar método com @Transactional no Spring Boot para receber a lista de IDs de p
 **Descrição:**
 
 Criado: 2026-09-04T21:16:59.894Z
-        Atualizado: 2026-09-04T21:16:59.926Z
+        Atualizado: 2026-10-24T17:14:43.890Z
 Criar botão de disparo único na interface React com validação de lista não-vazia, animação de processamento em massa e feedback de total enviado (atende CA02).
 
 ###### [TASK] #31081 — [testes] Testar atomicidade e persistência do envio em lote
 
 - Pai: 30731
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -4548,14 +4550,14 @@ Criar botão de disparo único na interface React com validação de lista não-
 **Descrição:**
 
 Criado: 2026-09-04T21:17:23.232Z
-        Atualizado: 2026-09-04T21:17:23.282Z
+        Atualizado: 2026-10-24T17:03:44.114Z
 Criar testes de integração com JUnit validando que uma lista de N participantes gera N registros de convites pendentes e que falhas parciais efetuam rollback de toda a operação (atende CA02 e CA04).
 
 ###### [TASK] #31082 — [po/validação] Validar disparo simultâneo e contadores de convite (CA02)
 
 - Pai: 30731
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: José Correia da Cruz Júnior
 - Início: Não informado
@@ -4567,7 +4569,7 @@ Criar testes de integração com JUnit validando que uma lista de N participante
 **Descrição:**
 
 Criado: 2026-09-04T21:17:51.147Z
-        Atualizado: 2026-09-04T21:17:51.183Z
+        Atualizado: 2026-10-24T17:08:52.207Z
 Homologar o comportamento da interface no disparo em lote com múltiplos convidados, atestando conformidade com os critérios CA02 e CA04.
 
 ###### [USER STORY] #30732 — US30 - Mensagem personalizada no convite
@@ -4979,7 +4981,7 @@ Ajustar GET /convites/{id} para retornar categoria + lista de participantes conf
 ###### [TASK] #32229 — [testes] Testar retorno de categoria e lista de participantes confirmados
 
 - Pai: 30734
-- Status: New
+- Status: On hold
 - Responsável: Maria Luiza
 - Prioridade: High
 - Autor: Maria Luiza
@@ -4992,7 +4994,7 @@ Ajustar GET /convites/{id} para retornar categoria + lista de participantes conf
 **Descrição:**
 
 Criado: 2026-09-16T01:50:24.452Z
-        Atualizado: 2026-09-23T22:58:01.831Z
+        Atualizado: 2026-10-22T04:11:31.520Z
 Testar 0, 1 e múltiplos participantes. Validar que só ACEITOS aparecem
 
 ###### [TASK] #32230 — [po/validação] Homologar exibição de categoria e participantes no convite
@@ -5405,7 +5407,7 @@ Criado: 2026-09-04T20:31:06.289Z
 
 - Pai: 30737
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5417,14 +5419,14 @@ Criado: 2026-09-04T20:31:06.289Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:21.392Z
-        Atualizado: 2026-09-16T01:51:21.436Z
+        Atualizado: 2026-10-24T17:04:01.393Z
 Verificar todos aceitaram → AGUARDANDO vira ATIVO
 
 ###### [TASK] #32269 — [testes] Testar transição AGUARDANDO → ATIVO
 
 - Pai: 30737
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5436,14 +5438,14 @@ Verificar todos aceitaram → AGUARDANDO vira ATIVO
 **Descrição:**
 
 Criado: 2026-09-16T01:51:22.403Z
-        Atualizado: 2026-09-16T01:51:22.450Z
+        Atualizado: 2026-10-24T17:09:28.500Z
 Testar 1/2 aceitou 2/2 aceitaram 1 recusou
 
 ###### [TASK] #32270 — [po/validação] Homologar mudança automática de status
 
 - Pai: 30737
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5455,7 +5457,7 @@ Testar 1/2 aceitou 2/2 aceitaram 1 recusou
 **Descrição:**
 
 Criado: 2026-09-16T01:51:23.429Z
-        Atualizado: 2026-09-16T01:51:23.502Z
+        Atualizado: 2026-10-24T17:21:00.929Z
 Validar mudança sem refresh
 
 ###### [TASK] #30741 — US36 - Mensagem de confirmação após aceitação
@@ -5754,7 +5756,7 @@ Criado: 2026-09-04T20:38:25.337Z
 
 - Pai: 30739
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5766,14 +5768,14 @@ Criado: 2026-09-04T20:38:25.337Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:25.390Z
-        Atualizado: 2026-09-16T01:51:25.425Z
+        Atualizado: 2026-10-24T17:20:21.812Z
 Recusa não avança para ATIVO; notificar criador
 
 ###### [TASK] #32272 — [testes] Testar impacto da recusa no status do combinado
 
 - Pai: 30739
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5785,14 +5787,14 @@ Recusa não avança para ATIVO; notificar criador
 **Descrição:**
 
 Criado: 2026-09-16T01:51:26.428Z
-        Atualizado: 2026-09-16T01:51:26.468Z
+        Atualizado: 2026-10-24T17:25:33.511Z
 1 de 3 recusa → status permanece AGUARDANDO
 
 ###### [TASK] #32273 — [po/validação] Homologar comportamento do combinado após recusa
 
 - Pai: 30739
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5804,7 +5806,7 @@ Criado: 2026-09-16T01:51:26.428Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:27.398Z
-        Atualizado: 2026-09-16T01:51:27.434Z
+        Atualizado: 2026-10-24T17:09:43.330Z
 Validar aviso/notificação ao criador
 
 ###### [USER STORY] #30740 — US39 - Motivo opcional para recusa do convite
@@ -5856,7 +5858,7 @@ Criado: 2026-09-06T01:20:32.149Z
 
 - Pai: 30740
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5868,14 +5870,14 @@ Criado: 2026-09-06T01:20:32.149Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:29.371Z
-        Atualizado: 2026-09-16T01:51:29.419Z
+        Atualizado: 2026-10-24T17:20:35.189Z
 Coluna nullable + aceitar no DTO
 
 ###### [TASK] #32275 — [testes] Testar recusa com e sem motivo
 
 - Pai: 30740
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5887,14 +5889,14 @@ Coluna nullable + aceitar no DTO
 **Descrição:**
 
 Criado: 2026-09-16T01:51:30.417Z
-        Atualizado: 2026-09-16T01:51:30.453Z
+        Atualizado: 2026-10-24T17:22:16.160Z
 Testar null preenchido e limite de caracteres
 
 ###### [TASK] #32276 — [po/validação] Homologar exibição do motivo no histórico
 
 - Pai: 30740
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -5906,7 +5908,7 @@ Testar null preenchido e limite de caracteres
 **Descrição:**
 
 Criado: 2026-09-16T01:51:32.384Z
-        Atualizado: 2026-09-16T01:51:32.445Z
+        Atualizado: 2026-10-24T17:25:46.384Z
 Validar exibição no histórico
 
 #### [EPIC] #30622 — 03.5 — Gerenciamento de Status do Convite
@@ -6122,7 +6124,7 @@ Criado: 2026-09-04T20:42:47.310Z
 
 - Pai: 30744
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6134,14 +6136,14 @@ Criado: 2026-09-04T20:42:47.310Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:33.397Z
-        Atualizado: 2026-09-16T01:51:33.442Z
+        Atualizado: 2026-10-24T17:20:47.246Z
 Endpoint de polling (ex: 10s) ou WebSocket
 
 ###### [TASK] #32278 — [testes] Testar atualização automática de status
 
 - Pai: 30744
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6153,14 +6155,14 @@ Endpoint de polling (ex: 10s) ou WebSocket
 **Descrição:**
 
 Criado: 2026-09-16T01:51:34.393Z
-        Atualizado: 2026-09-16T01:51:34.446Z
+        Atualizado: 2026-10-24T17:19:22.242Z
 2 navegadores: um aceita outro vê sem refresh
 
 ###### [TASK] #32279 — [po/validação] Homologar tempo real na tela de convites
 
 - Pai: 30744
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6172,7 +6174,7 @@ Criado: 2026-09-16T01:51:34.393Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:36.406Z
-        Atualizado: 2026-09-16T01:51:36.461Z
+        Atualizado: 2026-10-24T17:25:58.303Z
 Validar atualização em até X segundos
 
 ###### [USER STORY] #30745 — US42 - Indicador visual (ícones/cores) para cada status
@@ -6243,7 +6245,7 @@ Criado: 2026-09-04T20:44:01.577Z
 
 - Pai: 30745
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6255,14 +6257,14 @@ Criado: 2026-09-04T20:44:01.577Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:38.389Z
-        Atualizado: 2026-09-16T01:51:38.424Z
+        Atualizado: 2026-10-24T17:21:32.207Z
 Pendente (amarelo) Aceito (verde) Recusado (vermelho)
 
 ###### [TASK] #32281 — [testes] Testar consistência visual dos indicadores
 
 - Pai: 30745
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6274,14 +6276,14 @@ Pendente (amarelo) Aceito (verde) Recusado (vermelho)
 **Descrição:**
 
 Criado: 2026-09-16T01:51:40.412Z
-        Atualizado: 2026-09-16T01:51:40.451Z
+        Atualizado: 2026-10-24T17:26:20.301Z
 Validar em todas as telas
 
 ###### [TASK] #32282 — [po/validação] Homologar indicadores visuais de status
 
 - Pai: 30745
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6293,7 +6295,7 @@ Validar em todas as telas
 **Descrição:**
 
 Criado: 2026-09-16T01:51:42.384Z
-        Atualizado: 2026-09-16T01:51:42.424Z
+        Atualizado: 2026-10-24T17:26:09.151Z
 Validar acessibilidade (daltonismo) e consistência
 
 ### [EPIC] #30574 — 04 — Acompanhamento de Combinados
@@ -6630,7 +6632,7 @@ Criado: 2026-09-04T20:49:59.193Z
 
 - Pai: 30748
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6642,14 +6644,14 @@ Criado: 2026-09-04T20:49:59.193Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:43.383Z
-        Atualizado: 2026-09-16T01:51:43.422Z
+        Atualizado: 2026-10-24T17:24:44.008Z
 sort=criadoEm desc
 
 ###### [TASK] #32284 — [testes] Testar ordenação crescente e decrescente
 
 - Pai: 30748
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6661,14 +6663,14 @@ sort=criadoEm desc
 **Descrição:**
 
 Criado: 2026-09-16T01:51:44.382Z
-        Atualizado: 2026-09-16T01:51:44.435Z
+        Atualizado: 2026-10-24T17:26:31.920Z
 ASC e DESC
 
 ###### [TASK] #32285 — [po/validação] Homologar ordenação padrão da listagem
 
 - Pai: 30748
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6680,7 +6682,7 @@ ASC e DESC
 **Descrição:**
 
 Criado: 2026-09-16T01:51:46.396Z
-        Atualizado: 2026-09-16T01:51:46.435Z
+        Atualizado: 2026-10-24T17:26:44.748Z
 Mais recente primeiro por padrão
 
 ###### [USER STORY] #30749 — US46 - Ordenação de combinados por prazo e por status
@@ -6732,7 +6734,7 @@ Criado: 2026-09-04T20:50:44.850Z
 
 - Pai: 30749
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6744,14 +6746,14 @@ Criado: 2026-09-04T20:50:44.850Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:48.381Z
-        Atualizado: 2026-09-16T01:51:48.426Z
+        Atualizado: 2026-10-24T17:24:06.521Z
 sort=prazo asc sort=status desc etc
 
 ###### [TASK] #32287 — [testes] Testar múltiplos critérios de ordenação
 
 - Pai: 30749
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6763,14 +6765,14 @@ sort=prazo asc sort=status desc etc
 **Descrição:**
 
 Criado: 2026-09-16T01:51:49.308Z
-        Atualizado: 2026-09-16T01:51:49.362Z
+        Atualizado: 2026-10-24T17:05:09.265Z
 Todas as combinações
 
 ###### [TASK] #32288 — [po/validação] Homologar seletor de ordenação
 
 - Pai: 30749
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6782,7 +6784,7 @@ Todas as combinações
 **Descrição:**
 
 Criado: 2026-09-16T01:51:50.309Z
-        Atualizado: 2026-09-16T01:51:50.347Z
+        Atualizado: 2026-10-24T17:26:56.525Z
 Dropdown funcional na UI
 
 ###### [USER STORY] #30750 — US47 - Busca de combinados por título
@@ -6834,7 +6836,7 @@ Criado: 2026-09-04T20:51:29.190Z
 
 - Pai: 30750
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6846,14 +6848,14 @@ Criado: 2026-09-04T20:51:29.190Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:51.249Z
-        Atualizado: 2026-09-16T01:51:51.288Z
+        Atualizado: 2026-10-24T17:24:57.690Z
 LIKE %...% case-insensitive
 
 ###### [TASK] #32290 — [testes] Testar busca por parte do título e case-insensitive
 
 - Pai: 30750
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6865,14 +6867,14 @@ LIKE %...% case-insensitive
 **Descrição:**
 
 Criado: 2026-09-16T01:51:52.206Z
-        Atualizado: 2026-09-16T01:51:52.258Z
+        Atualizado: 2026-10-24T17:04:17.778Z
 Acento maiúscula termo parcial
 
 ###### [TASK] #32291 — [po/validação] Homologar campo de busca por título
 
 - Pai: 30750
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -6884,7 +6886,7 @@ Acento maiúscula termo parcial
 **Descrição:**
 
 Criado: 2026-09-16T01:51:53.239Z
-        Atualizado: 2026-09-16T01:51:53.281Z
+        Atualizado: 2026-10-24T17:27:08.315Z
 Filtro em tempo real + empty state
 
 #### [EPIC] #30625 — 04.2 — Listar Combinados Recebidos
@@ -7202,7 +7204,7 @@ Criado: 2026-09-04T20:55:19.849Z
 
 - Pai: 30754
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7214,14 +7216,14 @@ Criado: 2026-09-04T20:55:19.849Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:54.240Z
-        Atualizado: 2026-09-16T01:51:54.280Z
+        Atualizado: 2026-10-24T17:23:49.472Z
 sort=criadoEm desc
 
 ###### [TASK] #32293 — [testes] Testar ordenação por data do convite
 
 - Pai: 30754
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7233,14 +7235,14 @@ sort=criadoEm desc
 **Descrição:**
 
 Criado: 2026-09-16T01:51:55.205Z
-        Atualizado: 2026-09-16T01:51:55.259Z
+        Atualizado: 2026-10-24T17:04:27.045Z
 ASC/DESC
 
 ###### [TASK] #32294 — [po/validação] Homologar ordenação da aba de recebidos
 
 - Pai: 30754
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7252,7 +7254,7 @@ ASC/DESC
 **Descrição:**
 
 Criado: 2026-09-16T01:51:56.216Z
-        Atualizado: 2026-09-16T01:51:56.271Z
+        Atualizado: 2026-10-24T17:27:10.316Z
 Mais recente primeiro
 
 ###### [USER STORY] #30755 — US51 - Filtro de combinados por status (Pendente/Aceito/Recusado)
@@ -7304,7 +7306,7 @@ Criado: 2026-09-04T20:56:07.785Z
 
 - Pai: 30755
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7316,14 +7318,14 @@ Criado: 2026-09-04T20:56:07.785Z
 **Descrição:**
 
 Criado: 2026-09-16T01:51:57.256Z
-        Atualizado: 2026-09-16T01:51:57.292Z
+        Atualizado: 2026-10-24T17:01:55.073Z
 status=PENDENTE|ACEITO|RECUSADO
 
 ###### [TASK] #32296 — [testes] Testar filtro por cada status
 
 - Pai: 30755
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7335,14 +7337,14 @@ status=PENDENTE|ACEITO|RECUSADO
 **Descrição:**
 
 Criado: 2026-09-16T01:51:58.166Z
-        Atualizado: 2026-09-16T01:51:58.208Z
+        Atualizado: 2026-10-24T17:04:36.450Z
 Isolado e combinado
 
 ###### [TASK] #32297 — [po/validação] Homologar filtro de status na UI
 
 - Pai: 30755
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7354,7 +7356,7 @@ Isolado e combinado
 **Descrição:**
 
 Criado: 2026-09-16T01:51:59.101Z
-        Atualizado: 2026-09-16T01:51:59.141Z
+        Atualizado: 2026-10-24T17:27:18.990Z
 Preservar estado na URL
 
 #### [EPIC] #30626 — 04.3 — Consultar Detalhes
@@ -7570,7 +7572,7 @@ Criado: 2026-09-04T20:58:54.208Z
 
 - Pai: 30757
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7582,14 +7584,14 @@ Criado: 2026-09-04T20:58:54.208Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:00.112Z
-        Atualizado: 2026-09-16T01:52:00.160Z
+        Atualizado: 2026-10-24T17:01:41.938Z
 Nome + status no DTO
 
 ###### [TASK] #32299 — [testes] Testar lista de participantes no detalhe
 
 - Pai: 30757
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7601,14 +7603,14 @@ Nome + status no DTO
 **Descrição:**
 
 Criado: 2026-09-16T01:52:01.029Z
-        Atualizado: 2026-09-16T01:52:01.072Z
+        Atualizado: 2026-10-24T17:04:58.415Z
 Todos aparecem com status correto
 
 ###### [TASK] #32300 — [po/validação] Homologar lista de participantes na tela
 
 - Pai: 30757
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7620,7 +7622,7 @@ Todos aparecem com status correto
 **Descrição:**
 
 Criado: 2026-09-16T01:52:02.004Z
-        Atualizado: 2026-09-16T01:52:02.051Z
+        Atualizado: 2026-10-24T17:28:39.396Z
 Nome email status; destaque criador
 
 ###### [USER STORY] #30758 — US54 - Consulta detalhada com responsabilidades e tarefas
@@ -7672,7 +7674,7 @@ Criado: 2026-09-04T20:59:40.271Z
 
 - Pai: 30758
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7684,14 +7686,14 @@ Criado: 2026-09-04T20:59:40.271Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:03.010Z
-        Atualizado: 2026-09-16T01:52:03.056Z
+        Atualizado: 2026-10-24T17:01:30.440Z
 Lista de tarefas + responsáveis
 
 ###### [TASK] #32302 — [testes] Testar retorno de responsabilidades e tarefas
 
 - Pai: 30758
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7703,14 +7705,14 @@ Lista de tarefas + responsáveis
 **Descrição:**
 
 Criado: 2026-09-16T01:52:03.981Z
-        Atualizado: 2026-09-16T01:52:04.021Z
+        Atualizado: 2026-10-24T17:05:48.889Z
 Com/sem tarefas; múltiplos responsáveis
 
 ###### [TASK] #32303 — [po/validação] Homologar exibição de responsabilidades
 
 - Pai: 30758
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7722,7 +7724,7 @@ Com/sem tarefas; múltiplos responsáveis
 **Descrição:**
 
 Criado: 2026-09-16T01:52:04.957Z
-        Atualizado: 2026-09-16T01:52:04.996Z
+        Atualizado: 2026-10-24T17:28:44.594Z
 Organização visual
 
 ###### [USER STORY] #30760 — US55 - Consulta detalhada com status atual e opções de ação
@@ -7774,7 +7776,7 @@ Criado: 2026-09-04T21:00:49.808Z
 
 - Pai: 30760
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7786,14 +7788,14 @@ Criado: 2026-09-04T21:00:49.808Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:05.946Z
-        Atualizado: 2026-09-16T01:52:05.992Z
+        Atualizado: 2026-10-24T17:02:24.598Z
 Lista de ações conforme papel do usuário
 
 ###### [TASK] #32305 — [testes] Testar retorno de ações por papel
 
 - Pai: 30760
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7805,14 +7807,14 @@ Lista de ações conforme papel do usuário
 **Descrição:**
 
 Criado: 2026-09-16T01:52:06.879Z
-        Atualizado: 2026-09-16T01:52:06.922Z
+        Atualizado: 2026-10-24T17:05:28.212Z
 Criador vs participante
 
 ###### [TASK] #32306 — [po/validação] Homologar opções de ação por papel
 
 - Pai: 30760
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7824,7 +7826,7 @@ Criador vs participante
 **Descrição:**
 
 Criado: 2026-09-16T01:52:07.877Z
-        Atualizado: 2026-09-16T01:52:07.917Z
+        Atualizado: 2026-10-24T17:28:50.062Z
 Cada um vê só o que pode fazer
 
 #### [EPIC] #30627 — 04.4 — Filtros e Busca Básica
@@ -7920,7 +7922,7 @@ Criado: 2026-09-04T21:02:23.840Z
 
 - Pai: 30762
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7932,14 +7934,14 @@ Criado: 2026-09-04T21:02:23.840Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:08.894Z
-        Atualizado: 2026-09-16T01:52:08.932Z
+        Atualizado: 2026-10-24T17:17:30.574Z
 LIKE %...% em criados e recebidos
 
 ###### [TASK] #32308 — [testes] Testar busca textual nas duas listagens
 
 - Pai: 30762
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7951,14 +7953,14 @@ LIKE %...% em criados e recebidos
 **Descrição:**
 
 Criado: 2026-09-16T01:52:09.847Z
-        Atualizado: 2026-09-16T01:52:09.886Z
+        Atualizado: 2026-10-24T17:05:37.783Z
 Case-insensitive e parcial
 
 ###### [TASK] #32309 — [po/validação] Homologar campo de busca unificado
 
 - Pai: 30762
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -7970,7 +7972,7 @@ Case-insensitive e parcial
 **Descrição:**
 
 Criado: 2026-09-16T01:52:10.788Z
-        Atualizado: 2026-09-16T01:52:10.825Z
+        Atualizado: 2026-10-24T17:28:55.282Z
 Ambas as abas + debounce
 
 ###### [USER STORY] #30763 — US57 - Filtro de combinados por categoria
@@ -8022,7 +8024,7 @@ Criado: 2026-09-04T21:03:11.510Z
 
 - Pai: 30763
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8034,14 +8036,14 @@ Criado: 2026-09-04T21:03:11.510Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:11.714Z
-        Atualizado: 2026-09-16T01:52:11.778Z
+        Atualizado: 2026-10-24T17:01:18.514Z
 categoria=EMPRESTIMO|DESPESA|...
 
 ###### [TASK] #32311 — [testes] Testar filtro por cada categoria
 
 - Pai: 30763
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8053,14 +8055,14 @@ categoria=EMPRESTIMO|DESPESA|...
 **Descrição:**
 
 Criado: 2026-09-16T01:52:12.687Z
-        Atualizado: 2026-09-16T01:52:12.719Z
+        Atualizado: 2026-10-24T17:05:58.320Z
 Isolado e combinado
 
 ###### [TASK] #32312 — [po/validação] Homologar chips de categoria na UI
 
 - Pai: 30763
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8072,7 +8074,7 @@ Isolado e combinado
 **Descrição:**
 
 Criado: 2026-09-16T01:52:13.713Z
-        Atualizado: 2026-09-16T01:52:13.865Z
+        Atualizado: 2026-10-24T17:29:01.503Z
 Seleção múltipla
 
 ###### [USER STORY] #30764 — US58 - Filtro de combinados por status
@@ -8124,7 +8126,7 @@ Criado: 2026-09-04T21:04:03.919Z
 
 - Pai: 30764
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8136,14 +8138,14 @@ Criado: 2026-09-04T21:04:03.919Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:15.416Z
-        Atualizado: 2026-09-16T01:52:15.455Z
+        Atualizado: 2026-10-24T17:23:14.578Z
 status=RASCUNHO|...
 
 ###### [TASK] #32314 — [testes] Testar filtro por cada status
 
 - Pai: 30764
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8155,14 +8157,14 @@ status=RASCUNHO|...
 **Descrição:**
 
 Criado: 2026-09-16T01:52:16.574Z
-        Atualizado: 2026-09-16T01:52:16.635Z
+        Atualizado: 2026-10-24T17:06:10.079Z
 Cada valor + combinação
 
 ###### [TASK] #32315 — [po/validação] Homologar filtro de status
 
 - Pai: 30764
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8174,7 +8176,7 @@ Cada valor + combinação
 **Descrição:**
 
 Criado: 2026-09-16T01:52:18.382Z
-        Atualizado: 2026-09-16T01:52:18.416Z
+        Atualizado: 2026-10-24T17:29:07.523Z
 Refletir na URL
 
 ###### [USER STORY] #30765 — US59 - Filtro de combinados por período
@@ -8226,7 +8228,7 @@ Criado: 2026-09-04T21:05:04.302Z
 
 - Pai: 30765
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8238,14 +8240,14 @@ Criado: 2026-09-04T21:05:04.302Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:19.421Z
-        Atualizado: 2026-09-16T01:52:19.458Z
+        Atualizado: 2026-10-24T17:21:20.978Z
 dataInicio e dataFim
 
 ###### [TASK] #32317 — [testes] Testar filtros de período
 
 - Pai: 30765
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8257,14 +8259,14 @@ dataInicio e dataFim
 **Descrição:**
 
 Criado: 2026-09-16T01:52:21.403Z
-        Atualizado: 2026-09-16T01:52:21.454Z
+        Atualizado: 2026-10-24T17:06:22.772Z
 Só início só fim ambos início>fim
 
 ###### [TASK] #32318 — [po/validação] Homologar filtro de período
 
 - Pai: 30765
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8276,7 +8278,7 @@ Só início só fim ambos início>fim
 **Descrição:**
 
 Criado: 2026-09-16T01:52:22.382Z
-        Atualizado: 2026-09-16T01:52:22.431Z
+        Atualizado: 2026-10-24T17:29:15.283Z
 Calendário + aplicação
 
 ### [EPIC] #30580 — 05 — Status e Encerramento
@@ -8511,7 +8513,7 @@ Criado: 2026-09-04T21:07:37.792Z
 
 - Pai: 30767
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8523,14 +8525,14 @@ Criado: 2026-09-04T21:07:37.792Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:23.426Z
-        Atualizado: 2026-09-16T01:52:23.474Z
+        Atualizado: 2026-10-24T17:23:33.330Z
 RASCUNHO AGUARDANDO ATIVO → OK; CONCLUIDO/CANCELADO → bloqueio
 
 ###### [TASK] #32320 — [testes] Testar cancelamento em cada estado
 
 - Pai: 30767
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8542,14 +8544,14 @@ RASCUNHO AGUARDANDO ATIVO → OK; CONCLUIDO/CANCELADO → bloqueio
 **Descrição:**
 
 Criado: 2026-09-16T01:52:25.400Z
-        Atualizado: 2026-09-16T01:52:25.435Z
+        Atualizado: 2026-10-24T17:24:27.451Z
 5 cenários
 
 ###### [TASK] #32321 — [po/validação] Homologar cancelamento em estados variados
 
 - Pai: 30767
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8561,7 +8563,7 @@ Criado: 2026-09-16T01:52:25.400Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:26.400Z
-        Atualizado: 2026-09-16T01:52:26.439Z
+        Atualizado: 2026-10-24T17:29:13.089Z
 Manualmente cada cenário
 
 ###### [USER STORY] #30768 — US62 - Validação para conclusão (todos os participantes aceitaram)
@@ -8598,7 +8600,7 @@ ENTÃO o sistema deve impedir a conclusão e exibir mensagem informando quais pa
 ###### [TASK] #31670 — [back-end] Criar validação "todos aceitaram" no service de Combinado
 
 - Pai: 30768
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: High
 - Autor: Maria Luiza
@@ -8611,13 +8613,13 @@ ENTÃO o sistema deve impedir a conclusão e exibir mensagem informando quais pa
 **Descrição:**
 
 Criado: 2026-09-06T00:10:45.188Z
-        Atualizado: 2026-09-06T00:10:45.227Z
+        Atualizado: 2026-10-24T18:26:04.901Z
 Task da US62 - Validação para conclusão (todos os participantes aceitaram).
 
 ###### [TASK] #31671 — [back-end] Retornar erro 422 com lista de participantes pendentes
 
 - Pai: 30768
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -8630,13 +8632,13 @@ Task da US62 - Validação para conclusão (todos os participantes aceitaram).
 **Descrição:**
 
 Criado: 2026-09-06T00:10:45.898Z
-        Atualizado: 2026-09-06T00:10:45.932Z
+        Atualizado: 2026-10-24T18:35:30.957Z
 Task da US62 - Validação para conclusão (todos os participantes aceitaram).
 
 ###### [TASK] #31672 — [front-end] Exibir mensagem de erro ao tentar concluir com pendências
 
 - Pai: 30768
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -8649,14 +8651,14 @@ Task da US62 - Validação para conclusão (todos os participantes aceitaram).
 **Descrição:**
 
 Criado: 2026-09-06T00:10:46.602Z
-        Atualizado: 2026-09-06T00:10:46.645Z
+        Atualizado: 2026-10-28T05:50:09.954Z
 Task da US62 - Validação para conclusão (todos os participantes aceitaram).
 
 ###### [TASK] #32322 — [testes] Testar validação todos aceitaram
 
 - Pai: 30768
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8668,14 +8670,14 @@ Task da US62 - Validação para conclusão (todos os participantes aceitaram).
 **Descrição:**
 
 Criado: 2026-09-16T01:52:27.407Z
-        Atualizado: 2026-09-16T01:52:27.457Z
+        Atualizado: 2026-10-24T17:06:37.792Z
 1 pendente 1 recusado todos aceitos
 
 ###### [TASK] #32323 — [po/validação] Homologar bloqueio de conclusão com pendências
 
 - Pai: 30768
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8687,7 +8689,7 @@ Criado: 2026-09-16T01:52:27.407Z
 **Descrição:**
 
 Criado: 2026-09-16T01:52:29.396Z
-        Atualizado: 2026-09-16T01:52:29.441Z
+        Atualizado: 2026-10-24T17:29:19.702Z
 Mensagem lista pendentes
 
 ###### [USER STORY] #30769 — US63 - Bloqueio de edição após o combinado ficar ativo
@@ -8717,7 +8719,7 @@ ENTÃO o sistema deve bloquear a edição e informar que o combinado não pode m
 ###### [TASK] #31673 — [back-end] Verificação de status antes de permitir update do Combinado
 
 - Pai: 30769
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: High
 - Autor: Maria Luiza
@@ -8730,13 +8732,13 @@ ENTÃO o sistema deve bloquear a edição e informar que o combinado não pode m
 **Descrição:**
 
 Criado: 2026-09-06T00:10:49.515Z
-        Atualizado: 2026-09-06T00:10:49.557Z
+        Atualizado: 2026-10-24T18:39:30.064Z
 Task da US63 - Bloqueio de edição após o combinado ficar ativo.
 
 ###### [TASK] #31674 — [front-end] Desabilitar campos de edição quando status = Ativo
 
 - Pai: 30769
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -8749,13 +8751,13 @@ Task da US63 - Bloqueio de edição após o combinado ficar ativo.
 **Descrição:**
 
 Criado: 2026-09-06T00:10:50.327Z
-        Atualizado: 2026-09-06T00:10:50.367Z
+        Atualizado: 2026-10-28T06:01:35.842Z
 Task da US63 - Bloqueio de edição após o combinado ficar ativo.
 
-###### [TASK] #31675 — [back-end] Teste unitário da regra de bloqueio de edição
+###### [TASK] #31675 — [testes] Teste unitário da regra de bloqueio de edição
 
 - Pai: 30769
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -8768,14 +8770,14 @@ Task da US63 - Bloqueio de edição após o combinado ficar ativo.
 **Descrição:**
 
 Criado: 2026-09-06T00:10:51.052Z
-        Atualizado: 2026-09-06T00:10:51.087Z
+        Atualizado: 2026-10-24T18:45:43.072Z
 Task da US63 - Bloqueio de edição após o combinado ficar ativo.
 
 ###### [TASK] #32324 — [po/validação] Homologar bloqueio de edição em combinado ATIVO
 
 - Pai: 30769
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -8787,7 +8789,7 @@ Task da US63 - Bloqueio de edição após o combinado ficar ativo.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:31.362Z
-        Atualizado: 2026-09-16T01:52:31.410Z
+        Atualizado: 2026-10-24T17:29:28.639Z
 Campos desabilitados + API 403
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31618 — CA-F18.1 - Controle de Status
@@ -9159,7 +9161,7 @@ ENTÃO o status do combinado deve mudar para "Concluído"
 ###### [TASK] #31681 — [front-end] Criar botão "Concluir" visível conforme status/permissão
 
 - Pai: 30770
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -9172,13 +9174,13 @@ ENTÃO o status do combinado deve mudar para "Concluído"
 **Descrição:**
 
 Criado: 2026-09-06T00:10:57.537Z
-        Atualizado: 2026-09-06T00:10:57.582Z
+        Atualizado: 2026-10-28T06:08:31.608Z
 Task da US64 - Conclusão de combinado com botão "Concluir".
 
 ###### [TASK] #31682 — [back-end] Criar endpoint PATCH /combinados/{id}/concluir
 
 - Pai: 30770
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: High
 - Autor: Maria Luiza
@@ -9191,13 +9193,13 @@ Task da US64 - Conclusão de combinado com botão "Concluir".
 **Descrição:**
 
 Criado: 2026-09-06T00:10:58.247Z
-        Atualizado: 2026-09-06T00:10:58.300Z
+        Atualizado: 2026-10-24T18:50:30.971Z
 Task da US64 - Conclusão de combinado com botão "Concluir".
 
 ###### [TASK] #31683 — [back-end] Implementar transição de status para Concluído
 
 - Pai: 30770
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: High
 - Autor: Maria Luiza
@@ -9210,14 +9212,14 @@ Task da US64 - Conclusão de combinado com botão "Concluir".
 **Descrição:**
 
 Criado: 2026-09-06T00:10:58.972Z
-        Atualizado: 2026-09-06T00:10:59.004Z
-Task da US64 - Conclusão de combinado com botão "Concluir".
+        Atualizado: 2026-10-24T20:02:32.566Z
+Task da US64 - Conclusão de combinado com botão &quot;Concluir&quot;.
 
 ###### [TASK] #32325 — [testes] Testar endpoint de conclusão
 
 - Pai: 30770
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9229,14 +9231,14 @@ Task da US64 - Conclusão de combinado com botão "Concluir".
 **Descrição:**
 
 Criado: 2026-09-16T01:52:32.386Z
-        Atualizado: 2026-09-16T01:52:32.424Z
+        Atualizado: 2026-10-24T17:06:49.628Z
 Sucesso (ATIVO) e falha (outros status)
 
 ###### [TASK] #32326 — [po/validação] Homologar fluxo de conclusão
 
 - Pai: 30770
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9248,7 +9250,7 @@ Sucesso (ATIVO) e falha (outros status)
 **Descrição:**
 
 Criado: 2026-09-16T01:52:34.384Z
-        Atualizado: 2026-09-16T01:52:34.434Z
+        Atualizado: 2026-10-24T17:01:09.651Z
 Botão + modal + status
 
 ###### [USER STORY] #30771 — US65 - Registro de conclusão no histórico com autor e data
@@ -9278,7 +9280,7 @@ ENTÃO o sistema deve registrar no histórico o autor e a data/hora da conclusã
 ###### [TASK] #31684 — [back-end] Criar registro de evento "Concluído" na tabela Histórico
 
 - Pai: 30771
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -9291,13 +9293,13 @@ ENTÃO o sistema deve registrar no histórico o autor e a data/hora da conclusã
 **Descrição:**
 
 Criado: 2026-09-06T00:11:01.763Z
-        Atualizado: 2026-09-06T00:11:01.805Z
+        Atualizado: 2026-10-24T20:04:19.084Z
 Task da US65 - Registro de conclusão no histórico com autor e data.
 
 ###### [TASK] #31685 — [back-end] Associar autor (usuário logado) e timestamp ao evento
 
 - Pai: 30771
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -9310,14 +9312,14 @@ Task da US65 - Registro de conclusão no histórico com autor e data.
 **Descrição:**
 
 Criado: 2026-09-06T00:11:02.401Z
-        Atualizado: 2026-09-06T00:11:02.435Z
+        Atualizado: 2026-10-28T06:10:30.587Z
 Task da US65 - Registro de conclusão no histórico com autor e data.
 
 ###### [TASK] #32327 — [front-end] Exibir registro de conclusão na timeline
 
 - Pai: 30771
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9329,14 +9331,14 @@ Task da US65 - Registro de conclusão no histórico com autor e data.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:36.398Z
-        Atualizado: 2026-09-16T01:52:36.453Z
+        Atualizado: 2026-10-24T17:18:40.439Z
 Concluído por [nome] em [data]
 
 ###### [TASK] #32328 — [testes] Testar registro de conclusão no histórico
 
 - Pai: 30771
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9348,14 +9350,14 @@ Concluído por [nome] em [data]
 **Descrição:**
 
 Criado: 2026-09-16T01:52:37.394Z
-        Atualizado: 2026-09-16T01:52:37.433Z
+        Atualizado: 2026-10-24T17:01:00.103Z
 Autor + timestamp; não permitir dupla conclusão
 
 ###### [TASK] #32329 — [po/validação] Homologar visualização da conclusão no histórico
 
 - Pai: 30771
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9367,7 +9369,7 @@ Autor + timestamp; não permitir dupla conclusão
 **Descrição:**
 
 Criado: 2026-09-16T01:52:38.371Z
-        Atualizado: 2026-09-16T01:52:38.417Z
+        Atualizado: 2026-10-24T17:29:30.957Z
 Ícone + autor + data
 
 ###### [USER STORY] #30773 — US66 - Mensagem de sucesso ao concluir
@@ -9397,7 +9399,7 @@ ENTÃO o front-end deve exibir uma mensagem de confirmação ao usuário
 ###### [TASK] #31686 — [front-end] Criar componente/toast de mensagem de sucesso
 
 - Pai: 30773
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Low
 - Autor: Maria Luiza
@@ -9410,14 +9412,14 @@ ENTÃO o front-end deve exibir uma mensagem de confirmação ao usuário
 **Descrição:**
 
 Criado: 2026-09-06T00:11:05.240Z
-        Atualizado: 2026-09-06T00:11:05.276Z
+        Atualizado: 2026-10-29T04:04:44.758Z
 Task da US66 - Mensagem de sucesso ao concluir.
 
 ###### [TASK] #32330 — [back-end] Retornar mensagem de sucesso no response
 
 - Pai: 30773
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9429,14 +9431,14 @@ Task da US66 - Mensagem de sucesso ao concluir.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:39.385Z
-        Atualizado: 2026-09-16T01:52:39.428Z
+        Atualizado: 2026-10-24T17:00:27.415Z
 Combinado concluído com sucesso!
 
 ###### [TASK] #32331 — [testes] Testar retorno da mensagem de sucesso
 
 - Pai: 30773
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9448,14 +9450,14 @@ Combinado concluído com sucesso!
 **Descrição:**
 
 Criado: 2026-09-16T01:52:40.384Z
-        Atualizado: 2026-09-16T01:52:40.436Z
+        Atualizado: 2026-10-24T17:00:52.436Z
 Validar na API
 
 ###### [TASK] #32332 — [po/validação] Homologar mensagem de sucesso na UI
 
 - Pai: 30773
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9467,7 +9469,7 @@ Validar na API
 **Descrição:**
 
 Criado: 2026-09-16T01:52:41.405Z
-        Atualizado: 2026-09-16T01:52:41.451Z
+        Atualizado: 2026-10-24T17:29:36.612Z
 Toast aparece/desaparece
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31629 — CA-F19.1 - Concluir Combinado
@@ -9744,7 +9746,7 @@ ENTÃO o status do combinado deve mudar para "Cancelado"
 ###### [TASK] #31692 — [front-end] Criar botão "Cancelar" com modal de confirmação
 
 - Pai: 30774
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -9757,13 +9759,13 @@ ENTÃO o status do combinado deve mudar para "Cancelado"
 **Descrição:**
 
 Criado: 2026-09-06T00:11:11.697Z
-        Atualizado: 2026-09-06T00:11:11.738Z
+        Atualizado: 2026-10-29T04:13:08.934Z
 Task da US67 - Cancelamento de combinado com botão "Cancelar".
 
 ###### [TASK] #31693 — [back-end] Criar endpoint PATCH /combinados/{id}/cancelar
 
 - Pai: 30774
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: High
 - Autor: Maria Luiza
@@ -9776,14 +9778,14 @@ Task da US67 - Cancelamento de combinado com botão "Cancelar".
 **Descrição:**
 
 Criado: 2026-09-06T00:11:12.397Z
-        Atualizado: 2026-09-06T00:11:12.445Z
-Task da US67 - Cancelamento de combinado com botão "Cancelar".
+        Atualizado: 2026-10-24T20:05:35.499Z
+Task da US67 - Cancelamento de combinado com botão &quot;Cancelar&quot;.
 
 ###### [TASK] #32333 — [testes] Testar endpoint de cancelamento
 
 - Pai: 30774
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9795,14 +9797,14 @@ Task da US67 - Cancelamento de combinado com botão "Cancelar".
 **Descrição:**
 
 Criado: 2026-09-16T01:52:42.365Z
-        Atualizado: 2026-09-16T01:52:42.426Z
+        Atualizado: 2026-10-24T17:00:41.732Z
 Criador (200) e não-criador (403)
 
 ###### [TASK] #32334 — [po/validação] Homologar fluxo de cancelamento
 
 - Pai: 30774
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9814,7 +9816,7 @@ Criador (200) e não-criador (403)
 **Descrição:**
 
 Criado: 2026-09-16T01:52:43.405Z
-        Atualizado: 2026-09-16T01:52:43.453Z
+        Atualizado: 2026-10-24T17:29:42.949Z
 Botão + modal + status
 
 ###### [USER STORY] #30775 — US68 - Registro de cancelamento no histórico com autor e data
@@ -9844,7 +9846,7 @@ ENTÃO o sistema deve registrar no histórico o autor e a data/hora do cancelame
 ###### [TASK] #31694 — [back-end] Criar registro de evento "Cancelado" na tabela Histórico
 
 - Pai: 30775
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -9857,14 +9859,14 @@ ENTÃO o sistema deve registrar no histórico o autor e a data/hora do cancelame
 **Descrição:**
 
 Criado: 2026-09-06T00:11:15.268Z
-        Atualizado: 2026-09-06T00:11:15.302Z
+        Atualizado: 2026-10-24T20:07:33.066Z
 Task da US68 - Registro de cancelamento no histórico com autor e data.
 
 ###### [TASK] #32335 — [front-end] Exibir registro de cancelamento na timeline
 
 - Pai: 30775
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9876,14 +9878,14 @@ Task da US68 - Registro de cancelamento no histórico com autor e data.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:45.401Z
-        Atualizado: 2026-09-16T01:52:45.449Z
+        Atualizado: 2026-10-24T17:15:26.415Z
 Cancelado por [nome] em [data]
 
 ###### [TASK] #32336 — [testes] Testar registro de cancelamento no histórico
 
 - Pai: 30775
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9895,14 +9897,14 @@ Cancelado por [nome] em [data]
 **Descrição:**
 
 Criado: 2026-09-16T01:52:46.390Z
-        Atualizado: 2026-09-16T01:52:46.428Z
+        Atualizado: 2026-10-24T17:27:54.415Z
 Autor + timestamp
 
 ###### [TASK] #32337 — [po/validação] Homologar visualização do cancelamento no histórico
 
 - Pai: 30775
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9914,7 +9916,7 @@ Autor + timestamp
 **Descrição:**
 
 Criado: 2026-09-16T01:52:48.404Z
-        Atualizado: 2026-09-16T01:52:48.478Z
+        Atualizado: 2026-10-24T17:29:45.921Z
 Ícone + autor + data
 
 ###### [USER STORY] #30778 — US69 - Motivo opcional para cancelamento
@@ -9944,7 +9946,7 @@ ENTÃO o sistema deve aceitar o cancelamento com ou sem motivo informado
 ###### [TASK] #31695 — [front-end] Adicionar campo opcional "Motivo" no modal de cancelamento
 
 - Pai: 30778
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Low
 - Autor: Maria Luiza
@@ -9957,13 +9959,13 @@ ENTÃO o sistema deve aceitar o cancelamento com ou sem motivo informado
 **Descrição:**
 
 Criado: 2026-09-06T00:11:18.108Z
-        Atualizado: 2026-09-06T00:11:18.146Z
+        Atualizado: 2026-10-29T04:16:24.199Z
 Task da US69 - Motivo opcional para cancelamento.
 
 ###### [TASK] #31696 — [back-end] Persistir motivo (nullable) junto ao evento de cancelamento
 
 - Pai: 30778
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Low
 - Autor: Maria Luiza
@@ -9976,14 +9978,14 @@ Task da US69 - Motivo opcional para cancelamento.
 **Descrição:**
 
 Criado: 2026-09-06T00:11:18.772Z
-        Atualizado: 2026-09-06T00:11:18.809Z
+        Atualizado: 2026-10-29T04:19:49.979Z
 Task da US69 - Motivo opcional para cancelamento.
 
 ###### [TASK] #32338 — [testes] Testar cancelamento com e sem motivo
 
 - Pai: 30778
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -9995,14 +9997,14 @@ Task da US69 - Motivo opcional para cancelamento.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:50.396Z
-        Atualizado: 2026-09-16T01:52:50.449Z
+        Atualizado: 2026-10-24T17:18:52.041Z
 null / preenchido / muito longo
 
 ###### [TASK] #32339 — [po/validação] Homologar campo de motivo no cancelamento
 
 - Pai: 30778
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -10014,7 +10016,7 @@ null / preenchido / muito longo
 **Descrição:**
 
 Criado: 2026-09-16T01:52:51.370Z
-        Atualizado: 2026-09-16T01:52:51.419Z
+        Atualizado: 2026-10-24T17:29:53.567Z
 Opcional + exibição no histórico
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31634 — CA-F20.1 - Cancelar Combinado
@@ -10391,7 +10393,7 @@ ENTÃO o sistema deve permitir a ação, respeitando as demais regras de status
 ###### [TASK] #31704 — [back-end] Ajustar regra de autorização para aceitar qualquer participante na conclusão
 
 - Pai: 30783
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -10404,10 +10406,10 @@ ENTÃO o sistema deve permitir a ação, respeitando as demais regras de status
 **Descrição:**
 
 Criado: 2026-09-06T00:11:29.048Z
-        Atualizado: 2026-09-06T00:11:29.089Z
+        Atualizado: 2026-10-29T04:30:57.054Z
 Task da US71 - Permissão para qualquer participante concluir o combinado.
 
-###### [TASK] #31705 — [back-end] Teste unitário cobrindo participante x criador
+###### [TASK] #31705 — [testes] Teste unitário cobrindo participante x criador
 
 - Pai: 30783
 - Status: New
@@ -10423,14 +10425,14 @@ Task da US71 - Permissão para qualquer participante concluir o combinado.
 **Descrição:**
 
 Criado: 2026-09-06T00:11:29.769Z
-        Atualizado: 2026-09-06T00:11:29.816Z
+        Atualizado: 2026-10-29T04:31:38.881Z
 Task da US71 - Permissão para qualquer participante concluir o combinado.
 
 ###### [TASK] #32340 — [front-end] Exibir botão Concluir para participantes aceitos
 
 - Pai: 30783
 - Status: New
-- Responsável: Não informado
+- Responsável: Carlos Silvio
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -10442,14 +10444,14 @@ Task da US71 - Permissão para qualquer participante concluir o combinado.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:52.361Z
-        Atualizado: 2026-09-16T01:52:52.399Z
+        Atualizado: 2026-10-24T17:15:08.613Z
 Verificar status ACEITO
 
 ###### [TASK] #32341 — [testes] Testar permissão de conclusão por participante
 
 - Pai: 30783
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -10461,14 +10463,14 @@ Verificar status ACEITO
 **Descrição:**
 
 Criado: 2026-09-16T01:52:53.298Z
-        Atualizado: 2026-09-16T01:52:53.355Z
+        Atualizado: 2026-10-24T17:17:59.796Z
 Criador (200) aceito (200) pendente (403) externo (403)
 
 ###### [TASK] #32342 — [po/validação] Homologar conclusão por participantes
 
 - Pai: 30783
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -10480,7 +10482,7 @@ Criador (200) aceito (200) pendente (403) externo (403)
 **Descrição:**
 
 Criado: 2026-09-16T01:52:54.392Z
-        Atualizado: 2026-09-16T01:52:54.438Z
+        Atualizado: 2026-10-24T17:29:59.598Z
 Múltiplos usuários
 
 ###### [USER STORY] #30784 — US72 - Registro do autor e da data em cada ação
@@ -10510,7 +10512,7 @@ ENTÃO o sistema deve registrar o usuário responsável e o timestamp da ação
 ###### [TASK] #31706 — [back-end] Garantir que todo evento de Histórico grave usuário_id e criado_em
 
 - Pai: 30784
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -10523,14 +10525,14 @@ ENTÃO o sistema deve registrar o usuário responsável e o timestamp da ação
 **Descrição:**
 
 Criado: 2026-09-06T00:11:32.744Z
-        Atualizado: 2026-09-06T00:11:32.781Z
+        Atualizado: 2026-10-29T04:40:02.635Z
 Task da US72 - Registro do autor e da data em cada ação.
 
 ###### [TASK] #32343 — [testes] Testar gravação obrigatória de autor/data
 
 - Pai: 30784
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -10542,14 +10544,14 @@ Task da US72 - Registro do autor e da data em cada ação.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:55.396Z
-        Atualizado: 2026-09-16T01:52:55.449Z
+        Atualizado: 2026-10-24T17:17:46.685Z
 Todos os tipos de evento
 
 ###### [TASK] #32344 — [po/validação] Homologar consistência de auditoria
 
 - Pai: 30784
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -10561,7 +10563,7 @@ Todos os tipos de evento
 **Descrição:**
 
 Criado: 2026-09-16T01:52:57.429Z
-        Atualizado: 2026-09-16T01:52:57.487Z
+        Atualizado: 2026-10-24T17:16:16.798Z
 Todos eventos com autor/data
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31639 — CA-F21.1 - Validação de Permissões
@@ -11039,7 +11041,7 @@ Task da US75 - Registro de aceite e recusa no histórico.
 
 - Pai: 30787
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11051,14 +11053,14 @@ Task da US75 - Registro de aceite e recusa no histórico.
 **Descrição:**
 
 Criado: 2026-09-16T01:52:59.391Z
-        Atualizado: 2026-09-16T01:52:59.438Z
+        Atualizado: 2026-10-24T17:16:58.027Z
 Autor + data
 
 ###### [TASK] #32346 — [po/validação] Homologar registro de aceite e recusa
 
 - Pai: 30787
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11070,7 +11072,7 @@ Autor + data
 **Descrição:**
 
 Criado: 2026-09-16T01:53:01.433Z
-        Atualizado: 2026-09-16T01:53:01.480Z
+        Atualizado: 2026-10-24T17:16:04.485Z
 Ordem cronológica
 
 ###### [USER STORY] #30789 — US76 - Registro de alteração de status, conclusão e cancelamento
@@ -11120,7 +11122,7 @@ Task da US76 - Registro de alteração de status, conclusão e cancelamento.
 
 - Pai: 30789
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11132,14 +11134,14 @@ Task da US76 - Registro de alteração de status, conclusão e cancelamento.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:03.409Z
-        Atualizado: 2026-09-16T01:53:03.452Z
+        Atualizado: 2026-10-24T17:16:42.175Z
 Dados antigos e novos
 
 ###### [TASK] #32348 — [po/validação] Homologar registro de alterações de status
 
 - Pai: 30789
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11151,7 +11153,7 @@ Dados antigos e novos
 **Descrição:**
 
 Criado: 2026-09-16T01:53:04.376Z
-        Atualizado: 2026-09-16T01:53:04.421Z
+        Atualizado: 2026-10-24T17:15:49.012Z
 Clareza na timeline
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31644 — CA-F22.1 - Registro de Eventos
@@ -11448,7 +11450,7 @@ Task da US77 - Linha do tempo com eventos em ordem cronológica.
 
 - Pai: 30790
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11460,14 +11462,14 @@ Task da US77 - Linha do tempo com eventos em ordem cronológica.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:06.402Z
-        Atualizado: 2026-09-16T01:53:06.442Z
+        Atualizado: 2026-10-24T17:12:52.918Z
 Ordem crescente
 
 ###### [TASK] #32350 — [po/validação] Homologar ordem cronológica na timeline
 
 - Pai: 30790
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11479,7 +11481,7 @@ Ordem crescente
 **Descrição:**
 
 Criado: 2026-09-16T01:53:07.391Z
-        Atualizado: 2026-09-16T01:53:07.432Z
+        Atualizado: 2026-10-24T17:12:21.775Z
 Mais antigo → mais recente
 
 ###### [USER STORY] #30791 — US78 - Linha do tempo com autor, data/hora e descrição do evento
@@ -11529,7 +11531,7 @@ Task da US78 - Linha do tempo com autor, data/hora e descrição do evento.
 
 - Pai: 30791
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11541,14 +11543,14 @@ Task da US78 - Linha do tempo com autor, data/hora e descrição do evento.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:08.395Z
-        Atualizado: 2026-09-16T01:53:08.436Z
+        Atualizado: 2026-10-24T17:12:02.115Z
 Autor + data/hora + descrição
 
 ###### [TASK] #32352 — [po/validação] Homologar exibição de autor/data/descrição
 
 - Pai: 30791
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11560,7 +11562,7 @@ Autor + data/hora + descrição
 **Descrição:**
 
 Criado: 2026-09-16T01:53:09.409Z
-        Atualizado: 2026-09-16T01:53:09.461Z
+        Atualizado: 2026-10-24T17:11:38.700Z
 Formato e clareza
 
 ###### [USER STORY] #30792 — US79 - Linha do tempo com ícones por tipo de evento
@@ -11610,7 +11612,7 @@ Task da US79 - Linha do tempo com ícones por tipo de evento.
 
 - Pai: 30792
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11622,14 +11624,14 @@ Task da US79 - Linha do tempo com ícones por tipo de evento.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:10.434Z
-        Atualizado: 2026-09-16T01:53:10.488Z
+        Atualizado: 2026-10-24T17:11:15.790Z
 Cada tipo com ícone correto
 
 ###### [TASK] #32354 — [po/validação] Homologar ícones da timeline
 
 - Pai: 30792
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11641,7 +11643,7 @@ Cada tipo com ícone correto
 **Descrição:**
 
 Criado: 2026-09-16T01:53:12.386Z
-        Atualizado: 2026-09-16T01:53:12.429Z
+        Atualizado: 2026-10-24T17:11:04.976Z
 Consistência + acessibilidade
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31649 — CA-F23.1 - Linha do Tempo
@@ -11861,7 +11863,7 @@ ENTÃO deve mostrar o nome do autor e a data do evento
 ###### [TASK] #31729 — [back-end] Incluir nome do autor no retorno da API de histórico (join com Usuário)
 
 - Pai: 30794
-- Status: New
+- Status: Closed
 - Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
@@ -11874,7 +11876,7 @@ ENTÃO deve mostrar o nome do autor e a data do evento
 **Descrição:**
 
 Criado: 2026-09-06T00:12:04.585Z
-        Atualizado: 2026-09-06T00:12:04.621Z
+        Atualizado: 2026-10-24T20:08:21.156Z
 Task da US80 - Exibição do nome do autor e da data em cada evento.
 
 ###### [TASK] #31730 — [front-end] Exibir nome do autor no item de evento
@@ -11900,7 +11902,7 @@ Task da US80 - Exibição do nome do autor e da data em cada evento.
 
 - Pai: 30794
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11912,14 +11914,14 @@ Task da US80 - Exibição do nome do autor e da data em cada evento.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:14.366Z
-        Atualizado: 2026-09-16T01:53:14.415Z
+        Atualizado: 2026-10-24T17:10:49.732Z
 Nome completo
 
 ###### [TASK] #32356 — [po/validação] Homologar nome do autor na timeline
 
 - Pai: 30794
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11931,7 +11933,7 @@ Nome completo
 **Descrição:**
 
 Criado: 2026-09-16T01:53:15.375Z
-        Atualizado: 2026-09-16T01:53:15.420Z
+        Atualizado: 2026-10-24T17:10:47.564Z
 Não usar login/email
 
 ###### [USER STORY] #30795 — US81 - Exibição da hora em cada evento
@@ -11981,7 +11983,7 @@ Task da US81 - Exibição da hora em cada evento.
 
 - Pai: 30795
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -11993,14 +11995,14 @@ Task da US81 - Exibição da hora em cada evento.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:17.381Z
-        Atualizado: 2026-09-16T01:53:17.417Z
+        Atualizado: 2026-10-24T17:10:07.142Z
 Formato HH:mm
 
 ###### [TASK] #32358 — [po/validação] Homologar exibição de hora
 
 - Pai: 30795
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12012,7 +12014,7 @@ Formato HH:mm
 **Descrição:**
 
 Criado: 2026-09-16T01:53:18.375Z
-        Atualizado: 2026-09-16T01:53:18.426Z
+        Atualizado: 2026-10-24T17:10:32.995Z
 Consistência
 
 ###### [USER STORY] #30796 — US82 - Exibição da data em formato amigável (exemplo: "há 2 dias")
@@ -12062,7 +12064,7 @@ Task da US82 - Exibição da data em formato amigável (exemplo: "há 2 dias").
 
 - Pai: 30796
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12074,14 +12076,14 @@ Task da US82 - Exibição da data em formato amigável (exemplo: "há 2 dias").
 **Descrição:**
 
 Criado: 2026-09-16T01:53:19.391Z
-        Atualizado: 2026-09-16T01:53:19.434Z
+        Atualizado: 2026-10-24T17:07:57.202Z
 Hoje ontem há X dias
 
 ###### [TASK] #32360 — [po/validação] Homologar data amigável
 
 - Pai: 30796
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12093,7 +12095,7 @@ Hoje ontem há X dias
 **Descrição:**
 
 Criado: 2026-09-16T01:53:20.406Z
-        Atualizado: 2026-09-16T01:53:20.450Z
+        Atualizado: 2026-10-24T17:10:31.035Z
 Clareza e limites
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31653 — CA-F24.1 - Exibir Autor e Data
@@ -12352,7 +12354,7 @@ Task da US83 - Filtro do histórico por tipo de evento.
 
 - Pai: 30799
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12364,14 +12366,14 @@ Task da US83 - Filtro do histórico por tipo de evento.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:22.408Z
-        Atualizado: 2026-09-16T01:53:22.455Z
+        Atualizado: 2026-10-24T17:07:46.883Z
 Cada tipo e combinações
 
 ###### [TASK] #32362 — [po/validação] Homologar filtro de tipo
 
 - Pai: 30799
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12383,7 +12385,7 @@ Cada tipo e combinações
 **Descrição:**
 
 Criado: 2026-09-16T01:53:23.419Z
-        Atualizado: 2026-09-16T01:53:23.461Z
+        Atualizado: 2026-10-24T17:10:17.770Z
 Dropdown funcional
 
 ###### [USER STORY] #30800 — US84 - Filtro do histórico por período
@@ -12452,7 +12454,7 @@ Task da US84 - Filtro do histórico por período.
 
 - Pai: 30800
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12464,14 +12466,14 @@ Task da US84 - Filtro do histórico por período.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:25.391Z
-        Atualizado: 2026-09-16T01:53:25.428Z
+        Atualizado: 2026-10-24T17:07:25.983Z
 Válido inválido vazio
 
 ###### [TASK] #32364 — [po/validação] Homologar filtro de período no histórico
 
 - Pai: 30800
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12483,7 +12485,7 @@ Válido inválido vazio
 **Descrição:**
 
 Criado: 2026-09-16T01:53:27.395Z
-        Atualizado: 2026-09-16T01:53:27.435Z
+        Atualizado: 2026-10-24T17:10:15.496Z
 Date range
 
 ###### [USER STORY] #30801 — US85 - Busca no histórico por autor
@@ -12552,7 +12554,7 @@ Task da US85 - Busca no histórico por autor.
 
 - Pai: 30801
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12564,14 +12566,14 @@ Task da US85 - Busca no histórico por autor.
 **Descrição:**
 
 Criado: 2026-09-16T01:53:28.337Z
-        Atualizado: 2026-09-16T01:53:28.389Z
+        Atualizado: 2026-10-24T17:07:16.123Z
 Parcial e case-insensitive
 
 ###### [TASK] #32366 — [po/validação] Homologar busca por autor
 
 - Pai: 30801
 - Status: New
-- Responsável: Não informado
+- Responsável: Maria Luiza
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: Não informado
@@ -12583,7 +12585,7 @@ Parcial e case-insensitive
 **Descrição:**
 
 Criado: 2026-09-16T01:53:29.295Z
-        Atualizado: 2026-09-16T01:53:29.334Z
+        Atualizado: 2026-10-24T17:00:11.199Z
 Campo funcional
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31657 — CA-F25.1 - Filtros no Histórico
@@ -13726,7 +13728,7 @@ Critérios de Aceitação Associados
 
 - Pai: 30833
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -13738,14 +13740,14 @@ Critérios de Aceitação Associados
 **Descrição:**
 
 Criado: 2026-09-05T18:04:39.590Z
-        Atualizado: 2026-09-05T18:04:39.647Z
+        Atualizado: 2026-10-24T17:19:33.508Z
 Implementar repositório JPA com consulta de eventos filtrados por combinado e ordenados cronologicamente.
 
 ###### [TASK] #31232 — [back-end] Implementar serviço de auditoria e registro no HistoricoService
 
 - Pai: 30833
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -13757,14 +13759,14 @@ Implementar repositório JPA com consulta de eventos filtrados por combinado e o
 **Descrição:**
 
 Criado: 2026-09-05T18:05:25.777Z
-        Atualizado: 2026-09-05T18:05:25.861Z
+        Atualizado: 2026-10-24T17:19:45.001Z
 Criar método reutilizável para gravar logs com autor, descrição do evento e timestamp.
 
 ###### [TASK] #31233 — [back-end] Implementar HistoricoController para consulta da linha do tempo
 
 - Pai: 30833
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -13776,7 +13778,7 @@ Criar método reutilizável para gravar logs com autor, descrição do evento e 
 **Descrição:**
 
 Criado: 2026-09-05T18:06:07.159Z
-        Atualizado: 2026-09-05T18:06:07.195Z
+        Atualizado: 2026-10-24T17:19:55.437Z
 Expor rota GET /api/combinados/{id}/historico com DTOs dos eventos.
 
 ###### [USER STORY] #30834 — US97 - Criação de Controller, Service e Repository para Responsabilidade
@@ -13814,7 +13816,7 @@ Critérios de Aceitação Associados
 
 - Pai: 30834
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -13826,14 +13828,14 @@ Critérios de Aceitação Associados
 **Descrição:**
 
 Criado: 2026-09-05T18:07:13.577Z
-        Atualizado: 2026-09-05T18:07:13.618Z
+        Atualizado: 2026-10-24T17:03:14.882Z
 Criar interface de persistência para as tarefas vinculadas a combinados e participantes.
 
 ###### [TASK] #31237 — [back-end] Implementar lógica de responsabilidades no backend
 
 - Pai: 30834
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -13845,14 +13847,14 @@ Criar interface de persistência para as tarefas vinculadas a combinados e parti
 **Descrição:**
 
 Criado: 2026-09-05T18:08:33.478Z
-        Atualizado: 2026-09-05T18:08:33.521Z
+        Atualizado: 2026-10-24T17:20:06.093Z
 Desenvolver métodos para adicionar, editar e validar atribuição de múltiplos responsáveis por tarefa.
 
 ###### [TASK] #31238 — [back-end] Expor rotas de responsabilidade no Controller
 
 - Pai: 30834
 - Status: New
-- Responsável: Não informado
+- Responsável: José Correia da Cruz Júnior
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -13864,7 +13866,7 @@ Desenvolver métodos para adicionar, editar e validar atribuição de múltiplos
 **Descrição:**
 
 Criado: 2026-09-05T18:10:43.557Z
-        Atualizado: 2026-09-05T18:10:43.607Z
+        Atualizado: 2026-10-24T17:03:32.320Z
 Expor rotas para criação e listagem de responsabilidades associadas a um combinado.
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31771 — CA-F27.1 - Arquitetura Backend
@@ -16377,7 +16379,7 @@ Critérios de Aceitação Associados
 
 - Pai: 30788
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -16389,14 +16391,14 @@ Critérios de Aceitação Associados
 **Descrição:**
 
 Criado: 2026-09-05T20:27:54.225Z
-        Atualizado: 2026-09-05T20:27:54.268Z
+        Atualizado: 2026-10-24T17:22:46.739Z
 Configurar application-prod.properties e políticas de CORS para ambiente de testes finais.
 
 ###### [TASK] #31759 — [devops] Configurar build otimizado do frontend para homologação
 
 - Pai: 30788
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Felipe Macedo
 - Início: Não informado
@@ -16408,7 +16410,7 @@ Configurar application-prod.properties e políticas de CORS para ambiente de tes
 **Descrição:**
 
 Criado: 2026-09-06T00:17:53.547Z
-        Atualizado: 2026-09-06T00:17:53.596Z
+        Atualizado: 2026-10-24T17:23:00.188Z
 Ajustar comandos de build e variáveis de ambiente para publicação e testes do pacote do cliente web.
 
 ###### [CRITÉRIO DE ACEITAÇÃO] #31789 — CA-F33.1 - Configuração de Ambiente
@@ -19093,7 +19095,7 @@ Atualizado: 2026-10-22T01:55:05.174Z
 
 - Pai: 32382
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: High
 - Autor: Maria Luiza
 - Início: 2026-09-16
@@ -19104,7 +19106,7 @@ Atualizado: 2026-10-22T01:55:05.174Z
 
 - Pai: 32382
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: High
 - Autor: Maria Luiza
 - Início: 2026-09-16
@@ -19115,7 +19117,7 @@ Atualizado: 2026-10-22T01:55:05.174Z
 
 - Pai: 32382
 - Status: New
-- Responsável: Não informado
+- Responsável: Felipe Macedo
 - Prioridade: Normal
 - Autor: Maria Luiza
 - Início: 2026-09-16
@@ -19123,6 +19125,17 @@ Atualizado: 2026-10-22T01:55:05.174Z
 - Progresso: Não informado
 - Estimativa: Não informado
 [Abrir no OpenProject](https://200.129.79.50:8104/projects/combinado/work_packages/34296/activity)
+
+- Pai: 32382
+- Status: Closed
+- Responsável: Maria Luiza
+- Prioridade: Immediate
+- Autor: Maria Luiza
+- Início: 2026-09-16
+- Prazo: 2026-10-14
+- Progresso: Não informado
+- Estimativa: Não informado
+[Abrir no OpenProject](https://200.129.79.50:8104/projects/combinado/work_packages/34541/activity)
 
 **Descrição:**
 
@@ -19348,7 +19361,7 @@ Ao tentar entrar com uma senha incorreta, o backend rejeita a autenticação com
 *   A interface permanece na tela de login sem exibir mensagem de erro.
     [Bug] #34294 - Validação de e-mail permite domínios sem ponto no backend e frontend
     Criado: 2026-10-22T02:41:48.445Z
-    Atualizado: 2026-10-22T02:41:48.515Z
+    Atualizado: 2026-10-22T05:07:17.763Z
 *   **Descrição:** A expressão regular (`Regex @(.+)`) utilizada no `UsuarioService` e nas validações do frontend é insuficiente para garantir o formato correto de um e-mail. Atualmente, a aplicação aceita endereços de e-mail sem ponto após o caractere `@` (ex.: `sem@arroba`), registrando status HTTP `201 Created` no backend e exibindo a mensagem `"E-mail válido."` na interface.  
 *   **Passos para Reproduzir:**
     1.  Acessar a tela de cadastro/edição de usuário.
@@ -19360,7 +19373,7 @@ Ao tentar entrar com uma senha incorreta, o backend rejeita a autenticação com
 *   **Impacto:** **Médio/Alto.** Permite a gravação de e-mails inválidos no banco de dados, o que impede a entrega de notificações do sistema, envios de convites e etapas de recuperação de senha para esses usuários.
     [Bug] #34295 - Ausência de funcionalidade para exclusão/descarte de rascunhos
     Criado: 2026-10-22T02:42:33.739Z
-    Atualizado: 2026-10-22T02:42:33.793Z
+    Atualizado: 2026-10-22T05:07:06.620Z
 *   **Descrição:** O critério de aceitação **CA03** (relacionado à task #31512) exige que o usuário consiga descartar ou remover um rascunho mediante confirmação. No entanto, a funcionalidade não está implementada: não há endpoint com anotação `@DeleteMapping` mapeado no _Controller_ do backend, tampouco botão ou ação de descarte na interface gráfica (_UI_).
 *   **Passos para Reproduzir:**
     1.  Criar e salvar um rascunho na aplicação.
@@ -19373,7 +19386,7 @@ Ao tentar entrar com uma senha incorreta, o backend rejeita a autenticação com
 *   **Impacto:** **Médio.** Impede o cumprimento integral da estória de usuário/critério de aceitação CA03, fazendo com que rascunhos indesejados fiquem acumulados indefinidamente na conta do usuário sem opção de limpeza.
     [Bug] #34296 - Aceite de proposta via interface pendente de validação em tela
     Criado: 2026-10-22T02:43:48.613Z
-    Atualizado: 2026-10-22T02:43:48.653Z
+    Atualizado: 2026-10-22T05:07:13.239Z
 *   **Descrição:** A funcionalidade de aceite de proposta foi validada no backend com 100% de conformidade (quando o convite é aceito, o combinado passa para o status `ATIVO`, com cobertura de 8/8 testes unitários). No entanto, o fluxo ponta a ponta (E2E) através da interface gráfica (UI) não pôde ser completamente homologado por falta de um convite real gerado diretamente na tela.
 *   **Passos para Reproduzir:**
     1.  Acessar a aplicação pela interface do usuário (_UI_).
@@ -19382,8 +19395,35 @@ Ao tentar entrar com uma senha incorreta, o backend rejeita a autenticação com
 *   **Resultado Esperado:** O fluxo de aceite deve ser executado de ponta a ponta na interface, convertendo o estado do convite e alterando o combinado para `ATIVO` sem dependência de chamadas manuais via API.
 *   **Resultado Atual:** O comportamento no backend e nas regras de negócio está 100% correto (comprovado via testes unitários), mas o caminho visual completo dependia da massa de dados com convite real em tela para atesto final.
 *   **Impacto:** **Baixo.** Trata-se apenas de uma pendência de validação do fluxo visual (UI E2E), uma vez que a regra de negócio e os endpoints no backend estão validados e funcionais.
+    [Bug] #34541 - Aceite de proposta via interface pendente de validação em tela
+    Criado: 2026-10-28T05:37:49.149Z
+    Atualizado: 2026-10-28T05:40:27.668Z
+Título
+Ao criar um combinado com participantes cadastrados, o convite não é enviado para a pessoa selecionada
+Descrição
+Ao criar um combinado selecionando um participante já cadastrado na plataforma, o sistema apenas vincula o usuário como participante e altera o status do acordo, mas não gera o registro de convite (Convite com status PENDENTE), nem o histórico de envio e nem a notificação correspondente. Assim, a pessoa cadastrada não visualiza o convite na tela de convites recebidos e não consegue aceitar ou recusar a participação. O envio de convite só acontece quando é feito manualmente por POST /api/combinados/{id}/convites, rota que não é acionada pelos fluxos de criação/publicação do combinado.
+Passos para reprodução
+Autenticar-se como um usuário criador na plataforma.  
+Acessar o formulário de criação de combinado.  
+Preencher título, categoria e prazo.  
+Buscar e selecionar um participante que já possui cadastro (por e-mail).  
+Preencher os demais dados e clicar em &quot;Enviar convites&quot;.  
+Autenticar-se como o participante selecionado e acessar a tela de convites recebidos.  
+Resultado esperado
+O convite deve ser registrado com status PENDENTE para cada participante selecionado no momento da criação/publicação do combinado.  
+O evento de envio deve ser gravado no histórico do convite.  
+O participante convidado deve receber uma notificação informando o convite.  
+O convite deve aparecer na tela de convites recebidos do participante, permitindo aceitar ou recusar.  
+Resultado atual
+Nenhum registro de convite é criado para o participante cadastrado.  
+O participante não recebe notificação e o convite não aparece em sua lista de convites recebidos.  
+A mensagem &quot;Combinado criado e convites enviados.&quot; é exibida mesmo sem nenhum convite ter sido disparado.  
+Impacto
+Participantes cadastrados ficam impedidos de aceitar ou recusar a participação no combinado.  
+O fluxo de confirmação (AGUARDANDO\_CONFIRMACAO) fica travado, pois ninguém recebe o convite.  
+A interface informa sucesso de envio que não ocorreu, comprometendo a confiabilidade do sistema.
 VALIDAÇÃO
-Total da API: 942
-Total exportado: 942
+Total da API: 943
+Total exportado: 943
 Falhas nos detalhes: 0
 Bugs conhecidos ausentes: Nenhum

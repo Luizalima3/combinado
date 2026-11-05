@@ -48,4 +48,17 @@ public class ConviteController {
             return ResponseEntity.badRequest().body(Map.of("erro", ex.getMessage()));
         }
     }
+
+    @PostMapping("/lote")
+    @Operation(summary = "Enviar convites em lote", description = "Lote atômico de 1 a 100 IDs distintos. Todos são validados antes de persistir; qualquer falha desfaz convites, eventos e notificações.")
+    @ApiResponse(responseCode = "201", description = "Lote criado", content = @Content(array = @ArraySchema(schema = @Schema(implementation = ConviteResumoDTO.class))))
+    public ResponseEntity<java.util.List<ConviteResumoDTO>> lote(@PathVariable Long combinadoId,
+                                                                @Valid @RequestBody ConviteLoteDTO dados) {
+        return ResponseEntity.status(201).body(conviteService.enviarLote(combinadoId, dados));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> invalido(IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+    }
 }

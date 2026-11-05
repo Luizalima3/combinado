@@ -46,17 +46,20 @@ export function CategoryPicker({
   value,
   onChange,
   error,
+  disabled,
 }: {
   value: CategoriaCombinado | "";
   onChange: (value: CategoriaCombinado | "") => void;
   error?: string;
+  disabled?: boolean;
 }) {
   return (
     <div>
       <select
         value={value}
         onChange={(event) => onChange((event.target.value as CategoriaCombinado | "") || "")}
-        className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary ${
+        disabled={disabled}
+        className={`w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary disabled:cursor-not-allowed disabled:bg-bg disabled:text-muted ${
           error ? "border-danger" : "border-line"
         }`}
       >

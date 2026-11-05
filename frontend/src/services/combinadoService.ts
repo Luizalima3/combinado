@@ -62,6 +62,19 @@ export async function concluirCombinado(id: number): Promise<Combinado> {
   return mapCombinado(data);
 }
 
+/**
+ * US67 / Task #31692: cancelamento do combinado.
+ * Task #31693 (back-end): PATCH /combinados/{id}/cancelar — o backend valida
+ * permissão (apenas criador) e regra de status (exceto Concluído/Cancelado).
+ * `motivo` é opcional (US69 / Task #31695).
+ */
+export async function cancelarCombinado(id: number, motivo?: string): Promise<Combinado> {
+  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/cancelar`, {
+    motivo: motivo?.trim() ? motivo.trim() : null,
+  });
+  return mapCombinado(data);
+}
+
 export async function getCombinadoById(id: number): Promise<Combinado> {
   const { data } = await http.get<CombinadoApi>(`/combinados/${id}`);
   return mapCombinado(data);

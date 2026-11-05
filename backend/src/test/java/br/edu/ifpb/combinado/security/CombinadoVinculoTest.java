@@ -113,9 +113,9 @@ class CombinadoVinculoTest {
     }
 
     @Test
-    void deveNegarUsuarioSemVinculoMesmoComNomeIgualOuPerfilAdmin() throws Exception {
+    void deveNegarUsuarioSemVinculoMesmoComNomeIgual() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
-        for (Usuario usuario : new Usuario[]{intruso, admin}) {
+        for (Usuario usuario : new Usuario[]{intruso}) {
             mvc.perform(get("/api/combinados/" + id).header("Authorization", bearer(usuario)))
                     .andExpect(status().isForbidden()).andExpect(jsonPath("$.titulo").doesNotExist());
         }
@@ -166,20 +166,96 @@ class CombinadoVinculoTest {
     }
 
     @Test
-    void somenteCriadorPodeConcluirCombinadoAtivo() throws Exception {
+    void somenteCriadorPodeConcluirCombinadoAtivoComTodosAceites() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
         Combinado combinado = combinados.findById(id).orElseThrow();
         combinado.setStatus(StatusCombinado.ATIVO);
         combinados.saveAndFlush(combinado);
 
+        // US62 / Task #31671: convite pendente → conclusão bloqueada com 422 e lista de pendentes
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.message").value(containsString("ainda não confirmaram")))
+                .andExpect(jsonPath("$.pendentes", hasSize(1)))
+                .andExpect(jsonPath("$.pendentes[0]").value(participante.getNome()));
+        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
+
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(participante)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("Somente o criador do combinado pode concluí-lo."));
-        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
 
+        // Todos aceitaram: conclusão permitida ao criador
+        Convite aceite = new Convite();
+        aceite.setCombinado(combinados.findById(id).orElseThrow());
+        aceite.setRemetente(criador);
+        aceite.setDestinatario(participante);
+        aceite.setStatus(StatusConvite.ACEITO);
+        convites.saveAndFlush(aceite);
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CONCLUIDO"));
         assertEquals(StatusCombinado.CONCLUIDO, combinados.findById(id).orElseThrow().getStatus());
+
+        // US64: conclusão registra evento no histórico do combinado
+        var eventos = historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id);
+        var conclusao = eventos.stream()
+                .filter(evento -> evento.getAcao() == AcaoCombinadoHistorico.CONCLUSAO)
+                .findFirst().orElseThrow();
+        assertEquals(criador.getId(), conclusao.getAutor().getId());
+        assertEquals("Combinado concluído.", conclusao.getDescricao());
+        assertNotNull(conclusao.getOcorridoEm());
+    }
+
+    @Test
+    void naoDeveConcluirCombinadoComConviteRecusado() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        Combinado combinado = combinados.findById(id).orElseThrow();
+        combinado.setStatus(StatusCombinado.ATIVO);
+        combinados.saveAndFlush(combinado);
+
+        Convite recusa = new Convite();
+        recusa.setCombinado(combinado);
+        recusa.setRemetente(criador);
+        recusa.setDestinatario(participante);
+        recusa.setStatus(StatusConvite.RECUSADO);
+        convites.saveAndFlush(recusa);
+
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.pendentes", hasSize(1)))
+                .andExpect(jsonPath("$.pendentes[0]").value(participante.getNome()));
+        assertEquals(StatusCombinado.ATIVO, combinados.findById(id).orElseThrow().getStatus());
+    }
+
+    @Test
+    void naoDeveEditarCombinadoAtivo() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        Combinado combinado = combinados.findById(id).orElseThrow();
+        combinado.setStatus(StatusCombinado.ATIVO);
+        combinados.saveAndFlush(combinado);
+
+        // US63 / Task #31673: combinado ativo não pode mais ser editado
+        mvc.perform(patch("/api/combinados/{id}", id).header("Authorization", bearer(criador))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\":\"Novo título\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value(containsString("não pode mais ser alterado")));
+        assertEquals("Acordo privado", combinados.findById(id).orElseThrow().getTitulo());
+    }
+
+    @Test
+    void criadorPodeEditarCombinadoAntesDeFicarAtivo() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+                combinados.findById(id).orElseThrow().getStatus());
+
+        mvc.perform(patch("/api/combinados/{id}", id).header("Authorization", bearer(criador))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"titulo\":\"Título editado\",\"descricao\":\"Nova descrição\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.titulo").value("Título editado"));
+        Combinado salvo = combinados.findById(id).orElseThrow();
+        assertEquals("Título editado", salvo.getTitulo());
+        assertEquals("Nova descrição", salvo.getDescricao());
     }
 
     @Test

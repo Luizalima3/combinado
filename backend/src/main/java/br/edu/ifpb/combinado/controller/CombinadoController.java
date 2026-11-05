@@ -1,12 +1,17 @@
 package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.dto.CancelamentoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
+import br.edu.ifpb.combinado.dto.CombinadoHistoricoDTO;
+import jakarta.validation.Valid;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.access.AccessDeniedException;
 import br.edu.ifpb.combinado.service.CombinadoService;
+import br.edu.ifpb.combinado.service.CombinadoNaoEditavelException;
+import br.edu.ifpb.combinado.service.ParticipantesPendentesException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,6 +71,11 @@ public class CombinadoController {
         return ResponseEntity.ok(service.buscarDetalhes(id));
     }
 
+    @GetMapping("/{id}/historico")
+    public ResponseEntity<List<CombinadoHistoricoDTO>> buscarHistorico(@PathVariable Long id) {
+        return ResponseEntity.ok(service.buscarHistorico(id));
+    }
+
     @GetMapping("/meus-rascunhos")
     @Operation(summary = "Listar rascunhos do usuário autenticado", description = "Retorna exclusivamente os combinados em status RASCUNHO pertencentes ao criador autenticado.")
     @ApiResponses({
@@ -86,22 +96,47 @@ public class CombinadoController {
         return service.publicar(id, dados);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody CombinadoDTO dados) {
+        try {
+            return ResponseEntity.ok(service.atualizar(id, dados));
+        } catch (AccessDeniedException exception) {
+            return criadorObrigatorio("editar");
+        } catch (CombinadoNaoEditavelException exception) {
+            // US63: combinado ativo/concluído/cancelado não pode mais ser editado
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/concluir")
     public ResponseEntity<?> concluir(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(service.concluir(id));
         } catch (AccessDeniedException exception) {
             return criadorObrigatorio("concluir");
+        } catch (ParticipantesPendentesException exception) {
+            // US62 / Task #31671: 422 com lista dos participantes que ainda não confirmaram
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of(
+                    "message", exception.getMessage(),
+                    "pendentes", exception.getParticipantesPendentes()
+            ));
         }
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<?> cancelar(@PathVariable Long id) {
+    public ResponseEntity<?> cancelar(
+            @PathVariable Long id,
+            @Valid @RequestBody(required = false) CancelamentoDTO payload) {
         try {
-            return ResponseEntity.ok(service.cancelar(id));
+            return ResponseEntity.ok(service.cancelar(id, payload));
         } catch (AccessDeniedException exception) {
             return criadorObrigatorio("cancelar");
         }
+    }
+
+    @PutMapping("/rascunhos/{id}")
+    public CombinadoResumoDTO atualizarRascunho(@PathVariable Long id, @RequestBody CombinadoDTO dados) {
+        return service.atualizarRascunho(id, dados);
     }
 
     @PatchMapping("/{id}/aceitar")
@@ -123,7 +158,9 @@ public class CombinadoController {
     private ResponseEntity<Map<String, String>> criadorObrigatorio(String acao) {
         String message = acao.equals("concluir")
                 ? "Somente o criador do combinado pode concluí-lo."
-                : "Somente o criador do combinado pode cancelá-lo.";
+                : acao.equals("editar")
+                        ? "Somente o criador do combinado pode editá-lo."
+                        : "Somente o criador do combinado pode cancelá-lo.";
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", message));
     }
 
