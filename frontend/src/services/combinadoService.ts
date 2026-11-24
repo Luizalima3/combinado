@@ -134,6 +134,11 @@ export async function publicarCombinado(
   return mapCombinado(data);
 }
 
+/** Exclui/descarta um rascunho existente do criador (#34295). */
+export async function excluirRascunho(id: number): Promise<void> {
+  await http.delete(`/combinados/rascunhos/${id}`);
+}
+
 /** US34 — aceitar convite. */
 export async function aceitarConvite(
   id: number,

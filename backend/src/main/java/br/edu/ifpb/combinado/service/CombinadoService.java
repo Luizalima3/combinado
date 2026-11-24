@@ -463,6 +463,25 @@ public class CombinadoService {
         return CombinadoResumoDTO.de(repository.save(combinado));
     }
 
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public void excluirRascunho(Long id) {
+        var combinado = repository.buscarParaConvite(id)
+                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
+        if (combinado.getStatus() != StatusCombinado.RASCUNHO) {
+            throw new IllegalArgumentException("Somente rascunhos podem ser excluídos.");
+        }
+        var historicos = historicoRepository.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id);
+        if (!historicos.isEmpty()) {
+            historicoRepository.deleteAll(historicos);
+        }
+        var convites = conviteRepository.findByCombinadoId(id);
+        if (!convites.isEmpty()) {
+            conviteRepository.deleteAll(convites);
+        }
+        repository.delete(combinado);
+    }
+
     private String removerMarcadorRascunho(String responsabilidades) {
         if (responsabilidades == null || !responsabilidades.stripLeading().startsWith("{")) return responsabilidades;
         try {
