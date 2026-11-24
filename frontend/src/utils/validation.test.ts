@@ -10,6 +10,7 @@ describe("validation", () => {
   it("valida e-mail em tempo real", () => {
     expect(isValidEmail("ana@combinado.app")).toBe(true);
     expect(isValidEmail("invalido")).toBe(false);
+    expect(isValidEmail("maria@semdominio")).toBe(false);
   });
 
   it("calcula força da senha", () => {

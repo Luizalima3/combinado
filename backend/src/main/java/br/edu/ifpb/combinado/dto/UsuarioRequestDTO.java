@@ -9,7 +9,7 @@ public record UsuarioRequestDTO(
         String confirmacaoSenha
 ) {
     private static final Pattern EMAIL_PATTERN = 
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$");
 
     public boolean isEmailValido() {
         return email != null && EMAIL_PATTERN.matcher(email.trim()).matches();
