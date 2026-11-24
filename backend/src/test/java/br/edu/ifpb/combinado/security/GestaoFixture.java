@@ -28,7 +28,7 @@ abstract class GestaoFixture {
     @Autowired UsuarioRepository usuarios;
     @Autowired CombinadoRepository combinados;
     @Autowired ConviteRepository convites;
-    @Autowired TarefaRepository tarefas;
+    @Autowired ResponsabilidadeRepository tarefas;
     @Autowired EntityManager em;
     @Autowired JwtService jwt;
     MockMvc mvc;

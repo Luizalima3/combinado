@@ -10,10 +10,8 @@ function initials(nome: string) {
 
 export function ParticipantConfirmedList({
   participantes,
-  criadorNome,
 }: {
   participantes: ParticipanteCombinado[];
-  criadorNome: string;
 }) {
   if (!participantes.length) {
     return <p className="text-sm text-muted">Nenhum participante convidado.</p>;

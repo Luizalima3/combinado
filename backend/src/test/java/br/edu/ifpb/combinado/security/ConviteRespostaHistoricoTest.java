@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ConviteRespostaHistoricoTest extends GestaoFixture {
     @Autowired ConviteHistoricoRepository historico;
+    @Autowired br.edu.ifpb.combinado.repository.CombinadoHistoricoRepository historicoCombinado;
     private Long enviar() throws Exception {
         String json = mvc.perform(post("/api/combinados/{id}/convites", combinado.getId())
                         .header("Authorization", bearer).contentType(MediaType.APPLICATION_JSON)
@@ -34,6 +35,10 @@ class ConviteRespostaHistoricoTest extends GestaoFixture {
         var salvo = convites.findById(id).orElseThrow();
         assertEquals(StatusConvite.ACEITO, salvo.getStatus());
         assertTrue(salvo.getDataResposta().isAfter(inicio));
+        mvc.perform(get("/api/combinados/{id}/participantes", combinado.getId())
+                        .header("Authorization", bearer))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].status").value("ACEITO"));
         var eventos = historico.findByConviteIdOrderByOcorridoEmAscIdAsc(id);
         assertEquals(2, eventos.size());
         assertEquals(AcaoConvite.ENVIO, eventos.get(0).getAcao());
@@ -84,6 +89,37 @@ class ConviteRespostaHistoricoTest extends GestaoFixture {
         assertEquals(data, convites.findById(id).orElseThrow().getDataResposta());
         assertEquals(StatusConvite.ACEITO, convites.findById(id).orElseThrow().getStatus());
     }
+
+    @Test void combinadoSoFicaAtivoQuandoTodosOsParticipantesAceitam() throws Exception {
+        combinado.adicionarParticipante(externo);
+        combinados.saveAndFlush(combinado);
+        var conviteParticipante = convite(participante, StatusConvite.PENDENTE);
+        var conviteExterno = convite(externo, StatusConvite.PENDENTE);
+
+        mvc.perform(patch("/api/combinados/{id}/aceitar", combinado.getId())
+                        .header("Authorization", token(participante)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("AGUARDANDO_CONFIRMACAO"));
+        assertEquals(StatusConvite.ACEITO,
+                convites.findById(conviteParticipante.getId()).orElseThrow().getStatus());
+        assertEquals(StatusConvite.PENDENTE,
+                convites.findById(conviteExterno.getId()).orElseThrow().getStatus());
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+                combinados.findById(combinado.getId()).orElseThrow().getStatus());
+
+        mvc.perform(patch("/api/convites/{id}/aceitar", conviteExterno.getId())
+                        .header("Authorization", token(externo)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACEITO"));
+        assertEquals(StatusCombinado.ATIVO,
+                combinados.findById(combinado.getId()).orElseThrow().getStatus());
+        assertNotNull(combinados.findById(combinado.getId()).orElseThrow().getAceitoEm());
+        var alteracaoStatus = historicoCombinado.findByCombinadoIdOrderByOcorridoEmAscIdAsc(combinado.getId())
+                .stream().filter(evento -> evento.getAcao() == AcaoCombinadoHistorico.ALTERACAO_STATUS)
+                .findFirst().orElseThrow();
+        assertEquals(externo.getId(), alteracaoStatus.getAutor().getId());
+    }
+
     @Test void deveBloquearConviteAntigoSubstituidoPorOutro() throws Exception {
         var antigo = convite(participante, StatusConvite.PENDENTE);
         antigo.setDataEnvio(antigo.getDataEnvio().minusDays(1));

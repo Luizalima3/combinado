@@ -1,6 +1,6 @@
 package br.edu.ifpb.combinado.service;
 
-import br.edu.ifpb.combinado.model.Tarefa;
+import br.edu.ifpb.combinado.model.Responsabilidade;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.PerfilUsuario;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TarefaResponsaveisUnitTest {
     @Test
     void deveManterTodosOsResponsaveisEImpedirIdsDuplicados() {
-        var tarefa = new Tarefa();
+        var tarefa = new Responsabilidade();
         var primeiro = usuario(1L, "ana@combinado.app");
         var segundo = usuario(2L, "bruno@combinado.app");
         var mesmoPrimeiro = usuario(1L, "ana@combinado.app");

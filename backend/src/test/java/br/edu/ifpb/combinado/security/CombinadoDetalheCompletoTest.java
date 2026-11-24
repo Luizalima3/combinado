@@ -1,6 +1,6 @@
 package br.edu.ifpb.combinado.security;
 
-import br.edu.ifpb.combinado.model.Tarefa;
+import br.edu.ifpb.combinado.model.Responsabilidade;
 import br.edu.ifpb.combinado.model.enums.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +15,7 @@ class CombinadoDetalheCompletoTest extends GestaoFixture {
     @Test void deveRetornarParticipantesTarefasEResponsaveisSemEntidadesOuCredenciais() throws Exception {
         convite(participante, StatusConvite.ACEITO);
         convite(externo, StatusConvite.RECUSADO);
-        Tarefa t = new Tarefa();
+        Responsabilidade t = new Responsabilidade();
         t.setDescricao("Conferir entrega"); t.setCombinado(combinado);
         t.getResponsaveis().add(criador); t.getResponsaveis().add(participante);
         tarefas.saveAndFlush(t); em.clear();

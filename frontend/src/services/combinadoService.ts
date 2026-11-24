@@ -1,7 +1,7 @@
 import { http } from "../api/http";
-import { MOCK_USERS } from "../data/mockUsers";
 import type {
   Combinado,
+  CombinadoHistoricoEvento,
   CreateCombinadoPayload,
   ConviteStatus,
   UsuarioResumo,
@@ -13,15 +13,10 @@ import {
   mapCombinado,
   parseExtras,
   serializeExtras,
-  userIsCreator,
-  userIsParticipant,
+  mapConviteRecebido,
   type CombinadoApi,
+  type ConviteRecebidoApi,
 } from "../utils/combinadoMapper";
-
-async function listAll(): Promise<Combinado[]> {
-  const { data } = await http.get<CombinadoApi[]>("/combinados");
-  return data.map(mapCombinado);
-}
 
 export async function listMeusRascunhos(): Promise<Combinado[]> {
   const { data } = await http.get<CombinadoApi[]>("/combinados/meus-rascunhos");
@@ -32,28 +27,47 @@ export interface ParticipanteConvidado {
   id: number;
   nome: string;
   email: string;
-  status: ConviteStatus | "EXPIRADO";
+  status: ConviteStatus;
 }
 
-/** US43 — combinados em que o usuário atual é o criador. */
-export async function listCriados(user: UsuarioResumo): Promise<Combinado[]> {
+/** US43 — combinados criados pelo usuário autenticado. */
+export async function listCriados(): Promise<Combinado[]> {
   const [all, drafts] = await Promise.all([
-    listAll(),
+    http.get<CombinadoApi[]>("/combinados/criados").then(({ data }) => data.map(mapCombinado)),
     listMeusRascunhos().catch(() => [] as Combinado[]),
   ]);
   const byId = new Map<number, Combinado>();
   for (const item of [...all, ...drafts]) {
-    if (userIsCreator(item, user)) byId.set(item.id, item);
+    byId.set(item.id, item);
   }
   return [...byId.values()].sort((a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""));
 }
 
 /** US48 — combinados em que o usuário atual foi convidado. */
 export async function listRecebidos(user: UsuarioResumo): Promise<Combinado[]> {
-  const all = await listAll();
-  return all
-    .filter((item) => !userIsCreator(item, user) && userIsParticipant(item, user))
-    .filter((item) => item.status !== "RASCUNHO")
+  const pageSize = 100;
+  const convites: ConviteRecebidoApi[] = [];
+  let pagina = 0;
+  let recebidos: ConviteRecebidoApi[];
+
+  do {
+    const { data } = await http.get<ConviteRecebidoApi[]>("/convites/recebidos", {
+      params: { pagina, limite: pageSize, sort: "dataEnvio,desc" },
+    });
+    recebidos = data;
+    convites.push(...recebidos);
+    pagina += 1;
+  } while (recebidos.length === pageSize);
+
+  const maisRecentesPorCombinado = new Map<number, ConviteRecebidoApi>();
+  for (const convite of convites) {
+    if (!maisRecentesPorCombinado.has(convite.combinadoId)) {
+      maisRecentesPorCombinado.set(convite.combinadoId, convite);
+    }
+  }
+
+  return [...maisRecentesPorCombinado.values()]
+    .map((convite) => mapConviteRecebido(convite, user))
     .sort((a, b) => (b.criadoEm ?? "").localeCompare(a.criadoEm ?? ""));
 }
 
@@ -78,6 +92,15 @@ export async function cancelarCombinado(id: number, motivo?: string): Promise<Co
 export async function getCombinadoById(id: number): Promise<Combinado> {
   const { data } = await http.get<CombinadoApi>(`/combinados/${id}`);
   return mapCombinado(data);
+}
+
+export async function listHistoricoCombinado(
+  id: number,
+): Promise<CombinadoHistoricoEvento[]> {
+  const { data } = await http.get<CombinadoHistoricoEvento[]>(
+    `/combinados/${id}/historico`,
+  );
+  return data;
 }
 
 export async function listParticipantes(id: number): Promise<ParticipanteConvidado[]> {
@@ -116,10 +139,7 @@ export async function aceitarConvite(
   id: number,
   user: UsuarioResumo,
 ): Promise<Combinado> {
-  const timestamp = new Date().toISOString();
-  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/aceitar`, {
-    respondidoEm: timestamp,
-  });
+  const { data } = await http.patch<CombinadoApi>(`/combinados/${id}/aceitar`);
   const combinado = mapCombinado(data);
   const atualizado = stampParticipant(combinado, user, "ACEITO");
   return atualizado;
@@ -146,43 +166,20 @@ export async function buscarUsuarioPorEmail(email: string): Promise<UsuarioResum
   const normalized = email.trim().toLowerCase();
   if (!normalized || !normalized.includes("@")) return null;
 
-  try {
-    const { data } = await http.get<UsuarioResumo[] | UsuarioResumo>("/usuarios/buscar", {
-      params: { q: normalized, limite: 5 },
-    });
-    if (Array.isArray(data)) {
-      const match = data.find((item) => item.email.toLowerCase() === normalized);
-      if (match) return match;
-    } else if (data?.email) {
-      return data;
-    }
-  } catch {
-    /* endpoint ainda não existe no backend atual */
-  }
-
-  return (
-    MOCK_USERS.find((user) => user.email.toLowerCase() === normalized) ?? null
-  );
+  const { data } = await http.get<UsuarioResumo[]>("/usuarios/buscar", {
+    params: { q: normalized, limite: 5 },
+  });
+  return data.find((item) => item.email.toLowerCase() === normalized) ?? null;
 }
 
 export async function sugerirUsuarios(query: string): Promise<UsuarioResumo[]> {
   const term = query.trim().toLowerCase();
   if (term.length < 2) return [];
 
-  try {
-    const { data } = await http.get<UsuarioResumo[]>("/usuarios/buscar", {
-      params: { q: term },
-    });
-    if (Array.isArray(data) && data.length) return data;
-  } catch {
-    /* fallback local */
-  }
-
-  return MOCK_USERS.filter(
-    (user) =>
-      user.email.toLowerCase().includes(term) ||
-      user.nome.toLowerCase().includes(term),
-  );
+  const { data } = await http.get<UsuarioResumo[]>("/usuarios/buscar", {
+    params: { q: term },
+  });
+  return data;
 }
 
 function stampParticipant(
@@ -214,7 +211,7 @@ function stampParticipant(
 
   combinado.extras = extras;
   combinado.responsabilidades = serializeExtras(extras);
-  combinado.status = status === "ACEITO" ? "ATIVO" : "CANCELADO";
+  if (status === "RECUSADO") combinado.status = "CANCELADO";
   return combinado;
 }
 

@@ -1,0 +1,6 @@
+ALTER TABLE tarefas RENAME TO responsabilidades;
+ALTER TABLE tarefa_responsaveis RENAME TO responsabilidade_responsaveis;
+ALTER TABLE responsabilidade_responsaveis RENAME COLUMN tarefa_id TO responsabilidade_id;
+
+ALTER INDEX idx_tarefas_combinado RENAME TO idx_responsabilidades_combinado;
+ALTER INDEX idx_tarefa_responsaveis_usuario RENAME TO idx_responsabilidade_responsaveis_usuario;

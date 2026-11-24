@@ -4,6 +4,7 @@ import axios from "axios";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { getApiErrorMessage } from "../api/http";
 import { ParticipantConfirmedList } from "../components/combinados/ParticipantConfirmedList";
+import { CombinadoTimeline } from "../components/combinados/CombinadoTimeline";
 import { CancelModal } from "../components/combinados/CancelModal";
 import { InviteActionButtons } from "../components/invites/InviteActionButtons";
 import { CategoryBadge } from "../components/ui/CategoryBadge";
@@ -40,6 +41,8 @@ export function CombinadoDetailPage() {
   // US67 / Task #31692: modal de confirmação do cancelamento.
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [timelineRefreshKey, setTimelineRefreshKey] = useState(0);
+  const [participantRefreshError, setParticipantRefreshError] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -67,16 +70,14 @@ export function CombinadoDetailPage() {
   );
 
   const isCreator = combinado ? userIsCreator(combinado, user) : false;
+  const combinadoId = id ? Number(id) : null;
   const canRespondInvite =
     combinado?.status === "AGUARDANDO_CONFIRMACAO" &&
     !isCreator &&
     conviteStatus === "PENDENTE";
 
-  // US64 / Task #31681 + Task #32340/US71: botão "Concluir" visível apenas quando
-  // o combinado está ATIVO e o usuário tem permissão (criador — US70; ou
-  // participante com convite aceito — US71). O backend valida novamente em PATCH /concluir.
-  const podeConcluir =
-    combinado?.status === "ATIVO" && (isCreator || conviteStatus === "ACEITO");
+  // Apenas o criador pode concluir; o backend valida novamente em PATCH /concluir.
+  const podeConcluir = combinado?.status === "ATIVO" && isCreator;
   // US67 / CA #31691: "Cancelar" disponível em qualquer status, exceto
   // Concluído/Cancelado, e apenas para o criador (US70).
   const podeCancelar =
@@ -85,12 +86,53 @@ export function CombinadoDetailPage() {
     combinado.status !== "CONCLUIDO" &&
     combinado.status !== "CANCELADO";
 
+  useEffect(() => {
+    if (combinadoId == null || !isCreator) return;
+
+    let active = true;
+    let refreshing = false;
+    async function refreshCombinado() {
+      if (refreshing) return;
+      refreshing = true;
+      try {
+        const latest = await getCombinadoById(combinadoId);
+        if (active) {
+          setCombinado(latest);
+          setParticipantRefreshError("");
+        }
+      } catch (err) {
+        if (active) {
+          setParticipantRefreshError(
+            getApiErrorMessage(err, "Não foi possível atualizar o status dos participantes."),
+          );
+        }
+      } finally {
+        refreshing = false;
+      }
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void refreshCombinado();
+      }
+    }, 5000);
+    const handleFocus = () => void refreshCombinado();
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [combinadoId, isCreator]);
+
   async function handleAccept() {
     if (!combinado) return;
     setBusy(true);
     try {
       const updated = await aceitarConvite(combinado.id, user);
       setCombinado(updated);
+      setTimelineRefreshKey((current) => current + 1);
       push("success", "Convite aceito.");
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível aceitar o convite."));
@@ -105,6 +147,7 @@ export function CombinadoDetailPage() {
     try {
       const updated = await recusarConvite(combinado.id, user);
       setCombinado(updated);
+      setTimelineRefreshKey((current) => current + 1);
       push("info", "Convite recusado.");
     } catch (err) {
       push("error", getApiErrorMessage(err, "Não foi possível recusar o convite."));
@@ -119,6 +162,7 @@ export function CombinadoDetailPage() {
     try {
       const updated = await concluirCombinado(combinado.id);
       setCombinado(updated);
+      setTimelineRefreshKey((current) => current + 1);
       setShowFinishModal(false);
       setFinishConfirm(false);
       push("success", "Combinado encerrado com sucesso.");
@@ -145,6 +189,7 @@ export function CombinadoDetailPage() {
     try {
       const updated = await cancelarCombinado(combinado.id, motivo);
       setCombinado(updated);
+      setTimelineRefreshKey((current) => current + 1);
       setShowCancelModal(false);
       push("success", "Combinado cancelado.");
     } catch (err) {
@@ -185,13 +230,22 @@ export function CombinadoDetailPage() {
       </div>
       <p className="mt-4 text-sm text-ink">{combinado.descricao || "Sem descrição."}</p>
 
-      <h2 className="mt-8 text-sm font-semibold text-ink">Participantes confirmados</h2>
+      <h2 className="mt-8 text-sm font-semibold text-ink">Participantes do combinado</h2>
       <div className="mt-2">
         <ParticipantConfirmedList
           participantes={combinado.extras.participantes}
-          criadorNome={combinado.criadorNome}
         />
       </div>
+      {participantRefreshError ? (
+        <p className="mt-2 text-sm text-danger" role="alert">
+          {participantRefreshError}
+        </p>
+      ) : null}
+
+      <CombinadoTimeline
+        combinadoId={combinado.id}
+        refreshKey={timelineRefreshKey}
+      />
 
       {canRespondInvite ? (
         <div className="mt-8 rounded-xl border border-warn/30 bg-warn-soft/40 p-4">

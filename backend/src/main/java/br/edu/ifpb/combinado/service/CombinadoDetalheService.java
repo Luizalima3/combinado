@@ -44,7 +44,7 @@ public class CombinadoDetalheService {
         }
         if (criador && estado == StatusCombinado.RASCUNHO) acoes.add(AcaoPermitidaCombinado.PUBLICAR);
         if (criador && estado.podeTransicionarPara(StatusCombinado.CANCELADO)) acoes.add(AcaoPermitidaCombinado.CANCELAR);
-        if (estado == StatusCombinado.ATIVO && acesso.podeConcluir(id, authentication)) {
+        if (estado == StatusCombinado.ATIVO && acesso.eCriador(id, authentication)) {
             var estados = pessoas.stream().collect(Collectors.toMap(ParticipanteStatusDTO::id, ParticipanteStatusDTO::status));
             if (ConfirmacaoCombinado.pendentes(combinado, usuarioId -> Optional.ofNullable(estados.get(usuarioId))).isEmpty()) {
                 acoes.add(AcaoPermitidaCombinado.CONCLUIR);

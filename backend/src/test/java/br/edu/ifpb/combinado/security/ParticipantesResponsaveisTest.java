@@ -1,6 +1,6 @@
 package br.edu.ifpb.combinado.security;
 
-import br.edu.ifpb.combinado.model.Tarefa;
+import br.edu.ifpb.combinado.model.Responsabilidade;
 import br.edu.ifpb.combinado.model.enums.StatusConvite;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,12 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class ParticipantesResponsaveisTest extends GestaoFixture {
     @Test void devePersistirRelacionamentoMuitosParaMuitosSemDuplicatas() {
-        Tarefa primeira = tarefa("Preparar entrega");
+        Responsabilidade primeira = tarefa("Preparar entrega");
         primeira.getResponsaveis().add(criador);
         primeira.getResponsaveis().add(participante);
         primeira.getResponsaveis().add(participante);
         tarefas.saveAndFlush(primeira);
-        Tarefa segunda = tarefa("Conferir entrega");
+        Responsabilidade segunda = tarefa("Conferir entrega");
         segunda.getResponsaveis().add(participante);
         tarefas.saveAndFlush(segunda);
         em.clear();
@@ -36,8 +36,8 @@ class ParticipantesResponsaveisTest extends GestaoFixture {
         tarefas.flush();
         assertTrue(usuarios.existsById(participante.getId()));
     }
-    private Tarefa tarefa(String descricao) {
-        Tarefa tarefa = new Tarefa();
+    private Responsabilidade tarefa(String descricao) {
+        Responsabilidade tarefa = new Responsabilidade();
         tarefa.setDescricao(descricao);
         tarefa.setCombinado(combinado);
         return tarefa;

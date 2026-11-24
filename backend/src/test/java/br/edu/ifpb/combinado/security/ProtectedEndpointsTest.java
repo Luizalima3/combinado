@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -98,6 +99,19 @@ class ProtectedEndpointsTest {
         String token = jwt.gerarToken(removido);
         usuarios.deleteById(removido.getId());
         mvc.perform(get("/api/combinados").header("Authorization", "Bearer " + token))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void deveRejeitarTokenAntigoQuandoEmailDoMesmoIdMudar() throws Exception {
+        String sufixo = UUID.randomUUID().toString();
+        Usuario anterior = usuarios.saveAndFlush(new Usuario("Anterior", "anterior-" + sufixo + "@combinado.app",
+                encoder.encode("senha123"), PerfilUsuario.ROLE_USUARIO));
+        String tokenAntigo = jwt.gerarToken(anterior);
+        anterior.setEmail("novo-" + sufixo + "@combinado.app");
+        usuarios.saveAndFlush(anterior);
+
+        mvc.perform(get("/api/combinados").header("Authorization", "Bearer " + tokenAntigo))
                 .andExpect(status().isUnauthorized());
     }
 

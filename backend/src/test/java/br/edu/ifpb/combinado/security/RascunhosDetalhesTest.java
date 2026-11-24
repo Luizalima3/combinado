@@ -94,26 +94,30 @@ class RascunhosDetalhesTest extends GestaoFixture {
     }
     @Test void deveBloquearAceiteEmRascunhoEReaberturaDeEstadoFinal() throws Exception {
         rascunho();
-        mvc.perform(patch(url() + "/aceitar").header("Authorization", bearer)).andExpect(status().isBadRequest());
+        mvc.perform(patch(url() + "/aceitar").header("Authorization", bearer)).andExpect(status().isConflict());
         combinado.setStatus(StatusCombinado.CANCELADO);
         combinados.saveAndFlush(combinado);
-        mvc.perform(patch(url() + "/aceitar").header("Authorization", bearer)).andExpect(status().isBadRequest());
+        mvc.perform(patch(url() + "/aceitar").header("Authorization", bearer)).andExpect(status().isConflict());
         mvc.perform(patch(url() + "/recusar").header("Authorization", bearer)).andExpect(status().isBadRequest());
         assertEquals(StatusCombinado.CANCELADO, combinado.getStatus());
         assertNull(combinado.getAceitoEm());
     }
-    @Test void deveAceitarCombinadoERecusarConviteIndividualSemAlterarEstadoGlobal() throws Exception {
-        var convitePendente = convite(participante, StatusConvite.PENDENTE);
+    @Test void aceiteParcialMantemAguardandoERecusaDeOutroParticipanteNaoAtivaCombinado() throws Exception {
+        combinado.adicionarParticipante(externo);
+        combinados.saveAndFlush(combinado);
+        var conviteAceito = convite(participante, StatusConvite.PENDENTE);
+        var conviteRecusado = convite(externo, StatusConvite.PENDENTE);
         mvc.perform(patch(url() + "/aceitar").header("Authorization", token(participante)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("ATIVO"));
-        assertNotNull(combinado.getAceitoEm());
+                .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("AGUARDANDO_CONFIRMACAO"));
+        assertNull(combinado.getAceitoEm());
         mvc.perform(patch(url() + "/aceitar").header("Authorization", token(participante)))
-                .andExpect(status().isBadRequest());
-        mvc.perform(patch("/api/convites/{id}/recusar", convitePendente.getId())
-                        .header("Authorization", token(participante)))
+                .andExpect(status().isConflict());
+        mvc.perform(patch("/api/convites/{id}/recusar", conviteRecusado.getId())
+                        .header("Authorization", token(externo)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("RECUSADO"));
-        assertEquals(StatusCombinado.ATIVO, combinado.getStatus());
-        assertEquals(StatusConvite.RECUSADO, convites.findById(convitePendente.getId()).orElseThrow().getStatus());
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO, combinado.getStatus());
+        assertEquals(StatusConvite.ACEITO, convites.findById(conviteAceito.getId()).orElseThrow().getStatus());
+        assertEquals(StatusConvite.RECUSADO, convites.findById(conviteRecusado.getId()).orElseThrow().getStatus());
     }
     @Test void detalhesDevemSerProtegidosEConterInformacoesDoCombinado() throws Exception {
         mvc.perform(get(url()).header("Authorization", token(participante)))

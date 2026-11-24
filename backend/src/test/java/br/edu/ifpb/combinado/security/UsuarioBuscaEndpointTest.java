@@ -51,6 +51,16 @@ class UsuarioBuscaEndpointTest {
     }
 
     @Test
+    void deveEncontrarUsuarioPeloEmailEExcluirUsuarioLogado() throws Exception {
+        mvc.perform(get("/api/usuarios/buscar").header("Authorization", bearer)
+                        .param("q", "MARIANA-BUSCA@COMBINADO.APP"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].nome").value("Mariana"))
+                .andExpect(jsonPath("$[0].email").value("mariana-busca@combinado.app"))
+                .andExpect(jsonPath("$[0].id").isNumber());
+    }
+
+    @Test
     void deveExcluirUsuarioLogadoMesmoQuandoSeuNomeCorrespondeAoTermo() throws Exception {
         Usuario atual = usuarios.findByEmail("autor-busca@combinado.app").orElseThrow();
         atual.setNome("Ana Autor");

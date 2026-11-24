@@ -25,17 +25,20 @@ public class ConviteService {
     private final UsuarioRepository usuarioRepository;
     private final NotificacaoRepository notificacaoRepository;
     private final ConviteHistoricoRepository historico;
+    private final CombinadoService combinadoService;
 
     public ConviteService(ConviteRepository conviteRepository,
                           CombinadoRepository combinadoRepository,
                           UsuarioRepository usuarioRepository,
                           NotificacaoRepository notificacaoRepository,
-                          ConviteHistoricoRepository historico) {
+                          ConviteHistoricoRepository historico,
+                          CombinadoService combinadoService) {
         this.conviteRepository = conviteRepository;
         this.combinadoRepository = combinadoRepository;
         this.usuarioRepository = usuarioRepository;
         this.notificacaoRepository = notificacaoRepository;
         this.historico = historico;
+        this.combinadoService = combinadoService;
     }
 
     @Transactional
@@ -72,6 +75,20 @@ public class ConviteService {
     @Transactional
     @PreAuthorize("isAuthenticated()")
     public ConviteRespostaDTO aceitar(Long id) { return responder(id, StatusConvite.ACEITO); }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#combinadoId, authentication)")
+    public Combinado aceitarPorCombinado(Long combinadoId) {
+        var combinado = combinadoRepository.findById(combinadoId)
+                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
+        validarEstado(combinado);
+        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        var convite = conviteRepository.findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
+                combinadoId, principal.usuario().getId())
+                .orElseThrow(() -> new AccessDeniedException("Somente o destinatário pode responder ao convite."));
+        aceitar(convite.getId());
+        return combinadoRepository.findById(combinadoId).orElseThrow();
+    }
 
     @Transactional
     @PreAuthorize("isAuthenticated()")
@@ -141,7 +158,9 @@ public class ConviteService {
         if (!convite.getDestinatario().getId().equals(principal.usuario().getId())) {
             throw new AccessDeniedException("Somente o destinatário pode responder ao convite.");
         }
-        validarEstado(convite.getCombinado());
+        var combinado = combinadoRepository.buscarParaConvite(convite.getCombinado().getId())
+                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado."));
+        validarEstado(combinado);
         if (convite.getStatus() != StatusConvite.PENDENTE) {
             throw new ConviteConflitoException("Este convite já foi respondido.");
         }
@@ -150,12 +169,20 @@ public class ConviteService {
         if (!recente.getId().equals(convite.getId())) {
             throw new ConviteConflitoException("Este convite foi substituído por um convite mais recente.");
         }
+        AcaoConvite acao = switch (resposta) {
+            case ACEITO -> AcaoConvite.ACEITE;
+            case RECUSADO -> AcaoConvite.RECUSA;
+            case PENDENTE -> throw new IllegalArgumentException("A resposta do convite deve ser ACEITO ou RECUSADO.");
+            case EXPIRADO -> throw new IllegalArgumentException("Convite expirado não pode ser respondido.");
+        };
         Instant agora = Instant.now();
         convite.setStatus(resposta);
         convite.setDataResposta(agora);
         conviteRepository.save(convite);
-        historico.save(new ConviteHistorico(convite, convite.getDestinatario(),
-                resposta == StatusConvite.ACEITO ? AcaoConvite.ACEITE : AcaoConvite.RECUSA, agora));
+        historico.save(new ConviteHistorico(convite, convite.getDestinatario(), acao, agora));
+        if (resposta == StatusConvite.ACEITO) {
+            combinadoService.ativarSeTodosAceitaram(combinado);
+        }
         return new ConviteRespostaDTO(convite.getId(), convite.getCombinado().getId(), resposta, agora);
     }
 

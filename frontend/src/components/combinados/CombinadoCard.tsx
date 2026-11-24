@@ -36,7 +36,7 @@ interface CombinadoCardProps {
   onAccept?: (combinado: Combinado) => void;
   onRefuse?: (combinado: Combinado) => void;
   onOpen?: (combinado: Combinado) => void;
-  /** US64 / Task #31681: dispara a conclusão do combinado (criador OU participante aceito, status ATIVO). */
+  /** Dispara a conclusão do combinado pelo criador. */
   onConclude?: (combinado: Combinado) => void;
   /** US67 / Task #31692: abre o modal de confirmação do cancelamento (apenas criador). */
   onCancel?: (combinado: Combinado) => void;
@@ -60,14 +60,12 @@ export function CombinadoCard({
   );
   const pending = variant === "recebido" && convite === "PENDENTE";
 
-  // US64 / Task #31681: botão "Concluir" visível apenas quando o combinado
-  // está ATIVO e o usuário tem permissão (criador — CA01 US70; ou participante
-  // com convite ACEITO — Task #32340/US71).
+  // O botão de conclusão só aparece para o criador de combinados ativos.
   const isCreator =
-    combinado.criadorEmail?.toLowerCase() === currentUser.email.toLowerCase() ||
-    combinado.criadorNome.trim().toLowerCase() === currentUser.nome.trim().toLowerCase();
-  const podeConcluir =
-    combinado.status === "ATIVO" && (isCreator || convite === "ACEITO");
+    variant === "criado" &&
+    (combinado.criadorEmail?.toLowerCase() === currentUser.email.toLowerCase() ||
+      combinado.criadorNome.trim().toLowerCase() === currentUser.nome.trim().toLowerCase());
+  const podeConcluir = combinado.status === "ATIVO" && isCreator;
   // US67 / CA #31691: botão "Cancelar" disponível em qualquer status, exceto
   // Concluído/Cancelado, e apenas para o criador (US70 / CA #31691).
   const podeCancelar =
