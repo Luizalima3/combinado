@@ -67,3 +67,18 @@ export function formatEventDateTime(value: string) {
     hourCycle: "h23",
   }).format(date);
 }
+
+export function formatRelativeDate(value: string, referenceDate: Date = new Date()): string {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "Data indisponível";
+  const diffSeconds = Math.floor((referenceDate.getTime() - date.getTime()) / 1000);
+  if (diffSeconds < 60) return "agora mesmo";
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) return `há ${diffMinutes} min`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `há ${diffHours} h`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return "há 1 dia";
+  if (diffDays < 30) return `há ${diffDays} dias`;
+  return formatEventDateTime(value);
+}
