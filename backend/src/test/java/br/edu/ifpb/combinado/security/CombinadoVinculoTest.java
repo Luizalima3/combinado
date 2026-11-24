@@ -2,6 +2,7 @@ package br.edu.ifpb.combinado.security;
 
 import br.edu.ifpb.combinado.CombinadoApplication;
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.model.CombinadoHistorico;
 import br.edu.ifpb.combinado.model.Convite;
 import br.edu.ifpb.combinado.model.Usuario;
 import br.edu.ifpb.combinado.model.enums.*;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
+import java.time.Instant;
 import java.util.Set;
 
 import static org.hamcrest.Matchers.*;
@@ -87,6 +89,18 @@ class CombinadoVinculoTest {
         assertEquals(criador.getNome(), salvo.getCriadorNome());
         assertEquals(Set.of(participante), salvo.getUsuariosParticipantes());
         assertEquals(1, salvo.getParticipantes().size());
+
+        mvc.perform(get("/api/combinados/criados").header("Authorization", bearer(criador)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].id", hasItem(id.intValue())));
+        mvc.perform(get("/api/convites/recebidos").header("Authorization", bearer(participante)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].combinadoId").value(id))
+                .andExpect(jsonPath("$[0].status").value("PENDENTE"));
+        mvc.perform(get("/api/combinados/criados").header("Authorization", bearer(participante)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
@@ -103,12 +117,70 @@ class CombinadoVinculoTest {
     }
 
     @Test
+    void endpointDeHistoricoRetornaLinhaDoTempoEmOrdemCronologica() throws Exception {
+        Long id = criar(criador, "[" + participante.getId() + "]");
+        Combinado combinado = combinados.findById(id).orElseThrow();
+        historicos.saveAndFlush(new CombinadoHistorico(combinado, participante, "Evento mais recente",
+                AcaoCombinadoHistorico.ALTERACAO_STATUS, Instant.parse("2030-01-01T00:00:00Z")));
+        historicos.saveAndFlush(new CombinadoHistorico(combinado, criador, "Evento mais antigo",
+                AcaoCombinadoHistorico.ALTERACAO_STATUS, Instant.parse("2020-01-01T23:59:59Z")));
+
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[0].descricao").value("Evento mais antigo"))
+                .andExpect(jsonPath("$[0].acao").value("ALTERACAO_STATUS"))
+                .andExpect(jsonPath("$[0].autorNome").value(criador.getNome()))
+                .andExpect(jsonPath("$[0].ocorridoEm").value("2020-01-01T23:59:59Z"))
+                .andExpect(jsonPath("$[1].acao").value("CRIACAO"))
+                .andExpect(jsonPath("$[2].descricao").value("Evento mais recente"))
+                .andExpect(jsonPath("$[2].ocorridoEm").value("2030-01-01T00:00:00Z"));
+
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("dataInicio", "2020-01-01").param("dataFim", "2020-01-01"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].descricao").value("Evento mais antigo"));
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("dataInicio", "2029-01-01"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].descricao").value("Evento mais recente"));
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("autorId", participante.getId().toString()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].descricao").value("Evento mais recente"));
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("autorId", criador.getId().toString())
+                        .param("dataInicio", "2020-01-01").param("dataFim", "2020-01-01"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].descricao").value("Evento mais antigo"));
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("tipo", "CRIACAO"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].acao").value("CRIACAO"));
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("tipo", "ALTERACAO_STATUS").param("autorId", participante.getId().toString()))
+                .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].descricao").value("Evento mais recente"));
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("tipo", "NAO_EXISTE"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(criador))
+                        .param("dataInicio", "2030-01-01").param("dataFim", "2020-01-01"))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/combinados/{id}/historico", id).header("Authorization", bearer(intruso)))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/combinados/{id}/historico", id)).andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void devePermitirDetalhesAoCriadorEAoParticipante() throws Exception {
         Long id = criar(criador, "[" + participante.getId() + "]");
         for (Usuario usuario : new Usuario[]{criador, participante}) {
             mvc.perform(get("/api/combinados/" + id).header("Authorization", bearer(usuario)))
                     .andExpect(status().isOk()).andExpect(jsonPath("$.titulo").value("Acordo privado"))
-                    .andExpect(jsonPath("$.criador").doesNotExist()).andExpect(jsonPath("$.participantes").doesNotExist());
+                    .andExpect(jsonPath("$.criador").doesNotExist()).andExpect(jsonPath("$.participantes").isArray())
+                    .andExpect(jsonPath("$.participantes[0].senha").doesNotExist());
         }
     }
 
@@ -160,9 +232,16 @@ class CombinadoVinculoTest {
         assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
                 combinados.findById(id).orElseThrow().getStatus());
 
-        mvc.perform(patch("/api/combinados/{id}/cancelar", id).header("Authorization", bearer(criador)))
+        mvc.perform(patch("/api/combinados/{id}/cancelar", id).header("Authorization", bearer(criador))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"motivo\":\"Prazo alterado\"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELADO"));
         assertEquals(StatusCombinado.CANCELADO, combinados.findById(id).orElseThrow().getStatus());
+        var cancelamento = historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id).getLast();
+        assertEquals(AcaoCombinadoHistorico.ALTERACAO_STATUS, cancelamento.getAcao());
+        assertEquals("Status alterado de AGUARDANDO_CONFIRMACAO para CANCELADO.", cancelamento.getDescricao());
+        assertEquals("Prazo alterado", cancelamento.getMotivo());
+        assertEquals(criador.getId(), cancelamento.getAutor().getId());
+        assertNotNull(cancelamento.getOcorridoEm());
     }
 
     @Test
@@ -191,6 +270,9 @@ class CombinadoVinculoTest {
         aceite.setDestinatario(participante);
         aceite.setStatus(StatusConvite.ACEITO);
         convites.saveAndFlush(aceite);
+        mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(participante)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Somente o criador do combinado pode concluí-lo."));
         mvc.perform(patch("/api/combinados/{id}/concluir", id).header("Authorization", bearer(criador)))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CONCLUIDO"));
         assertEquals(StatusCombinado.CONCLUIDO, combinados.findById(id).orElseThrow().getStatus());
@@ -198,10 +280,10 @@ class CombinadoVinculoTest {
         // US64: conclusão registra evento no histórico do combinado
         var eventos = historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id);
         var conclusao = eventos.stream()
-                .filter(evento -> evento.getAcao() == AcaoCombinadoHistorico.CONCLUSAO)
+                .filter(evento -> evento.getAcao() == AcaoCombinadoHistorico.ALTERACAO_STATUS)
                 .findFirst().orElseThrow();
         assertEquals(criador.getId(), conclusao.getAutor().getId());
-        assertEquals("Combinado concluído.", conclusao.getDescricao());
+        assertEquals("Status alterado de ATIVO para CONCLUIDO.", conclusao.getDescricao());
         assertNotNull(conclusao.getOcorridoEm());
     }
 

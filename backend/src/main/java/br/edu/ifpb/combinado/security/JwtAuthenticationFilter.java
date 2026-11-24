@@ -60,6 +60,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             long id = Long.parseLong(token.getSubject());
             var usuario = usuarios.findById(id)
                     .orElseThrow(() -> new BadCredentialsException("Token inválido."));
+            String emailToken = token.getClaim("email").asString();
+            if (emailToken == null || !usuario.getEmail().equalsIgnoreCase(emailToken)) {
+                throw new BadCredentialsException("Token inválido.");
+            }
             var principal = new UsuarioPrincipal(usuario);
             var authentication = UsernamePasswordAuthenticationToken.authenticated(
                     principal, null, principal.getAuthorities());

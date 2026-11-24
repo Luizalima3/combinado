@@ -11,10 +11,10 @@ import java.util.*;
 
 @Service
 public class TarefaService {
-    private final TarefaRepository tarefas;
+    private final ResponsabilidadeRepository tarefas;
     private final CombinadoRepository combinados;
     private final UsuarioRepository usuarios;
-    public TarefaService(TarefaRepository tarefas, CombinadoRepository combinados, UsuarioRepository usuarios) {
+    public TarefaService(ResponsabilidadeRepository tarefas, CombinadoRepository combinados, UsuarioRepository usuarios) {
         this.tarefas = tarefas; this.combinados = combinados; this.usuarios = usuarios;
     }
     @Transactional(readOnly = true)
@@ -33,7 +33,7 @@ public class TarefaService {
                 && combinado.getStatus() != StatusCombinado.AGUARDANDO_CONFIRMACAO) {
             throw new IllegalArgumentException("O combinado não permite novas tarefas neste estado.");
         }
-        List<Tarefa> novas = new ArrayList<>();
+        List<Responsabilidade> novas = new ArrayList<>();
         for (var dto : dados) {
             if (dto == null || dto.descricao() == null || dto.descricao().isBlank()) {
                 throw new IllegalArgumentException("A descrição da tarefa é obrigatória.");
@@ -42,7 +42,7 @@ public class TarefaService {
             if (dto.usuarioId() != null) ids.add(dto.usuarioId());
             if (dto.responsaveisIds() != null) ids.addAll(dto.responsaveisIds());
             if (ids.isEmpty() || ids.contains(null)) throw new IllegalArgumentException("Informe responsáveis válidos.");
-            var tarefa = new Tarefa();
+            var tarefa = new Responsabilidade();
             tarefa.setCombinado(combinado);
             tarefa.setDescricao(dto.descricao().strip());
             for (Long id : ids) {

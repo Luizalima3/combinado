@@ -1,6 +1,7 @@
 package br.edu.ifpb.combinado.controller;
 
 import br.edu.ifpb.combinado.model.Combinado;
+import br.edu.ifpb.combinado.model.enums.AcaoCombinadoHistorico;
 import br.edu.ifpb.combinado.dto.CancelamentoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoDTO;
 import br.edu.ifpb.combinado.dto.CombinadoResumoDTO;
@@ -12,16 +13,18 @@ import org.springframework.security.access.AccessDeniedException;
 import br.edu.ifpb.combinado.service.CombinadoService;
 import br.edu.ifpb.combinado.service.CombinadoNaoEditavelException;
 import br.edu.ifpb.combinado.service.ParticipantesPendentesException;
+import br.edu.ifpb.combinado.service.ConviteService;
+import br.edu.ifpb.combinado.service.ConviteConflitoException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,9 +36,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class CombinadoController {
 
     private final CombinadoService service;
+    private final ConviteService conviteService;
+    private final br.edu.ifpb.combinado.service.CombinadoConsultaService consultas;
+    private final br.edu.ifpb.combinado.service.CombinadoDetalheService detalhes;
 
-    public CombinadoController(CombinadoService service) {
+    public CombinadoController(CombinadoService service, ConviteService conviteService,
+            br.edu.ifpb.combinado.service.CombinadoConsultaService consultas,
+            br.edu.ifpb.combinado.service.CombinadoDetalheService detalhes) {
         this.service = service;
+        this.conviteService = conviteService;
+        this.consultas = consultas;
+        this.detalhes = detalhes;
     }
 
     @PostMapping
@@ -56,8 +67,24 @@ public class CombinadoController {
             @ApiResponse(responseCode = "200", description = "Lista de combinados retornada com sucesso"),
             @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido")
     })
-    public ResponseEntity<List<CombinadoResumoDTO>> listar() {
-        return ResponseEntity.ok(service.listarResumos());
+    public ResponseEntity<List<CombinadoResumoDTO>> listar(@RequestParam(required = false) String titulo,
+            @RequestParam(required = false) br.edu.ifpb.combinado.model.enums.StatusCombinado status,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim,
+            @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
+        return ResponseEntity.ok(consultas.listar(false, titulo, parametros.get("sort"), status, categoria, dataInicio, dataFim));
+    }
+
+    @GetMapping("/criados")
+    @Operation(summary = "Listar combinados criados pelo usuário autenticado", description = "Retorna exclusivamente os combinados criados pelo usuário, com suporte a busca textual, filtros e ordenação.")
+    public List<CombinadoResumoDTO> criados(@RequestParam(required = false) String titulo,
+            @RequestParam(required = false) br.edu.ifpb.combinado.model.enums.StatusCombinado status,
+            @RequestParam(required = false) String categoria,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim,
+            @RequestParam org.springframework.util.MultiValueMap<String, String> parametros) {
+        return consultas.listar(true, titulo, parametros.get("sort"), status, categoria, dataInicio, dataFim);
     }
 
     @GetMapping("/{id}")
@@ -67,13 +94,22 @@ public class CombinadoController {
             @ApiResponse(responseCode = "401", description = "Token JWT ausente ou inválido"),
             @ApiResponse(responseCode = "403", description = "Usuário não possui vínculo como criador ou participante do combinado")
     })
-    public ResponseEntity<CombinadoResumoDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarDetalhes(id));
+    public ResponseEntity<br.edu.ifpb.combinado.dto.CombinadoDetalheDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(detalhes.buscar(id));
     }
 
     @GetMapping("/{id}/historico")
-    public ResponseEntity<List<CombinadoHistoricoDTO>> buscarHistorico(@PathVariable Long id) {
-        return ResponseEntity.ok(service.buscarHistorico(id));
+    @Operation(summary = "Consultar linha do tempo do combinado",
+            description = "Retorna eventos em ordem cronológica crescente, com filtros opcionais por autor, tipo e datas inclusivas em UTC. Restrito a usuários com acesso ao combinado.")
+    public ResponseEntity<List<CombinadoHistoricoDTO>> buscarHistorico(
+            @PathVariable Long id,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(
+                    iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim,
+            @RequestParam(required = false) Long autorId,
+            @RequestParam(required = false) AcaoCombinadoHistorico tipo) {
+        return ResponseEntity.ok(service.buscarHistorico(id, dataInicio, dataFim, autorId, tipo));
     }
 
     @GetMapping("/meus-rascunhos")
@@ -139,9 +175,22 @@ public class CombinadoController {
         return service.atualizarRascunho(id, dados);
     }
 
+    @DeleteMapping({"/{id}", "/rascunhos/{id}"})
+    @Operation(summary = "Excluir ou descartar rascunho", description = "Remove definitivamente um combinado em status RASCUNHO pertencente ao criador autenticado.")
+    public ResponseEntity<?> excluirRascunho(@PathVariable Long id) {
+        try {
+            service.excluirRascunho(id);
+            return ResponseEntity.noContent().build();
+        } catch (AccessDeniedException exception) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                    "message", "Somente o criador do rascunho pode excluí-lo."
+            ));
+        }
+    }
+
     @PatchMapping("/{id}/aceitar")
-    public ResponseEntity<Combinado> aceitar(@PathVariable Long id, @RequestBody(required = false) Map<String, String> payload) {
-        return ResponseEntity.ok(service.aceitar(id, parseTimestamp(payload, "respondidoEm")));
+    public ResponseEntity<Combinado> aceitar(@PathVariable Long id) {
+        return ResponseEntity.ok(conviteService.aceitarPorCombinado(id));
     }
 
     @PatchMapping("/{id}/recusar")
@@ -184,5 +233,10 @@ public class CombinadoController {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> dadosInvalidos(IllegalArgumentException exception) {
         return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(ConviteConflitoException.class)
+    public ResponseEntity<Map<String, String>> conviteConflitante(ConviteConflitoException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
     }
 }

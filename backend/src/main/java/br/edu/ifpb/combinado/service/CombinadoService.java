@@ -17,6 +17,7 @@ import br.edu.ifpb.combinado.repository.ConviteHistoricoRepository;
 import br.edu.ifpb.combinado.repository.ConviteRepository;
 import br.edu.ifpb.combinado.repository.NotificacaoRepository;
 import br.edu.ifpb.combinado.security.UsuarioPrincipal;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import br.edu.ifpb.combinado.model.enums.StatusCombinado;
@@ -28,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,30 +78,15 @@ public class CombinadoService {
         return repository.listarVinculados(principal.usuario().getId());
     }
 
-    /**
-     * US72 / Task #31706 — gravação centralizada de eventos de histórico.
-     *
-     * BDD:
-     * DADO que qualquer ação de mudança de status ocorre (concluir, cancelar)
-     * QUANDO a ação for executada
-     * ENTÃO o sistema deve registrar o usuário responsável e o timestamp da ação
-     *
-     * Garante que todo evento grava autor (usuário_id, extraído do principal
-     * autenticado) e timestamp (Instant.now() padronizado). O construtor da
-     * entidade valida fail-fast — nulos são rejeitados na origem.
-     */
-    private void registrarEvento(Combinado combinado, String descricao, AcaoCombinadoHistorico acao) {
-        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, acao));
-    }
-
-    /**
-     * US72 / Task #31706 — variante para eventos de cancelamento com motivo
-     * (nullable, US69 / Task #31696).
-     */
-    private void registrarEvento(Combinado combinado, String descricao, String motivo, AcaoCombinadoHistorico acao) {
-        var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, motivo, acao));
+    private void registrarAlteracaoStatus(Combinado combinado, StatusCombinado statusAnterior,
+            StatusCombinado statusNovo, String motivo) {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof UsuarioPrincipal principal)) {
+            throw new AccessDeniedException("Autenticação necessária.");
+        }
+        String descricao = "Status alterado de " + statusAnterior + " para " + statusNovo + ".";
+        historicoRepository.save(CombinadoHistorico.de(combinado, principal.usuario(), descricao, motivo,
+                AcaoCombinadoHistorico.ALTERACAO_STATUS));
     }
 
     @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
@@ -116,8 +104,56 @@ public class CombinadoService {
     @Transactional(readOnly = true)
     @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
     public List<CombinadoHistoricoDTO> buscarHistorico(Long id) {
-        return historicoRepository.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id)
+        return buscarHistorico(id, null, null, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
+    public List<CombinadoHistoricoDTO> buscarHistorico(Long id, LocalDate dataInicio, LocalDate dataFim) {
+        return buscarHistorico(id, dataInicio, dataFim, null, null);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
+    public List<CombinadoHistoricoDTO> buscarHistorico(Long id, LocalDate dataInicio, LocalDate dataFim,
+            Long autorId) {
+        return buscarHistorico(id, dataInicio, dataFim, autorId, null);
+    }
+
+    @Transactional(readOnly = true)
+    @PreAuthorize("@combinadoAcesso.podeConsultar(#id, authentication)")
+    public List<CombinadoHistoricoDTO> buscarHistorico(Long id, LocalDate dataInicio, LocalDate dataFim,
+            Long autorId, AcaoCombinadoHistorico tipo) {
+        if (dataInicio != null && dataFim != null && dataInicio.isAfter(dataFim)) {
+            throw new IllegalArgumentException("dataInicio não pode ser posterior a dataFim.");
+        }
+        var inicio = dataInicio == null ? null : dataInicio.atStartOfDay().toInstant(ZoneOffset.UTC);
+        var fim = dataFim == null ? null : dataFim.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
+        return historicoRepository.buscarPorCombinadoPeriodoAutorETipo(id, autorId, tipo, inicio, fim)
                 .stream().map(CombinadoHistoricoDTO::de).toList();
+    }
+
+    @Transactional
+    public void ativarSeTodosAceitaram(Combinado combinado) {
+        if (combinado.getStatus() != StatusCombinado.AGUARDANDO_CONFIRMACAO
+                || combinado.getUsuariosParticipantes().isEmpty()) {
+            return;
+        }
+        var pendentes = ConfirmacaoCombinado.pendentes(combinado, participanteId -> conviteRepository
+                .findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
+                        combinado.getId(), participanteId)
+                .map(Convite::getStatus));
+        if (!pendentes.isEmpty()) {
+            return;
+        }
+
+        StatusCombinado statusAnterior = combinado.getStatus();
+        combinado.getStatus().validarTransicao(StatusCombinado.ATIVO);
+        combinado.setStatus(StatusCombinado.ATIVO);
+        combinado.setAceitoEm(LocalDateTime.now());
+        combinado.setRecusadoEm(null);
+        Combinado salvo = repository.save(combinado);
+        registrarAlteracaoStatus(salvo, statusAnterior, salvo.getStatus(), null);
     }
 
     @Transactional
@@ -140,6 +176,7 @@ public class CombinadoService {
                         .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + participanteId)));
             }
         }
+        validarNaoAutoconvite(participantes, criador);
         String nomeParticipantes = participantes.isEmpty() ? dto.participanteNome()
                 : participantes.stream().map(Usuario::getNome).sorted().collect(java.util.stream.Collectors.joining(", "));
         var dados = new CombinadoDTO(null, dto.titulo(), dto.descricao(), dto.categoria(), dto.dataPrazo(),
@@ -167,21 +204,16 @@ public class CombinadoService {
         var participantes = new java.util.HashSet<>(combinado.getUsuariosParticipantes());
         participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
         for (Usuario destinatario : participantes) {
-            try {
-                Convite convite = new Convite();
-                convite.setCombinado(combinado);
-                convite.setRemetente(remetente);
-                convite.setDestinatario(destinatario);
-                convite.setStatus(StatusConvite.PENDENTE);
-                conviteRepository.save(convite);
-                conviteHistoricoRepository.save(new ConviteHistorico(
-                        convite, remetente, AcaoConvite.ENVIO, java.time.Instant.now()));
-                notificacaoRepository.save(new Notificacao(
-                        destinatario, "Convite para Combinado", "Você foi convidado para o combinado '" + combinado.getTitulo() + "'."));
-            } catch (Exception e) {
-                // Logar erro mas não abortar a criação do combinado
-                System.err.println("Erro ao enviar convite para " + destinatario.getEmail() + ": " + e.getMessage());
-            }
+            Convite convite = new Convite();
+            convite.setCombinado(combinado);
+            convite.setRemetente(remetente);
+            convite.setDestinatario(destinatario);
+            convite.setStatus(StatusConvite.PENDENTE);
+            conviteRepository.save(convite);
+            conviteHistoricoRepository.save(new ConviteHistorico(
+                    convite, remetente, AcaoConvite.ENVIO, java.time.Instant.now()));
+            notificacaoRepository.save(new Notificacao(
+                    destinatario, "Convite para Combinado", "Você foi convidado para o combinado '" + combinado.getTitulo() + "'."));
         }
     }
 
@@ -231,38 +263,29 @@ public class CombinadoService {
     }
 
     @Transactional
-    @PreAuthorize("@combinadoAcesso.podeAcessar(#id, authentication)")
-    public Combinado aceitar(Long id, LocalDateTime respondidoEm) {
-        Combinado combinado = buscarPorId(id);
-        combinado.getStatus().validarTransicao(StatusCombinado.ATIVO);
-        combinado.setStatus(StatusCombinado.ATIVO);
-        combinado.setAceitoEm(respondidoEm != null ? respondidoEm : LocalDateTime.now());
-        combinado.setRecusadoEm(null);
-        return repository.save(combinado);
-    }
-
-    @Transactional
     @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
     public Combinado recusar(Long id, LocalDateTime respondidoEm) {
         Combinado combinado = buscarPorId(id);
+        StatusCombinado statusAnterior = combinado.getStatus();
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
         combinado.setRecusadoEm(respondidoEm != null ? respondidoEm : LocalDateTime.now());
         combinado.setAceitoEm(null);
-        return repository.save(combinado);
+        Combinado salvo = repository.save(combinado);
+        registrarAlteracaoStatus(salvo, statusAnterior, salvo.getStatus(), null);
+        return salvo;
     }
 
     @Transactional
-    @PreAuthorize("@combinadoAcesso.podeConcluir(#id, authentication)")
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
     public Combinado concluir(Long id) {
         Combinado combinado = buscarPorId(id);
+        StatusCombinado statusAnterior = combinado.getStatus();
         combinado.getStatus().validarTransicao(StatusCombinado.CONCLUIDO);
         validarTodosAceitaram(combinado);
         combinado.setStatus(StatusCombinado.CONCLUIDO);
         Combinado salvo = repository.save(combinado);
-        // US64 - Task #31682: conclusão via PATCH /{id}/concluir registra histórico
-        // US72 / Task #31706: autor e timestamp garantidos pelo registrarEvento.
-        registrarEvento(salvo, "Combinado concluído.", AcaoCombinadoHistorico.CONCLUSAO);
+        registrarAlteracaoStatus(salvo, statusAnterior, salvo.getStatus(), null);
         return salvo;
     }
 
@@ -274,16 +297,10 @@ public class CombinadoService {
      * quais participantes ainda não confirmaram.
      */
     private void validarTodosAceitaram(Combinado combinado) {
-        List<String> naoConfirmados = combinado.getUsuariosParticipantes().stream()
-                .filter(participante -> conviteRepository
+        List<String> naoConfirmados = ConfirmacaoCombinado.pendentes(combinado, participanteId -> conviteRepository
                         .findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
-                                combinado.getId(), participante.getId())
-                        .map(Convite::getStatus)
-                        .filter(status -> status == StatusConvite.ACEITO)
-                        .isEmpty())
-                .map(Usuario::getNome)
-                .sorted()
-                .toList();
+                                combinado.getId(), participanteId)
+                        .map(Convite::getStatus));
         if (!naoConfirmados.isEmpty()) {
             throw new ParticipantesPendentesException(
                     "Não é possível concluir o combinado: os seguintes participantes ainda não confirmaram: "
@@ -296,16 +313,12 @@ public class CombinadoService {
     @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
     public Combinado cancelar(Long id, CancelamentoDTO dados) {
         Combinado combinado = buscarPorId(id);
+        StatusCombinado statusAnterior = combinado.getStatus();
         combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
         combinado.setStatus(StatusCombinado.CANCELADO);
         Combinado salvo = repository.save(combinado);
-        // US69 / Task #31696: motivo (nullable) persistido junto ao evento de
-        // cancelamento na coluna `motivo` de combinado_historico. Quando não
-        // informado, permanece nulo (CA #31822 — aceita com ou sem motivo).
-        // US72 / Task #31706: autor e timestamp garantidos pelo registrarEvento.
-        registrarEvento(salvo, "Combinado cancelado.",
-                dados == null ? null : dados.motivoNormalizado(),
-                AcaoCombinadoHistorico.CANCELAMENTO);
+        registrarAlteracaoStatus(salvo, statusAnterior, salvo.getStatus(),
+                dados == null ? null : dados.motivoNormalizado());
         return salvo;
     }
 
@@ -387,7 +400,7 @@ public class CombinadoService {
                         .orElseThrow(() -> new IllegalArgumentException("Participante não encontrado: " + usuarioId)));
             }
         }
-        participantes.removeIf(u -> u.getId().equals(combinado.getCriador().getId()));
+        validarNaoAutoconvite(participantes, combinado.getCriador());
         if (participantes.isEmpty()) {
             throw new IllegalArgumentException("Informe ao menos um participante cadastrado diferente do criador.");
         }
@@ -407,7 +420,17 @@ public class CombinadoService {
         combinado.setParticipanteNome(nomes);
         combinado.setParticipantesUsuarios(participantes);
         combinado.setStatus(StatusCombinado.AGUARDANDO_CONFIRMACAO);
-        return CombinadoResumoDTO.de(repository.save(combinado));
+        Combinado salvo = repository.save(combinado);
+        registrarAlteracaoStatus(salvo, StatusCombinado.RASCUNHO, salvo.getStatus(), null);
+        dispararConvites(salvo, salvo.getCriador());
+        return CombinadoResumoDTO.de(salvo);
+    }
+
+    private void validarNaoAutoconvite(java.util.Set<Usuario> participantes, Usuario criador) {
+        if (criador != null && participantes.stream()
+                .anyMatch(participante -> participante.getId().equals(criador.getId()))) {
+            throw new IllegalArgumentException("O criador não pode ser selecionado como participante.");
+        }
     }
 
     @Transactional

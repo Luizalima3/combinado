@@ -4,12 +4,14 @@ const LABEL: Record<ConviteStatus, string> = {
   PENDENTE: "Pendente",
   ACEITO: "Aceito",
   RECUSADO: "Recusado",
+  EXPIRADO: "Expirado",
 };
 
 const CLASS: Record<ConviteStatus, string> = {
   PENDENTE: "bg-warn-soft text-warn border-warn/30",
   ACEITO: "bg-mint-soft text-mint-dark border-mint/30",
   RECUSADO: "bg-danger-soft text-danger border-danger/30",
+  EXPIRADO: "bg-line text-muted border-line",
 };
 
 export function ConviteStatusBadge({ status }: { status: ConviteStatus }) {

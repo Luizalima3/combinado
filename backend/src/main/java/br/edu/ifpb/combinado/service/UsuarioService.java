@@ -82,12 +82,12 @@ public class UsuarioService {
         if (usuarioLogadoId == null) {
             throw new IllegalArgumentException("Usuário autenticado não informado.");
         }
-        String nome = termo == null ? "" : termo.strip();
-        if (nome.length() > 150) {
+        String busca = termo == null ? "" : termo.strip();
+        if (busca.length() > 150) {
             throw new IllegalArgumentException("O termo deve conter no máximo 150 caracteres.");
         }
-        if (nome.length() < 2) return List.of();
-        return usuarioRepository.findByNomeContainingIgnoreCaseAndIdNot(nome, usuarioLogadoId,
+        if (busca.length() < 2) return List.of();
+        return usuarioRepository.buscarPorNomeOuEmail(busca, usuarioLogadoId,
                 PageRequest.of(pagina, limite, Sort.by("nome").ascending().and(Sort.by("id").ascending())));
     }
 

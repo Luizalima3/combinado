@@ -26,15 +26,22 @@ export function ParticipantPicker({ participants, onChange, error, disabled = fa
         return;
       }
       setSearching(true);
-      const results = await sugerirUsuarios(query);
-      setSuggestions(
-        results.filter(
-          (item) =>
-            item.email.toLowerCase() !== user.email.toLowerCase() &&
-            !participants.some((p) => p.email.toLowerCase() === item.email.toLowerCase()),
-        ),
-      );
-      setSearching(false);
+      try {
+        const results = await sugerirUsuarios(query);
+        setSuggestions(
+          results.filter(
+            (item) =>
+              item.email.toLowerCase() !== user.email.toLowerCase() &&
+              !participants.some((p) => p.email.toLowerCase() === item.email.toLowerCase()),
+          ),
+        );
+        setSearchError("");
+      } catch {
+        setSuggestions([]);
+        setSearchError("Não foi possível buscar usuários cadastrados.");
+      } finally {
+        setSearching(false);
+      }
     }, 280);
 
     return () => window.clearTimeout(handle);
@@ -52,16 +59,24 @@ export function ParticipantPicker({ participants, onChange, error, disabled = fa
       setSearchError(participantAddErrorMessage(trimmed, false) ?? "Informe um e-mail válido.");
       return;
     }
-    const found = await buscarUsuarioPorEmail(trimmed);
-    const feedback = participantAddErrorMessage(trimmed, Boolean(found));
-    if (feedback) {
-      setSearchError(feedback);
-      return;
+    try {
+      const found = await buscarUsuarioPorEmail(trimmed);
+      const feedback = participantAddErrorMessage(trimmed, Boolean(found));
+      if (feedback) {
+        setSearchError(feedback);
+        return;
+      }
+      addParticipant(found!);
+    } catch {
+      setSearchError("Não foi possível buscar usuários cadastrados.");
     }
-    addParticipant(found!);
   }
 
   function addParticipant(found: UsuarioResumo) {
+    if (found.id == null) {
+      setSearchError("O usuário selecionado não possui um cadastro válido.");
+      return;
+    }
     if (found.email.toLowerCase() === user.email.toLowerCase()) {
       setSearchError("Você já é o criador e não pode se autoadicionar.");
       return;

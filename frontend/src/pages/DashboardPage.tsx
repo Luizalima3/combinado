@@ -17,6 +17,7 @@ import {
   aceitarConvite,
   cancelarCombinado,
   concluirCombinado,
+  excluirRascunho,
   getCombinadoById,
   listCriados,
   listParticipantes,
@@ -57,6 +58,8 @@ export function DashboardPage() {
   // US67 / Task #31692: combinado alvo do modal de confirmação do cancelamento.
   const [cancelTarget, setCancelTarget] = useState<Combinado | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [deleteDraftTarget, setDeleteDraftTarget] = useState<Combinado | null>(null);
+  const [deletingDraft, setDeletingDraft] = useState(false);
   const [refuseTarget, setRefuseTarget] = useState<Combinado | null>(null);
   const [refuseConfirmOpen, setRefuseConfirmOpen] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
@@ -66,7 +69,7 @@ export function DashboardPage() {
     setError("");
     try {
       const [created, received] = await Promise.all([
-        listCriados(user),
+        listCriados(),
         listRecebidos(user),
       ]);
       setCriados(created);
@@ -82,10 +85,44 @@ export function DashboardPage() {
     void load();
   }, [user.email]);
 
+  const openInviteId = invite?.id;
+  useEffect(() => {
+    if (tab !== "criados" || openInviteId == null) return;
+
+    let active = true;
+    async function refreshParticipants() {
+      try {
+        const participants = await listParticipantes(openInviteId);
+        if (active) {
+          setInviteParticipants(participants);
+          setParticipantsError("");
+        }
+      } catch (err) {
+        if (active) {
+          setParticipantsError(
+            getApiErrorMessage(err, "Não foi possível atualizar os participantes."),
+          );
+        }
+      }
+    }
+
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        void refreshParticipants();
+      }
+    }, 5000);
+    const handleFocus = () => void refreshParticipants();
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [openInviteId, tab]);
+
   const pendingCount = recebidos.filter(
-    (item) =>
-      item.status === "AGUARDANDO_CONFIRMACAO" &&
-      conviteStatusForUser(item, user) === "PENDENTE",
+    (item) => conviteStatusForUser(item, user) === "PENDENTE",
   ).length;
 
   async function handleAccept(combinado: Combinado) {
@@ -153,7 +190,7 @@ export function DashboardPage() {
     }
   }
 
-  /** US64 / Task #31681: conclusão a partir do card (criador ou participante aceito, status ATIVO). */
+  /** Conclusão a partir do card pelo criador do combinado. */
   async function handleConclude(combinado: Combinado) {
     setBusyId(combinado.id);
     try {
@@ -204,6 +241,22 @@ export function DashboardPage() {
       push("error", getApiErrorMessage(err, "Não foi possível cancelar o combinado."));
     } finally {
       setCancelling(false);
+    }
+  }
+
+  async function handleConfirmDeleteDraft() {
+    if (!deleteDraftTarget) return;
+    setDeletingDraft(true);
+    try {
+      await excluirRascunho(deleteDraftTarget.id);
+      push("success", "Rascunho excluído com sucesso.");
+      const removedId = deleteDraftTarget.id;
+      setDeleteDraftTarget(null);
+      setCriados((items) => items.filter((item) => item.id !== removedId));
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível excluir o rascunho."));
+    } finally {
+      setDeletingDraft(false);
     }
   }
 
@@ -282,6 +335,7 @@ export function DashboardPage() {
               busy={busyId === combinado.id}
               onOpen={openInvite}
               onAccept={handleAccept}
+              onDeleteDraft={(item) => setDeleteDraftTarget(item)}
               onRefuse={(item) => {
                 setRefuseTarget(item);
                 setRefuseConfirmOpen(true);
@@ -297,7 +351,11 @@ export function DashboardPage() {
           <h3 className="mt-2 text-xl font-semibold text-ink">{invite.titulo}</h3>
           <p className="mt-2 text-sm text-ink">{invite.descricao || "Sem descrição."}</p>
           <div className="mt-4 flex flex-wrap gap-2 text-sm">
-            <StatusBadge status={invite.status} />
+            {tab === "recebidos" ? (
+              <ConviteStatusBadge status={conviteStatusForUser(invite, user)} />
+            ) : (
+              <StatusBadge status={invite.status} />
+            )}
             <CategoryBadge categoria={invite.categoria} />
             <span className="rounded-full bg-bg px-2.5 py-1 text-muted">
               Prazo: {invite.dataPrazo ? new Date(`${invite.dataPrazo}T00:00:00`).toLocaleDateString("pt-BR") : "Não definido"}
@@ -336,7 +394,7 @@ export function DashboardPage() {
             </p>
           ) : null}
           <div className="mt-5 flex justify-end gap-2">
-            {tab === "recebidos" && invite.status === "AGUARDANDO_CONFIRMACAO" ? (
+            {tab === "recebidos" && conviteStatusForUser(invite, user) === "PENDENTE" ? (
               <InviteActionButtons
                 busy={busyId === invite.id}
                 onAccept={() => void handleAccept(invite)}
@@ -367,7 +425,9 @@ export function DashboardPage() {
             <div>
               <p className="text-lg font-semibold text-ink">Você aceitou o convite.</p>
               <p className="mt-1 text-sm text-muted">
-                {acceptedInvite.titulo} foi confirmado com sucesso e agora está ativo.
+                {acceptedInvite.status === "ATIVO"
+                  ? "Todos os participantes aceitaram; o combinado está ativo."
+                  : "Sua participação foi confirmada. O combinado permanece aguardando a resposta dos demais participantes."}
               </p>
             </div>
             <div className="rounded-xl bg-bg p-3 text-sm text-ink">
@@ -438,6 +498,39 @@ export function DashboardPage() {
           onConfirm={(motivo) => void handleConfirmCancel(motivo)}
           onClose={() => setCancelTarget(null)}
         />
+      ) : null}
+      {deleteDraftTarget ? (
+        <Modal
+          title="Excluir rascunho"
+          onClose={() => {
+            if (!deletingDraft) setDeleteDraftTarget(null);
+          }}
+        >
+          <div className="space-y-4">
+            <p className="text-sm text-muted">
+              Tem certeza que deseja descartar e excluir definitivamente o rascunho{" "}
+              <strong>{deleteDraftTarget.titulo}</strong>? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-lg border border-line px-3 py-2 text-sm font-medium text-ink"
+                disabled={deletingDraft}
+                onClick={() => setDeleteDraftTarget(null)}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                disabled={deletingDraft}
+                onClick={() => void handleConfirmDeleteDraft()}
+              >
+                {deletingDraft ? "Excluindo..." : "Confirmar exclusão"}
+              </button>
+            </div>
+          </div>
+        </Modal>
       ) : null}
     </section>
   );

@@ -6,19 +6,27 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "tarefas")
-public class Tarefa {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Table(name = "responsabilidades")
+public class Responsabilidade {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank @Column(nullable = false, columnDefinition = "TEXT")
+
+    @NotBlank
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String descricao;
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "combinado_id", nullable = false)
     private Combinado combinado;
+
     @ManyToMany
-    @JoinTable(name = "tarefa_responsaveis", joinColumns = @JoinColumn(name = "tarefa_id"),
+    @JoinTable(name = "responsabilidade_responsaveis", joinColumns = @JoinColumn(name = "responsabilidade_id"),
             inverseJoinColumns = @JoinColumn(name = "usuario_id"))
     private Set<Usuario> responsaveis = new HashSet<>();
+
+    public Responsabilidade() {
+    }
 
     public Long getId() { return id; }
     public String getDescricao() { return descricao; }

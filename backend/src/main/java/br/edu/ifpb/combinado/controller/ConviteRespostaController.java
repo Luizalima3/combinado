@@ -24,7 +24,7 @@ public class ConviteRespostaController {
     private final ConviteService service;
     public ConviteRespostaController(ConviteService service) { this.service = service; }
     @PatchMapping("/{id}/aceitar")
-    @Operation(summary = "Aceitar convite pendente", description = "Registra o aceite do destinatário autenticado com data/hora de resposta.")
+    @Operation(summary = "Aceitar convite pendente", description = "Sem corpo. Autor é o destinatário autenticado; dataResposta vem do servidor em UTC. O combinado passa para ATIVO somente quando todos os participantes aceitarem.")
     public ConviteRespostaDTO aceitar(@PathVariable Long id) { return service.aceitar(id); }
     @PatchMapping("/{id}/recusar")
     @Operation(summary = "Recusar convite pendente", description = "Registra a recusa do destinatário autenticado com data/hora de resposta.")

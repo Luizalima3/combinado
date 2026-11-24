@@ -21,17 +21,28 @@ class UsuarioBuscaServiceTest {
     @InjectMocks UsuarioService service;
 
     @Test
-    void deveBuscarTrechoDoNomeExcluindoUsuarioLogado() {
+    void deveBuscarTrechoDoNomeOuEmailExcluindoUsuarioLogado() {
         var resultados = List.of(
                 new UsuarioResumoDTO(2L, "Ana Maria", "ana@combinado.app"),
                 new UsuarioResumoDTO(3L, "Mariana", "mariana@combinado.app"));
-        when(usuarios.findByNomeContainingIgnoreCaseAndIdNot(eq("ana"), eq(1L), any()))
+        when(usuarios.buscarPorNomeOuEmail(eq("ana"), eq(1L), any()))
                 .thenReturn(resultados);
 
         var encontrados = service.buscarPorNome("  ana  ", 0, 10, 1L);
 
         assertEquals(resultados, encontrados);
-        verify(usuarios).findByNomeContainingIgnoreCaseAndIdNot(eq("ana"), eq(1L), any());
+        verify(usuarios).buscarPorNomeOuEmail(eq("ana"), eq(1L), any());
+    }
+
+    @Test
+    void deveEnviarEmailComoTermoDeBuscaAoRepositorio() {
+        when(usuarios.buscarPorNomeOuEmail(eq("bruno@combinado.app"), eq(1L), any()))
+                .thenReturn(List.of(new UsuarioResumoDTO(2L, "Bruno", "bruno@combinado.app")));
+
+        var encontrados = service.buscarPorNome(" bruno@combinado.app ", 0, 10, 1L);
+
+        assertEquals(1, encontrados.size());
+        assertEquals(2L, encontrados.getFirst().id());
     }
 
     @Test

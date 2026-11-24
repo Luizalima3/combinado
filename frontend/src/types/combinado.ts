@@ -14,7 +14,15 @@ export type StatusCombinado =
   | "CONCLUIDO"
   | "CANCELADO";
 
-export type ConviteStatus = "PENDENTE" | "ACEITO" | "RECUSADO";
+export type ConviteStatus = "PENDENTE" | "ACEITO" | "RECUSADO" | "EXPIRADO";
+
+export interface CombinadoHistoricoEvento {
+  id: number;
+  autorNome: string;
+  descricao: string;
+  acao: string;
+  ocorridoEm: string;
+}
 
 import type { PerfilUsuario } from "./auth";
 

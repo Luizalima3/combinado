@@ -3,6 +3,7 @@ import type {
   CombinadoExtras,
   CategoriaCombinado,
   ParticipanteCombinado,
+  ConviteStatus,
   StatusCombinado,
   UsuarioResumo,
 } from "../types/combinado";
@@ -16,8 +17,26 @@ export interface CombinadoApi {
   criadorNome: string;
   participanteNome: string;
   responsabilidades?: string;
+  participantes?: Array<{
+    id: number;
+    nome: string;
+    email: string;
+    status: ConviteStatus;
+  }>;
   status: StatusCombinado;
   criadoEm?: string;
+}
+
+export interface ConviteRecebidoApi {
+  id: number;
+  combinadoId: number;
+  titulo: string;
+  categoria?: CategoriaCombinado | null;
+  nomeCriador: string;
+  prazo?: string;
+  statusCombinado: StatusCombinado;
+  status: ConviteStatus;
+  dataEnvio?: string;
 }
 
 export function parseExtras(raw?: string): CombinadoExtras {
@@ -41,17 +60,78 @@ export function serializeExtras(extras: CombinadoExtras) {
 }
 
 export function mapCombinado(api: CombinadoApi): Combinado {
+  const { participantes: participantesApi, ...combinadoApi } = api;
   const extras = parseExtras(api.responsabilidades);
+  if (participantesApi) {
+    const participantesPorEmail = new Map(
+      participantesApi.map((participante) => [participante.email.toLowerCase(), participante]),
+    );
+    const emailsExistentes = new Set<string>();
+
+    extras.participantes = extras.participantes.map((participante) => {
+      const email = participante.email.toLowerCase();
+      const participanteApi = participantesPorEmail.get(email);
+      emailsExistentes.add(email);
+      return participanteApi
+        ? {
+            ...participante,
+            id: participanteApi.id,
+            nome: participanteApi.nome,
+            email: participanteApi.email,
+            conviteStatus: participanteApi.status,
+          }
+        : participante;
+    });
+
+    for (const participante of participantesApi) {
+      if (!emailsExistentes.has(participante.email.toLowerCase())) {
+        extras.participantes.push({
+          id: participante.id,
+          nome: participante.nome,
+          email: participante.email,
+          conviteStatus: participante.status,
+        });
+      }
+    }
+  }
+
   const status: StatusCombinado =
     extras.rascunho && api.status !== "ATIVO" && api.status !== "CANCELADO"
       ? "RASCUNHO"
       : api.status;
 
   return {
-    ...api,
+    ...combinadoApi,
     extras,
     status,
     criadorEmail: extras.participantes.find((p) => p.nome === api.criadorNome)?.email,
+  };
+}
+
+export function mapConviteRecebido(
+  convite: ConviteRecebidoApi,
+  participante: UsuarioResumo,
+): Combinado {
+  const extras: CombinadoExtras = {
+    participantes: [{
+      id: participante.id,
+      nome: participante.nome,
+      email: participante.email,
+      conviteStatus: convite.status,
+    }],
+  };
+
+  return {
+    id: convite.combinadoId,
+    titulo: convite.titulo,
+    categoria: convite.categoria,
+    dataPrazo: convite.prazo,
+    criadorNome: convite.nomeCriador,
+    participanteNome: participante.nome,
+    responsabilidades: serializeExtras(extras),
+    status: convite.statusCombinado,
+    criadoEm: convite.dataEnvio,
+    extras,
   };
 }
 
@@ -91,6 +171,9 @@ export function buildCreateBody(
     descricao: payload.descricao.trim(),
     categoria: payload.categoria || null,
     dataPrazo: payload.dataPrazo || null,
+    participantesIds: payload.participantes
+      .map((participante) => participante.id)
+      .filter((id): id is number => typeof id === "number"),
     criadorNome: criador.nome,
     participanteNome:
       participantes.map((p) => p.nome).join(", ") || "—",
@@ -133,25 +216,20 @@ export function buildPublishBody(
 }
 
 export function userIsCreator(combinado: Combinado, user: UsuarioResumo) {
-  return (
-    combinado.criadorNome.trim().toLowerCase() === user.nome.trim().toLowerCase() ||
-    combinado.criadorEmail?.toLowerCase() === user.email.toLowerCase()
-  );
+  if (combinado.criadorEmail) {
+    return combinado.criadorEmail.toLowerCase() === user.email.toLowerCase();
+  }
+  return combinado.criadorNome.trim().toLowerCase() === user.nome.trim().toLowerCase();
 }
 
 export function userIsParticipant(combinado: Combinado, user: UsuarioResumo) {
   const email = user.email.toLowerCase();
   const nome = user.nome.trim().toLowerCase();
 
-  const selectedByEmail = combinado.extras.participantes.some(
-    (p) => p.email.toLowerCase() === email,
-  );
-  if (selectedByEmail) return true;
-
-  const selectedByName = combinado.extras.participantes.some(
-    (p) => p.nome.trim().toLowerCase() === nome,
-  );
-  if (selectedByName) return true;
+  const participantsWithEmail = combinado.extras.participantes.filter((p) => p.email);
+  if (participantsWithEmail.length) {
+    return participantsWithEmail.some((p) => p.email.toLowerCase() === email);
+  }
 
   return combinado.participanteNome.toLowerCase().includes(nome);
 }

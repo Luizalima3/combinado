@@ -21,14 +21,8 @@ class ConviteAceitePersistenciaDataHoraTest extends GestaoFixture {
         mvc.perform(patch("/api/convites/{id}/aceitar", convitePendente.getId())
                         .header("Authorization", token(participante)))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ACEITO"))
                 .andExpect(jsonPath("$.dataResposta").isNotEmpty());
-
-        mvc.perform(patch("/api/combinados/{id}/aceitar", combinado.getId())
-                        .header("Authorization", token(participante))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"respondidoEm\":\"2026-10-21T15:30:00Z\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("ATIVO"));
 
         em.flush();
         em.clear();

@@ -8,7 +8,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 @Repository
-public interface CombinadoRepository extends JpaRepository<Combinado, Long> {
+public interface CombinadoRepository extends JpaRepository<Combinado, Long>,
+        org.springframework.data.jpa.repository.JpaSpecificationExecutor<Combinado> {
+    @Override
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = "criador")
+    List<Combinado> findAll(org.springframework.data.jpa.domain.Specification<Combinado> spec,
+                           org.springframework.data.domain.Sort sort);
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("select c from Combinado c where c.id = :id")
     java.util.Optional<Combinado> buscarParaConvite(@Param("id") Long id);
