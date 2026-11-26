@@ -13,17 +13,18 @@ Data da verificação: 26/11/2026. Escopo: backend.
 | Conclusão | #32322, #32325, #32330 | 9a2005b |
 | Respostas aos convites | #32268, #32271, #32274 | 517b82e |
 | Responsáveis e edição de tarefas | #31235, #31237, #31238 | 16a0c27 |
-| Segurança e contratos existentes | #31325, #31342, #31346, #31350, #31356, #31358, #31366, #31374 | 04cb108 (local, ainda não enviado) |
+| Segurança JWT e filtro | #31325, #31342, #31346, #31350 | Commit que inclui esta atualização |
+| Senhas, autorização e respostas de erro | #31356, #31358, #31366, #31374 | Grupo local, ainda não enviado |
 | Histórico transacional | #31231, #31232, #31233 | 875dd03 |
-| Polling, cancelamento e documentação | #32277, #32319, #31423 | Commit que inclui este relatório |
+| Polling, cancelamento e documentação | #32277, #32319, #31423 | ee6cf07 |
 
-Total: 43 tasks conferidas localmente. Após este envio: 35 integradas à main, incluindo as 8 do PR #11; faltam publicar as 8 tasks do commit de segurança 04cb108.
+Total: 43 tasks conferidas localmente. Após este envio: 39 integradas à main, incluindo as 8 do PR #11; faltam publicar #31356, #31358, #31366 e #31374.
 Alguns itens já existiam e foram conferidos com testes e documentação; o total não
 representa 43 implementações novas. Não altera automaticamente o OpenProject.
 
 ## Validação
 
-Regressão deste conjunto: 296 testes de serviços e segurança/endpoints, sem falhas, erros ou casos ignorados. Inclui integração HTTP e persistência em H2, migrações, permissões,
+Regressão anterior: 296 testes de serviços e segurança/endpoints, sem falhas, erros ou casos ignorados. Inclui integração HTTP e persistência em H2, migrações, permissões,
 concorrência, rollback de auditoria e contrato OpenAPI. Não é somente teste unitário.
 Não foi feita homologação com PostgreSQL real e navegador. A investigação da exibição
 dos convites ao destinatário na interface permanece adiada por solicitação do usuário.
