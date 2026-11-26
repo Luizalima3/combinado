@@ -15,5 +15,5 @@ consulta autenticada sem sessão HTTP, recusa de requisição posterior sem Bear
 logout e rejeição do token revogado. Executa endpoints reais com H2 em memória.
 Não é validação de ponta a ponta pelo navegador ou PostgreSQL real.
 
-As tasks #31356, #31358, #31366 e #31374 permanecem no grupo local para o próximo envio.
+As tasks #31356, #31358, #31366 e #31374 são conferidas no grupo complementar documentado em SPRINT3_SEGURANCA_AUTORIZACAO.md.
 Validação de 26/11/2026: 21 testes direcionados (SegurancaJwtSprint3Test, ProtectedEndpointsTest e JwtServiceTest), sem falhas, erros ou casos ignorados. Como esta entrega altera somente teste e documentação, não foi repetida a regressão anterior de 296 testes.

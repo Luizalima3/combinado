@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class SegurancaJwtSprint3Test extends GestaoFixture {
+    @org.springframework.beans.factory.annotation.Autowired
+    org.springframework.security.crypto.password.PasswordEncoder encoder;
     @Test void cadastroLoginJwtRotaPrivadaELogoutDevemFuncionarSemSessaoOuCsrf() throws Exception {
         String resposta = mvc.perform(post("/api/usuarios").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nome\":\"Conta de teste\",\"email\":\"contrato-seguranca@combinado.app\","
@@ -15,6 +17,14 @@ class SegurancaJwtSprint3Test extends GestaoFixture {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.perfil").value("ROLE_USUARIO"))
                 .andExpect(jsonPath("$.senha").doesNotExist()).andReturn().getResponse().getContentAsString();
         Long id = ((Number) JsonPath.read(resposta, "$.id")).longValue();
+        assertInstanceOf(org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder.class, encoder);
+        var persistido = usuarios.findById(id).orElseThrow();
+        assertNotEquals("Segura123", persistido.getSenha());
+        assertTrue(encoder.matches("Segura123", persistido.getSenha()));
+        assertFalse(encoder.matches("SenhaIncorreta", persistido.getSenha()));
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"contrato-seguranca@combinado.app\",\"senha\":\"SenhaIncorreta\"}"))
+                .andExpect(status().isUnauthorized());
         String login = mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"contrato-seguranca@combinado.app\",\"senha\":\"Segura123\"}"))
                 .andExpect(status().isOk()).andExpect(header().string("Cache-Control", "no-store"))
