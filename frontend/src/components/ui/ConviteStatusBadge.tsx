@@ -17,7 +17,7 @@ const CLASS: Record<ConviteStatus, string> = {
 export function ConviteStatusBadge({ status }: { status: ConviteStatus }) {
   return (
     <span
-      className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${CLASS[status]}`}
+      className={`inline-flex shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${CLASS[status]}`}
     >
       {LABEL[status]}
     </span>

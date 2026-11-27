@@ -84,6 +84,38 @@ class ConviteRegrasRespostaTest extends GestaoFixture {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.statusCombinado").value("AGUARDANDO_CONFIRMACAO"));
         assertNull(combinado.getAceitoEm());
     }
+    @Test void umaRecusaEntreTresParticipantesMantemCombinadoAguardandoConfirmacao() throws Exception {
+        vincularSegundo();
+        var terceiro = usuario("Terceiro", "terceiro");
+        combinado.adicionarParticipante(terceiro);
+        combinados.saveAndFlush(combinado);
+
+        var conviteRecusado = convite(participante, StatusConvite.PENDENTE);
+        var conviteSegundo = convite(externo, StatusConvite.PENDENTE);
+        var conviteTerceiro = convite(terceiro, StatusConvite.PENDENTE);
+
+        mvc.perform(patch("/api/convites/{id}/recusar", conviteRecusado.getId())
+                        .header("Authorization", token(participante)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCombinado").value("AGUARDANDO_CONFIRMACAO"));
+        mvc.perform(patch("/api/convites/{id}/aceitar", conviteSegundo.getId())
+                        .header("Authorization", token(externo)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCombinado").value("AGUARDANDO_CONFIRMACAO"));
+        mvc.perform(patch("/api/convites/{id}/aceitar", conviteTerceiro.getId())
+                        .header("Authorization", token(terceiro)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statusCombinado").value("AGUARDANDO_CONFIRMACAO"));
+
+        em.flush();
+        em.clear();
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+                combinados.findById(combinado.getId()).orElseThrow().getStatus());
+        assertEquals(StatusConvite.RECUSADO, convites.findById(conviteRecusado.getId()).orElseThrow().getStatus());
+        assertEquals(StatusConvite.ACEITO, convites.findById(conviteSegundo.getId()).orElseThrow().getStatus());
+        assertEquals(StatusConvite.ACEITO, convites.findById(conviteTerceiro.getId()).orElseThrow().getStatus());
+        assertNull(combinados.findById(combinado.getId()).orElseThrow().getAceitoEm());
+    }
     @Test void conviteMaisRecenteDevePrevalecerNaRegraDeTodosAceitaram() throws Exception {
         vincularSegundo();
         var antigo = convite(participante, StatusConvite.ACEITO);

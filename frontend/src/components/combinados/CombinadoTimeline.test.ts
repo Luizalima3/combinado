@@ -43,14 +43,35 @@ describe("orderChronologically", () => {
 });
 
 describe("filterTimelineEvents", () => {
-  it("filters by event type and returns all events when no type is selected", () => {
+  it("filters by type, author, and inclusive date range", () => {
     const events = [
-      { ...evento(1, "2026-03-01T10:00:00Z"), acao: "CRIACAO" },
-      { ...evento(2, "2026-03-02T10:00:00Z"), acao: "ALTERACAO_STATUS" },
+      { ...evento(1, "2026-03-01T10:00:00"), acao: "CRIACAO", autorNome: "Ana Silva" },
+      { ...evento(2, "2026-03-02T10:00:00"), acao: "ALTERACAO_STATUS", autorNome: "Ana Souza" },
+      { ...evento(3, "2026-03-03T10:00:00"), acao: "CRIACAO", autorNome: "Bruno" },
     ];
 
-    expect(filterTimelineEvents(events, "CRIACAO").map(({ id }) => id)).toEqual([1]);
-    expect(filterTimelineEvents(events, "")).toEqual(events);
+    expect(filterTimelineEvents(events, {
+      startDate: "2026-03-01",
+      endDate: "2026-03-02",
+    }).map(({ id }) => id)).toEqual([1, 2]);
+    expect(filterTimelineEvents(events, {
+      action: "CRIACAO",
+      startDate: "2026-03-01",
+      endDate: "2026-03-02",
+      author: "ana",
+    }).map(({ id }) => id)).toEqual([1]);
+    expect(filterTimelineEvents(events, { author: "ANA " }).map(({ id }) => id)).toEqual([1, 2]);
+    expect(filterTimelineEvents(events, {}).map(({ id }) => id)).toEqual([1, 2, 3]);
+  });
+
+  it("returns no events when the date range is reversed or a selected range has invalid timestamps", () => {
+    const events = [evento(1, "invalid")];
+
+    expect(filterTimelineEvents(events, {
+      startDate: "2026-03-03",
+      endDate: "2026-03-01",
+    })).toEqual([]);
+    expect(filterTimelineEvents(events, { startDate: "2026-03-01" })).toEqual([]);
   });
 });
 

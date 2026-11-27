@@ -33,6 +33,22 @@ class CombinadosBuscaOrdenacaoTest extends ConsultaListagemFixture {
         mvc.perform(get("/api/combinados/criados").header("Authorization", bearer).param("titulo", "Lista").param("sort", "criadoEm,asc"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$[0].titulo").value("Lista antiga com maior ID"));
     }
+    @Test void deveOrdenarExplicitamenteEmOrdemAscendenteEDescendente() throws Exception {
+        criarLista(criador, "Lista antiga", StatusCombinado.ATIVO, BASE, null);
+        criarLista(criador, "Lista intermediaria", StatusCombinado.ATIVO, BASE.plusDays(1), null);
+        criarLista(criador, "Lista recente", StatusCombinado.ATIVO, BASE.plusDays(2), null);
+
+        mvc.perform(get("/api/combinados/criados").header("Authorization", bearer)
+                        .param("titulo", "Lista").param("sort", "criadoEm,ASC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].titulo",
+                        contains("Lista antiga", "Lista intermediaria", "Lista recente")));
+        mvc.perform(get("/api/combinados/criados").header("Authorization", bearer)
+                        .param("titulo", "Lista").param("sort", "criadoEm,DESC"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].titulo",
+                        contains("Lista recente", "Lista intermediaria", "Lista antiga")));
+    }
     @Test void deveOrdenarPorPrazoEStatusComMultiplosCriterios() throws Exception {
         criarLista(criador, "Ordenada ativa", StatusCombinado.ATIVO, BASE, LocalDate.of(2026, 11, 10));
         criarLista(criador, "Ordenada concluida", StatusCombinado.CONCLUIDO, BASE, LocalDate.of(2026, 11, 10));

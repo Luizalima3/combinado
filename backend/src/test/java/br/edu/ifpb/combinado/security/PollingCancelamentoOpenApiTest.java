@@ -50,9 +50,12 @@ class PollingCancelamentoOpenApiTest extends GestaoFixture {
                 .content("{\"motivo\":\"  Não será necessário  \"}"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("CANCELADO"));
         em.flush(); em.clear();
+        assertEquals(StatusCombinado.CANCELADO,
+                combinados.findById(combinado.getId()).orElseThrow().getStatus());
         var eventos = historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(combinado.getId());
         assertEquals(1, eventos.size());
         assertEquals(AcaoCombinadoHistorico.ALTERACAO_STATUS, eventos.getFirst().getAcao());
+        assertEquals("Status alterado de " + estado + " para CANCELADO.", eventos.getFirst().getDescricao());
         assertEquals(criador.getId(), eventos.getFirst().getAutor().getId());
         assertEquals("Não será necessário", eventos.getFirst().getMotivo());
     }
@@ -61,7 +64,8 @@ class PollingCancelamentoOpenApiTest extends GestaoFixture {
     void estadosFinaisDevemBloquearCancelamentoSemCriarEvento(StatusCombinado estado) throws Exception {
         combinado.setStatus(estado); combinados.saveAndFlush(combinado);
         mvc.perform(patch(base() + "/cancelar").header("Authorization", bearer)).andExpect(status().isBadRequest());
-        assertEquals(estado, combinado.getStatus());
+        em.clear();
+        assertEquals(estado, combinados.findById(combinado.getId()).orElseThrow().getStatus());
         assertTrue(historicos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(combinado.getId()).isEmpty());
     }
     @Test void participanteEAdminSemVinculoNaoPodemCancelar() throws Exception {

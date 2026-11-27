@@ -29,17 +29,6 @@ import { conviteStatusForUser, userIsCreator, userIsParticipant } from "../utils
 
 type Tab = "criados" | "recebidos";
 
-function participantStatusBadge(status: ParticipanteConvidado["status"]) {
-  if (status === "EXPIRADO") {
-    return (
-      <span className="shrink-0 rounded-full bg-line px-2.5 py-1 text-xs font-semibold text-muted">
-        Expirado
-      </span>
-    );
-  }
-  return <ConviteStatusBadge status={status} />;
-}
-
 export function DashboardPage() {
   const { sessionUser: user } = useAuth();
   const { push } = useToast();
@@ -360,7 +349,7 @@ export function DashboardPage() {
                         <p className="truncate text-sm font-medium text-ink">{participant.nome}</p>
                         <p className="mt-0.5 truncate text-xs text-muted">{participant.email}</p>
                       </div>
-                      {participantStatusBadge(participant.status)}
+                      <ConviteStatusBadge status={participant.status} />
                     </li>
                   ))}
                 </ul>

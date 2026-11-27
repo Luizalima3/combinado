@@ -41,9 +41,43 @@ export function getTimelineEventPresentation(action: string) {
 
 export function filterTimelineEvents(
   events: CombinadoHistoricoEvento[],
-  action: string,
+  filters: {
+    action?: string;
+    startDate?: string;
+    endDate?: string;
+    author?: string;
+  },
 ) {
-  return action ? events.filter((event) => event.acao === action) : events;
+  const authorQuery = filters.author?.trim().toLocaleLowerCase() ?? "";
+  if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+    return [];
+  }
+
+  return events.filter((event) => {
+    if (filters.action && event.acao !== filters.action) return false;
+    if (
+      authorQuery &&
+      !(event.autorNome?.trim() || "Usuário")
+        .toLocaleLowerCase()
+        .includes(authorQuery)
+    ) {
+      return false;
+    }
+
+    if (filters.startDate || filters.endDate) {
+      const occurredAt = new Date(event.ocorridoEm);
+      if (!Number.isFinite(occurredAt.getTime())) return false;
+      const occurredDate = [
+        occurredAt.getFullYear(),
+        String(occurredAt.getMonth() + 1).padStart(2, "0"),
+        String(occurredAt.getDate()).padStart(2, "0"),
+      ].join("-");
+      if (filters.startDate && occurredDate < filters.startDate) return false;
+      if (filters.endDate && occurredDate > filters.endDate) return false;
+    }
+
+    return true;
+  });
 }
 
 export function orderChronologically(events: CombinadoHistoricoEvento[]) {

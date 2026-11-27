@@ -11,7 +11,9 @@ const STATUS_CLASS: Record<StatusCombinado, string> = {
 
 export function StatusBadge({ status }: { status: StatusCombinado }) {
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_CLASS[status]}`}>
+    <span
+      className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_CLASS[status]}`}
+    >
       {STATUS_LABELS[status]}
     </span>
   );
