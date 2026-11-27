@@ -4,7 +4,9 @@ import { getApiErrorMessage } from "../../api/http";
 import { listHistoricoCombinado } from "../../services/combinadoService";
 import type { CombinadoHistoricoEvento } from "../../types/combinado";
 import {
+  filterTimelineEvents,
   formatEventDateTime,
+  formatRelativeEventDate,
   getTimelineEventPresentation,
   orderChronologically,
 } from "../../utils/combinadoTimeline";
@@ -19,11 +21,13 @@ export function CombinadoTimeline({
   refreshKey,
 }: CombinadoTimelineProps) {
   const [events, setEvents] = useState<CombinadoHistoricoEvento[]>([]);
+  const [selectedType, setSelectedType] = useState("");
   const [retryKey, setRetryKey] = useState(0);
   const [requestState, setRequestState] = useState({ key: "", error: "" });
   const requestKey = `${combinadoId}:${refreshKey}:${retryKey}`;
   const loading = requestState.key !== requestKey;
   const error = loading ? "" : requestState.error;
+  const filteredEvents = filterTimelineEvents(events, selectedType);
 
   useEffect(() => {
     let active = true;
@@ -60,6 +64,20 @@ export function CombinadoTimeline({
       >
         Linha do tempo
       </h2>
+      <label className="mt-3 block text-sm font-medium text-ink">
+        Filtrar por tipo de evento
+        <select
+          className="mt-1 block w-full max-w-xs rounded-lg border border-line bg-card px-3 py-2 text-sm text-ink"
+          value={selectedType}
+          onChange={(event) => setSelectedType(event.target.value)}
+        >
+          <option value="">Todos os tipos</option>
+          <option value="CRIACAO">Combinado criado</option>
+          <option value="ALTERACAO_STATUS">Status alterado</option>
+          <option value="CONCLUSAO">Combinado concluído</option>
+          <option value="CANCELAMENTO">Combinado cancelado</option>
+        </select>
+      </label>
 
       {error ? (
         <div
@@ -89,9 +107,15 @@ export function CombinadoTimeline({
         </p>
       ) : null}
 
-      {events.length > 0 ? (
+      {!loading && !error && events.length > 0 && filteredEvents.length === 0 ? (
+        <p className="mt-3 rounded-xl border border-dashed border-line p-4 text-sm text-muted">
+          Não há eventos desse tipo.
+        </p>
+      ) : null}
+
+      {filteredEvents.length > 0 ? (
         <ol className="mt-4 ml-2 border-l-2 border-line">
-          {events.map((event) => {
+          {filteredEvents.map((event) => {
             const presentation = getTimelineEventPresentation(event.acao);
             return (
               <li key={event.id} className="relative pb-6 pl-6 last:pb-0">
@@ -109,12 +133,16 @@ export function CombinadoTimeline({
                     className="text-xs text-muted"
                     dateTime={event.ocorridoEm}
                   >
+                    {formatRelativeEventDate(event.ocorridoEm)} ·{" "}
                     {formatEventDateTime(event.ocorridoEm)}
                   </time>
                 </div>
                 <p className="mt-1 text-sm text-ink">{event.descricao}</p>
                 <p className="mt-1 text-xs text-muted">
-                  Por {event.autorNome || "Usuário"}
+                  Autor:{" "}
+                  <span className="font-medium text-ink">
+                    {event.autorNome?.trim() || "Usuário"}
+                  </span>
                 </p>
               </li>
             );

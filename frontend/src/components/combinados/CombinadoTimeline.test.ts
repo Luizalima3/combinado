@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import type { CombinadoHistoricoEvento } from "../../types/combinado";
 import {
+  filterTimelineEvents,
   formatEventDateTime,
+  formatRelativeEventDate,
   getTimelineEventPresentation,
   orderChronologically,
 } from "../../utils/combinadoTimeline";
@@ -40,6 +42,18 @@ describe("orderChronologically", () => {
   });
 });
 
+describe("filterTimelineEvents", () => {
+  it("filters by event type and returns all events when no type is selected", () => {
+    const events = [
+      { ...evento(1, "2026-03-01T10:00:00Z"), acao: "CRIACAO" },
+      { ...evento(2, "2026-03-02T10:00:00Z"), acao: "ALTERACAO_STATUS" },
+    ];
+
+    expect(filterTimelineEvents(events, "CRIACAO").map(({ id }) => id)).toEqual([1]);
+    expect(filterTimelineEvents(events, "")).toEqual(events);
+  });
+});
+
 describe("formatEventDateTime", () => {
   it("exibe data e hora em formato de 24 horas com minutos", () => {
     expect(formatEventDateTime("2026-03-01T16:07:00")).toContain("16:07");
@@ -47,6 +61,23 @@ describe("formatEventDateTime", () => {
 
   it("indica quando o timestamp do evento é inválido", () => {
     expect(formatEventDateTime("inválido")).toBe("Data indisponível");
+  });
+});
+
+describe("formatRelativeEventDate", () => {
+  const now = new Date("2026-11-27T12:00:00Z");
+
+  it("formats past events as a relative date in Portuguese", () => {
+    expect(formatRelativeEventDate("2026-11-25T12:00:00Z", now)).toBe("há 2 dias");
+  });
+
+  it("formats future events as a relative date in Portuguese", () => {
+    expect(formatRelativeEventDate("2026-11-28T12:00:00Z", now)).toBe("em 1 dia");
+  });
+
+  it("uses a friendly label for events from now and invalid timestamps", () => {
+    expect(formatRelativeEventDate("2026-11-27T12:00:10Z", now)).toBe("agora");
+    expect(formatRelativeEventDate("inválido", now)).toBe("Data indisponível");
   });
 });
 
