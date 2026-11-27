@@ -1,0 +1,97 @@
+{
+  "planHash": "83f9a45f065ed28fb14c1b23ab7bc7f6b8b408b57df04b312dc306c30d315c96",
+  "phase": "standalone",
+  "recordedAtUtc": "2026-11-27T05:41:39.8534681Z",
+  "retryCount": 1,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": true,
+    "setupDurationMs": 0,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "frontend-tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E frontend@0.0.0 test\r\n\u003E vitest run\r\n\r\n\r\n\u001B[1m\u001B[46m RUN \u001B[49m\u001B[22m \u001B[36mv3.2.7 \u001B[39m\u001B[90mC:/Users/JAN/combinado/frontend\u001B[39m\r\n\r\n \u001B[32m\u2713\u001B[39m src/utils/perfil.test.ts \u001B[2m(\u001B[22m\u001B[2m2 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 6\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/utils/validation.test.ts \u001B[2m(\u001B[22m\u001B[2m4 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 6\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/auth/storage.test.ts \u001B[2m(\u001B[22m\u001B[2m1 test\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 6\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/utils/combinadoFormValidation.test.ts \u001B[2m(\u001B[22m\u001B[2m3 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 5\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/auth/sessionState.test.ts \u001B[2m(\u001B[22m\u001B[2m4 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 7\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/utils/combinadoMapper.test.ts \u001B[2m(\u001B[22m\u001B[2m6 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 8\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/api/httpAuth.test.ts \u001B[2m(\u001B[22m\u001B[2m1 test\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 4\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/components/combinados/CombinadoTimeline.test.ts \u001B[2m(\u001B[22m\u001B[2m11 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 44\u001B[2mms\u001B[22m\u001B[39m\r\n \u001B[32m\u2713\u001B[39m src/components/ui/IndicatorBadges.test.tsx \u001B[2m(\u001B[22m\u001B[2m4 tests\u001B[22m\u001B[2m)\u001B[22m\u001B[32m 23\u001B[2mms\u001B[22m\u001B[39m\r\n\r\n\u001B[2m Test Files \u001B[22m \u001B[1m\u001B[32m9 passed\u001B[39m\u001B[22m\u001B[90m (9)\u001B[39m\r\n\u001B[2m      Tests \u001B[22m \u001B[1m\u001B[32m36 passed\u001B[39m\u001B[22m\u001B[90m (36)\u001B[39m\r\n\u001B[2m   Start at \u001B[22m 02:41:32\r\n\u001B[2m   Duration \u001B[22m 4.16s\u001B[2m (transform 499ms, setup 0ms, collect 1.14s, tests 109ms, environment 19.52s, prepare 2.03s)\u001B[22m\r\n\r\n",
+        "durationMs": 6234,
+        "testResults": {
+          "testFramework": "vitest",
+          "runnerDetectedFrom": "package_json",
+          "testsTotal": 36,
+          "testsPassed": 36,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": false
+        }
+      },
+      {
+        "name": "frontend-build",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E frontend@0.0.0 build\r\n\u003E vite build\r\n\r\n\u001B[36mvite v8.3.0 \u001B[32mbuilding client environment for production...\u001B[36m\u001B[39m\r\ntransforming...\r\n\u2713 119 modules transformed.\r\nrendering chunks...\r\ncomputing gzip size...\r\ndist/index.html                   0.47 kB \u2502 gzip:   0.30 kB\r\ndist/assets/index-B-3VljWm.css   17.58 kB \u2502 gzip:   4.50 kB\r\ndist/assets/index-DWgwBIT5.js   381.10 kB \u2502 gzip: 117.72 kB\r\n\r\n\u001B[32m\u2713 built in 1.75s\u001B[39m\r\n",
+        "durationMs": 2763
+      },
+      {
+        "name": "frontend-home-200",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\r\n\u003Chtml lang=\u0022pt-BR\u0022\u003E\r\n  \u003Chead\u003E\n    \u003Cscript type=\u0022module\u0022\u003Eimport { injectIntoGlobalHook } from \u0022/@react-refresh\u0022;\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () =\u003E {};\nwindow.$RefreshSig$ = () =\u003E (type) =\u003E type;\u003C/script\u003E\n\n    \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\r\n    \u003Cmeta charset=\u0022UTF-8\u0022 /\u003E\r\n    \u003Clink rel=\u0022icon\u0022 type=\u0022image/svg\u002Bxml\u0022 href=\u0022/favicon.svg\u0022 /\u003E\r\n    \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1.0\u0022 /\u003E\r\n    \u003Ctitle\u003ECombinado\u003C/title\u003E\r\n  \u003C/head\u003E\r\n  \u003Cbody\u003E\r\n    \u003Cdiv id=\u0022root\u0022\u003E\u003C/div\u003E\r\n    \u003Cscript type=\u0022module\u0022 src=\u0022/src/main.tsx?t=1795758029232\u0022\u003E\u003C/script\u003E\r\n  \u003C/body\u003E\r\n\u003C/html\u003E\r\n",
+        "durationMs": 25
+      }
+    ],
+    "executions": [
+      {
+        "source": "frontend-tests-pass",
+        "resolvedExecutable": "C:\\Users\\JAN\\AppData\\Roaming\\npm\\npm.CMD",
+        "args": [
+          "test"
+        ],
+        "cwd": "C:\\Users\\JAN\\combinado\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "frontend-build",
+        "resolvedExecutable": "C:\\Users\\JAN\\AppData\\Roaming\\npm\\npm.CMD",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\JAN\\combinado\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "frontend-home-200",
+        "resolvedExecutable": "C:\\Users\\JAN\\AppData\\Roaming\\npm\\npm.CMD",
+        "args": [
+          "run",
+          "dev"
+        ],
+        "cwd": "C:\\Users\\JAN\\combinado\\frontend",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      }
+    ]
+  }
+}

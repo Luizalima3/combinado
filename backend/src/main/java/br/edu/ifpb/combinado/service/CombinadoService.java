@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import br.edu.ifpb.combinado.model.enums.StatusCombinado;
 import br.edu.ifpb.combinado.repository.CombinadoRepository;
 import br.edu.ifpb.combinado.repository.CombinadoHistoricoRepository;
+import br.edu.ifpb.combinado.repository.ResponsabilidadeRepository;
 import br.edu.ifpb.combinado.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,8 @@ public class CombinadoService {
             new com.fasterxml.jackson.databind.ObjectMapper();
 
     private final CombinadoRepository repository;
+    private final CombinadoHistoricoRepository combinadoHistoricoRepository;
+    private final ResponsabilidadeRepository responsabilidadeRepository;
     private final HistoricoService historicoService;
     private final UsuarioRepository usuarioRepository;
     private final ConviteRepository conviteRepository;
@@ -49,6 +52,8 @@ public class CombinadoService {
 
     public CombinadoService(
             CombinadoRepository repository,
+            CombinadoHistoricoRepository combinadoHistoricoRepository,
+            ResponsabilidadeRepository responsabilidadeRepository,
             HistoricoService historicoService,
             UsuarioRepository usuarioRepository,
             ConviteRepository conviteRepository,
@@ -56,6 +61,8 @@ public class CombinadoService {
             NotificacaoRepository notificacaoRepository
     ) {
         this.repository = repository;
+        this.combinadoHistoricoRepository = combinadoHistoricoRepository;
+        this.responsabilidadeRepository = responsabilidadeRepository;
         this.historicoService = historicoService;
         this.usuarioRepository = usuarioRepository;
         this.conviteRepository = conviteRepository;
@@ -256,20 +263,6 @@ public class CombinadoService {
 
     @Transactional
     @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
-    public Combinado recusar(Long id, LocalDateTime respondidoEm) {
-        Combinado combinado = buscarPorId(id);
-        StatusCombinado statusAnterior = combinado.getStatus();
-        combinado.getStatus().validarTransicao(StatusCombinado.CANCELADO);
-        combinado.setStatus(StatusCombinado.CANCELADO);
-        combinado.setRecusadoEm(respondidoEm != null ? respondidoEm : LocalDateTime.now());
-        combinado.setAceitoEm(null);
-        Combinado salvo = repository.save(combinado);
-        registrarAlteracaoStatus(salvo, statusAnterior, salvo.getStatus(), null);
-        return salvo;
-    }
-
-    @Transactional
-    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
     public Combinado concluir(Long id) {
         Combinado combinado = buscarPorId(id);
         StatusCombinado statusAnterior = combinado.getStatus();
@@ -326,6 +319,27 @@ public class CombinadoService {
         var principal = (UsuarioPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return repository.findByCriadorIdAndStatusOrderByIdDesc(principal.usuario().getId(), StatusCombinado.RASCUNHO)
                 .stream().map(CombinadoResumoDTO::de).toList();
+    }
+
+    @Transactional
+    @PreAuthorize("@combinadoAcesso.eCriador(#id, authentication)")
+    public void descartarRascunho(Long id) {
+        Combinado combinado = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Combinado não encontrado com o id: " + id));
+        if (combinado.getStatus() != StatusCombinado.RASCUNHO) {
+            throw new IllegalArgumentException("Somente combinados em rascunho podem ser descartados.");
+        }
+
+        var convites = conviteRepository.findByCombinadoId(id);
+        for (Convite convite : convites) {
+            conviteHistoricoRepository.deleteAll(
+                    conviteHistoricoRepository.findByConviteIdOrderByOcorridoEmAscIdAsc(convite.getId()));
+        }
+        conviteRepository.deleteAll(convites);
+        responsabilidadeRepository.deleteAll(responsabilidadeRepository.findByCombinadoIdOrderByIdAsc(id));
+        combinadoHistoricoRepository.deleteAll(
+                combinadoHistoricoRepository.findByCombinadoIdOrderByOcorridoEmAscIdAsc(id));
+        repository.delete(combinado);
     }
 
     @Transactional

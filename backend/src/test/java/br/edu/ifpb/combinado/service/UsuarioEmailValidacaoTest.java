@@ -32,7 +32,7 @@ class UsuarioEmailValidacaoTest {
     @Test
     @DisplayName("Deve rejeitar e-mails com formato inválido")
     void deveRejeitarEmailComFormatoInvalido() {
-        String[] emailsInvalidos = {"formato-invalido.com", "@semlocal.com", "semarroba"};
+        String[] emailsInvalidos = {"formato-invalido.com", "@semlocal.com", "semarroba", "usuario@gmail"};
 
         for (String emailInvalido : emailsInvalidos) {
             UsuarioRequestDTO dto = new UsuarioRequestDTO("Ana Souza", emailInvalido, "senha123", "senha123");

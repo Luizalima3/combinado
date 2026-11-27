@@ -67,6 +67,14 @@ class LoginEndpointTest {
     void deveRetornar400ParaEntradaInvalida() throws Exception {
         mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"invalido\",\"senha\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").isString());
+    }
+
+    @Test
+    void deveRejeitarEmailComDominioSemPonto() throws Exception {
+        mvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"usuario@gmail\",\"senha\":\"senha123\"}"))
                 .andExpect(status().isBadRequest());
     }
 }

@@ -92,6 +92,19 @@ public class ConviteService {
     }
 
     @Transactional
+    @PreAuthorize("@combinadoAcesso.podeAcessar(#combinadoId, authentication)")
+    public Combinado recusarPorCombinado(
+            Long combinadoId, br.edu.ifpb.combinado.dto.RecusaConviteDTO dados) {
+        var principal = principal();
+        var convite = conviteRepository
+                .findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(
+                        combinadoId, principal.usuario().getId())
+                .orElseThrow(() -> new AccessDeniedException("Somente o destinatário pode responder ao convite."));
+        recusar(convite.getId(), dados);
+        return combinadoRepository.findById(combinadoId).orElseThrow();
+    }
+
+    @Transactional
     @PreAuthorize("isAuthenticated()")
     public ConviteRespostaDTO recusar(Long id) { return responder(id, StatusConvite.RECUSADO, null); }
 

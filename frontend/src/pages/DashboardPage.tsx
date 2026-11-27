@@ -17,6 +17,7 @@ import {
   aceitarConvite,
   cancelarCombinado,
   concluirCombinado,
+  descartarRascunho,
   getCombinadoById,
   listCriados,
   listParticipantes,
@@ -46,6 +47,7 @@ export function DashboardPage() {
   // US67 / Task #31692: combinado alvo do modal de confirmação do cancelamento.
   const [cancelTarget, setCancelTarget] = useState<Combinado | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [discardTarget, setDiscardTarget] = useState<Combinado | null>(null);
   const [refuseTarget, setRefuseTarget] = useState<Combinado | null>(null);
   const [refuseConfirmOpen, setRefuseConfirmOpen] = useState(false);
   const [refuseReason, setRefuseReason] = useState("");
@@ -232,6 +234,21 @@ export function DashboardPage() {
     }
   }
 
+  async function handleDiscardDraft() {
+    if (!discardTarget) return;
+    setBusyId(discardTarget.id);
+    try {
+      await descartarRascunho(discardTarget.id);
+      push("success", "Rascunho descartado.");
+      setDiscardTarget(null);
+      await load();
+    } catch (err) {
+      push("error", getApiErrorMessage(err, "Não foi possível descartar o rascunho."));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const list = tab === "criados" ? criados : recebidos;
 
   return (
@@ -310,6 +327,7 @@ export function DashboardPage() {
               onRefuse={(item) => setRefuseTarget(item)}
               onConclude={handleConclude}
               onCancel={openCancel}
+              onDiscard={setDiscardTarget}
             />
           ))}
         </div>
@@ -468,6 +486,34 @@ export function DashboardPage() {
           onConfirm={(motivo) => void handleConfirmCancel(motivo)}
           onClose={() => setCancelTarget(null)}
         />
+      ) : null}
+      {discardTarget ? (
+        <Modal title="Descartar rascunho" onClose={() => setDiscardTarget(null)}>
+          <div className="space-y-4">
+            <p className="text-sm text-muted">
+              Deseja descartar o rascunho <strong>{discardTarget.titulo}</strong>? Essa ação não
+              pode ser desfeita.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="rounded-lg border border-line px-3 py-2 text-sm font-medium text-ink"
+                onClick={() => setDiscardTarget(null)}
+                disabled={busyId === discardTarget.id}
+              >
+                Manter rascunho
+              </button>
+              <button
+                type="button"
+                className="rounded-lg bg-danger px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                onClick={() => void handleDiscardDraft()}
+                disabled={busyId === discardTarget.id}
+              >
+                {busyId === discardTarget.id ? "Descartando..." : "Descartar"}
+              </button>
+            </div>
+          </div>
+        </Modal>
       ) : null}
     </section>
   );

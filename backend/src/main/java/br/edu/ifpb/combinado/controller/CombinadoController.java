@@ -19,10 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
@@ -142,20 +138,26 @@ public class CombinadoController {
         return service.atualizarRascunho(id, dados);
     }
 
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Descartar rascunho",
+            description = "Remove permanentemente um combinado em rascunho. Disponível somente ao criador.")
+    public ResponseEntity<Void> descartarRascunho(@PathVariable Long id) {
+        service.descartarRascunho(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{id}/aceitar")
     public ResponseEntity<Combinado> aceitar(@PathVariable Long id) {
         return ResponseEntity.ok(conviteService.aceitarPorCombinado(id));
     }
 
     @PatchMapping("/{id}/recusar")
-    public ResponseEntity<?> recusar(@PathVariable Long id, @RequestBody(required = false) Map<String, String> payload) {
-        try {
-            return ResponseEntity.ok(service.recusar(id, parseTimestamp(payload, "respondidoEm")));
-        } catch (AccessDeniedException exception) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
-                    "message", "Somente o criador pode cancelar o combinado por esta rota. Para recusar um convite, use a rota de convites."
-            ));
-        }
+    public ResponseEntity<Combinado> recusar(
+            @PathVariable Long id,
+            @RequestBody(required = false) Map<String, String> payload) {
+        String motivo = payload == null ? null : payload.get("motivo");
+        return ResponseEntity.ok(conviteService.recusarPorCombinado(
+                id, new br.edu.ifpb.combinado.dto.RecusaConviteDTO(motivo)));
     }
 
     private ResponseEntity<Map<String, String>> criadorObrigatorio(String acao) {
@@ -165,23 +167,6 @@ public class CombinadoController {
                         ? "Somente o criador do combinado pode editá-lo."
                         : "Somente o criador do combinado pode cancelá-lo.";
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", message));
-    }
-
-    private LocalDateTime parseTimestamp(Map<String, String> payload, String key) {
-        if (payload == null || payload.get(key) == null || payload.get(key).isBlank()) {
-            return LocalDateTime.now();
-        }
-
-        String value = payload.get(key);
-        try {
-            return OffsetDateTime.parse(value).toLocalDateTime();
-        } catch (Exception ignored) {
-            try {
-                return LocalDateTime.parse(value);
-            } catch (Exception ignoredAgain) {
-                return Instant.parse(value).atZone(ZoneId.systemDefault()).toLocalDateTime();
-            }
-        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

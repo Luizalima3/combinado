@@ -55,7 +55,8 @@ class PerfilEmailEndpointTest extends GestaoFixture {
     }
     @Test void deveRejeitarFormatoInvalidoVazioLongoOuSemSenha() throws Exception {
         senha();
-        for (String email : new String[]{"", "sem-arroba", "a@@b.com", "a..b@c.com", "a@b", "a".repeat(151) + "@b.com"}) {
+        for (String email : new String[]{"", "sem-arroba", "a@@b.com", "a..b@c.com", "a@b",
+                "usuario@gmail", "a".repeat(151) + "@b.com"}) {
             mvc.perform(put("/api/usuarios/perfil/email").header("Authorization", bearer).contentType(MediaType.APPLICATION_JSON)
                     .content("{\"email\":\"" + email + "\",\"senhaAtual\":\"senha123\"}"))
                     .andExpect(status().isBadRequest());

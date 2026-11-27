@@ -224,8 +224,11 @@ class CombinadoVinculoTest {
         Long id = criar(criador, "[" + participante.getId() + "]");
 
         mvc.perform(patch("/api/combinados/{id}/recusar", id).header("Authorization", bearer(participante)))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.message").value(containsString("Somente o criador")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("AGUARDANDO_CONFIRMACAO"));
+        assertEquals(StatusConvite.RECUSADO,
+                convites.findFirstByCombinadoIdAndDestinatarioIdOrderByDataEnvioDescIdDesc(id, participante.getId())
+                        .orElseThrow().getStatus());
         mvc.perform(patch("/api/combinados/{id}/cancelar", id).header("Authorization", bearer(participante)))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("Somente o criador do combinado pode cancelá-lo."));

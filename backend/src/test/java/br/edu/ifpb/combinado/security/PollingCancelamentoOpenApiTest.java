@@ -78,12 +78,39 @@ class PollingCancelamentoOpenApiTest extends GestaoFixture {
                 .andExpect(jsonPath("$.paths['/api/auth/login'].post.summary").value("Autenticar usuário"))
                 .andExpect(jsonPath("$.paths['/api/auth/login'].post.security", hasSize(0)))
                 .andExpect(jsonPath("$.paths['/api/auth/login'].post.responses['200'].content['application/json'].schema").exists())
+                .andExpect(jsonPath("$.paths['/api/auth/login'].post.responses['400'].content['application/json'].schema.$ref",
+                        endsWith("/MensagemErroDTO")))
+                .andExpect(jsonPath("$.components.schemas.LoginRequestDTO.required",
+                        hasItems("email", "senha")))
                 .andExpect(jsonPath("$.paths['/api/auth/logout'].post.responses['204']").exists())
                 .andExpect(jsonPath("$.paths['/api/usuarios'].post.security", hasSize(0)))
                 .andExpect(jsonPath("$.paths['/api/usuarios'].post.responses['201']").exists())
+                .andExpect(jsonPath("$.paths['/api/usuarios'].post.responses['400'].content['text/plain'].schema.type")
+                        .value("string"))
+                .andExpect(jsonPath("$.paths['/api/usuarios/{id}'].get.responses['401'].content['application/json'].schema.$ref",
+                        endsWith("/MensagemErroDTO")))
                 .andExpect(jsonPath("$.paths['/api/usuarios/buscar'].get.responses['401']").exists())
                 .andExpect(jsonPath("$.paths['/api/usuarios/perfil/email'].put.responses['409']").exists())
+                .andExpect(jsonPath("$.paths['/api/usuarios/perfil/senha'].put.responses['400'].content['application/json'].schema.$ref",
+                        endsWith("/MensagemErroDTO")))
                 .andExpect(jsonPath("$.paths['/api/usuarios/perfil/senha'].put.responses['204']").exists())
+                .andExpect(jsonPath("$.components.schemas.UsuarioRequestDTO.required",
+                        hasItems("nome", "email", "senha", "confirmacaoSenha")))
+                .andExpect(jsonPath("$.components.schemas.UsuarioRequestDTO.properties.email.pattern").exists())
+                .andExpect(jsonPath("$.components.schemas.UsuarioRequestDTO.properties.senha.description",
+                        containsString("72 bytes")))
+                .andExpect(jsonPath("$.components.schemas.AtualizarEmailDTO.properties.email.pattern").exists())
+                .andExpect(jsonPath("$.components.schemas.AtualizarEmailDTO.required",
+                        hasItems("email", "senhaAtual")))
+                .andExpect(jsonPath("$.components.schemas.AtualizarSenhaDTO.properties.novaSenha.description",
+                        containsString("72 bytes")))
+                .andExpect(jsonPath("$.components.schemas.AtualizarSenhaDTO.required",
+                        hasItems("senhaAtual", "novaSenha", "confirmacaoSenha")))
+                .andExpect(jsonPath("$.components.schemas.LoginResponseDTO.properties.expiraEm.format").value("date-time"))
+                .andExpect(jsonPath("$.paths['/api/usuarios/buscar'].get.description",
+                        containsString("nome ou e-mail")))
+                .andExpect(jsonPath("$.paths['/api/usuarios/buscar'].get.responses['400'].content['application/json'].schema.$ref",
+                        endsWith("/MensagemErroDTO")))
                 .andExpect(jsonPath("$.paths['/api/combinados/{id}/status'].get.summary").exists())
                 .andExpect(jsonPath("$.components.schemas.CombinadoStatusDTO").exists());
     }

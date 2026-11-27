@@ -14,12 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.regex.Pattern;
-
 @Service
 public class UsuarioService {
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -39,7 +36,7 @@ public class UsuarioService {
         }
 
         String emailSanitizado = dto.email().trim().toLowerCase();
-        if (!EMAIL_PATTERN.matcher(emailSanitizado).matches()) {
+        if (!dto.isEmailValido()) {
             throw new IllegalArgumentException("O formato do e-mail informado é inválido.");
         }
 

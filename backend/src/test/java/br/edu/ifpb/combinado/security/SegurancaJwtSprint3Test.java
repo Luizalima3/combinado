@@ -10,6 +10,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SegurancaJwtSprint3Test extends GestaoFixture {
     @org.springframework.beans.factory.annotation.Autowired
     org.springframework.security.crypto.password.PasswordEncoder encoder;
+    @Test void cadastroInvalidoDeveDocumentarCorpoTextualDeErro() throws Exception {
+        mvc.perform(post("/api/usuarios").contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"Conta\",\"email\":\"usuario@gmail\",\"senha\":\"Segura123\","
+                                + "\"confirmacaoSenha\":\"Segura123\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("O formato do e-mail informado é inválido."));
+    }
+
     @Test void cadastroLoginJwtRotaPrivadaELogoutDevemFuncionarSemSessaoOuCsrf() throws Exception {
         String resposta = mvc.perform(post("/api/usuarios").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"nome\":\"Conta de teste\",\"email\":\"contrato-seguranca@combinado.app\","

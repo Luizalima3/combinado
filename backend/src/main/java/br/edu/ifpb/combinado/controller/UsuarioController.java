@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Usuários")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Usuários",
+        description = "Cadastro público e consulta autenticada de usuários.")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -26,11 +27,13 @@ public class UsuarioController {
 
     @PostMapping
     @io.swagger.v3.oas.annotations.Operation(summary = "Cadastrar usuário",
-            description = "Rota pública. Valida nome, e-mail, senha e confirmação. Grava senha com BCrypt e perfil ROLE_USUARIO.")
+            description = "Rota pública. Todos os campos são obrigatórios. Exige nome não vazio, e-mail único com domínio contendo ponto, senha com pelo menos 6 caracteres e no máximo 72 bytes UTF-8, e confirmação igual à senha. Normaliza nome e e-mail e atribui ROLE_USUARIO.")
     @io.swagger.v3.oas.annotations.security.SecurityRequirements
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuário cadastrado",
             content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json", schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UsuarioResponseDTO.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos ou e-mail já cadastrado")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dados inválidos ou e-mail já cadastrado; o corpo é uma mensagem textual",
+            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "text/plain",
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", example = "O formato do e-mail informado é inválido.")))
     public ResponseEntity<?> cadastrar(@Valid @RequestBody UsuarioRequestDTO dto) {
         try {
             UsuarioResponseDTO usuarioCriado = usuarioService.cadastrar(dto);
@@ -41,12 +44,19 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Consultar resumo do usuário", description = "Exige autenticação. Retorna dados sem senha ou hash.")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Consultar dados públicos do usuário",
+            description = "Exige autenticação e permite consultar qualquer usuário pelo ID. Retorna dados sem senha ou hash; não restringe a consulta ao próprio perfil.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Resumo do usuário",
             content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json", schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UsuarioResponseDTO.class)))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Autenticação necessária")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Autenticação necessária",
+            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = br.edu.ifpb.combinado.dto.MensagemErroDTO.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuário não encontrado; o corpo é uma mensagem textual",
+            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "text/plain",
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", example = "Usuário não encontrado com ID: 42")))
+    public ResponseEntity<?> buscarPorId(
+            @io.swagger.v3.oas.annotations.Parameter(description = "ID do usuário a consultar.", example = "42")
+            @PathVariable Long id) {
         try {
             UsuarioResponseDTO usuario = usuarioService.buscarPorId(id);
             return ResponseEntity.ok(usuario);
@@ -56,15 +66,23 @@ public class UsuarioController {
     }
 
     @GetMapping("/buscar")
-    @io.swagger.v3.oas.annotations.Operation(summary = "Buscar usuários por nome",
-            description = "Busca parcial sem diferenciar caixa. Exclui o usuário autenticado. q exige 2 caracteres, pagina inicia em 0 e limite aceita 1 a 50.")
+    @io.swagger.v3.oas.annotations.Operation(summary = "Buscar usuários por nome ou e-mail",
+            description = "Busca parcial, sem diferenciar maiúsculas/minúsculas, por nome ou e-mail. Exclui o usuário autenticado e ordena por nome e ID crescentes. q é removido de espaços nas extremidades: com menos de 2 caracteres retorna lista vazia; acima de 150 caracteres retorna 400. pagina é zero-based (padrão 0) e limite aceita de 1 a 50 (padrão 10).")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Resumos encontrados",
             content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json", array = @io.swagger.v3.oas.annotations.media.ArraySchema(
                     schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = UsuarioResumoDTO.class))))
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Busca ou paginação inválida")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Autenticação necessária")
-    public ResponseEntity<?> buscarPorNome(@RequestParam(defaultValue = "") String q,
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Termo acima de 150 caracteres ou paginação inválida",
+            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = br.edu.ifpb.combinado.dto.MensagemErroDTO.class)))
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Autenticação necessária",
+            content = @io.swagger.v3.oas.annotations.media.Content(mediaType = "application/json",
+                    schema = @io.swagger.v3.oas.annotations.media.Schema(implementation = br.edu.ifpb.combinado.dto.MensagemErroDTO.class)))
+    public ResponseEntity<?> buscarPorNome(
+                                           @io.swagger.v3.oas.annotations.Parameter(description = "Trecho de nome ou e-mail; mínimo 2 para pesquisar, máximo 150.", example = "ana")
+                                           @RequestParam(defaultValue = "") String q,
+                                           @io.swagger.v3.oas.annotations.Parameter(description = "Índice da página, começando em zero.", example = "0")
                                            @RequestParam(defaultValue = "0") int pagina,
+                                           @io.swagger.v3.oas.annotations.Parameter(description = "Quantidade de resultados por página, entre 1 e 50.", example = "10")
                                            @RequestParam(defaultValue = "10") int limite,
                                            @io.swagger.v3.oas.annotations.Parameter(hidden = true) @AuthenticationPrincipal UsuarioPrincipal principal) {
         try {

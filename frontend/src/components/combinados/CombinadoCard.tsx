@@ -40,6 +40,7 @@ interface CombinadoCardProps {
   onConclude?: (combinado: Combinado) => void;
   /** US67 / Task #31692: abre o modal de confirmação do cancelamento (apenas criador). */
   onCancel?: (combinado: Combinado) => void;
+  onDiscard?: (combinado: Combinado) => void;
   busy?: boolean;
 }
 
@@ -52,6 +53,7 @@ export function CombinadoCard({
   onOpen,
   onConclude,
   onCancel,
+  onDiscard,
   busy,
 }: CombinadoCardProps) {
   const convite = useMemo(
@@ -126,13 +128,25 @@ export function CombinadoCard({
         >
           Ver convite
         </button>
-        {combinado.status === "RASCUNHO" ? (
-          <Link
-            to={`/combinados/novo?from=${combinado.id}`}
-            className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg"
-          >
-            Continuar rascunho
-          </Link>
+        {variant === "criado" && combinado.status === "RASCUNHO" ? (
+          <>
+            <Link
+              to={`/combinados/novo?from=${combinado.id}`}
+              className="rounded-lg border border-line px-3 py-1.5 text-sm font-medium text-ink hover:bg-bg"
+            >
+              Continuar rascunho
+            </Link>
+            {onDiscard ? (
+              <button
+                type="button"
+                disabled={busy}
+                className="rounded-lg border border-danger px-3 py-1.5 text-sm font-medium text-danger hover:bg-danger-soft disabled:opacity-60"
+                onClick={() => onDiscard(combinado)}
+              >
+                Descartar rascunho
+              </button>
+            ) : null}
+          </>
         ) : null}
         {pending ? (
           <>

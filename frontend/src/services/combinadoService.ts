@@ -23,6 +23,10 @@ export async function listMeusRascunhos(): Promise<Combinado[]> {
   return data.map(mapCombinado);
 }
 
+export async function descartarRascunho(id: number): Promise<void> {
+  await http.delete(`/combinados/${id}`);
+}
+
 export interface ParticipanteConvidado {
   id: number;
   nome: string;
@@ -211,7 +215,6 @@ function stampParticipant(
 
   combinado.extras = extras;
   combinado.responsabilidades = serializeExtras(extras);
-  if (status === "RECUSADO") combinado.status = "CANCELADO";
   return combinado;
 }
 

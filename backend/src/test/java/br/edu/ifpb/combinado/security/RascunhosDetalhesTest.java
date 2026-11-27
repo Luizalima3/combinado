@@ -1,9 +1,15 @@
 package br.edu.ifpb.combinado.security;
 
 import br.edu.ifpb.combinado.model.enums.*;
+import br.edu.ifpb.combinado.model.CombinadoHistorico;
+import br.edu.ifpb.combinado.model.ConviteHistorico;
+import br.edu.ifpb.combinado.model.Responsabilidade;
+import br.edu.ifpb.combinado.repository.CombinadoHistoricoRepository;
+import br.edu.ifpb.combinado.repository.ConviteHistoricoRepository;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.hamcrest.Matchers.*;
@@ -11,6 +17,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class RascunhosDetalhesTest extends GestaoFixture {
+    @Autowired CombinadoHistoricoRepository combinadoEventos;
+    @Autowired ConviteHistoricoRepository conviteEventos;
+
     private String url() { return "/api/combinados/" + combinado.getId(); }
     private void rascunho() {
         combinado.setStatus(StatusCombinado.RASCUNHO);
@@ -41,6 +50,64 @@ class RascunhosDetalhesTest extends GestaoFixture {
         mvc.perform(post(url() + "/publicar").header("Authorization", token(participante))).andExpect(status().isForbidden());
         mvc.perform(get("/api/combinados/meus-rascunhos")).andExpect(status().isUnauthorized());
     }
+
+    @Test void criadorPodeDescartarRascunhoELimparDependencias() throws Exception {
+        rascunho();
+        Long combinadoId = combinado.getId();
+
+        var tarefa = new Responsabilidade();
+        tarefa.setCombinado(combinado);
+        tarefa.setDescricao("Tarefa do rascunho");
+        tarefa.getResponsaveis().add(participante);
+        tarefas.saveAndFlush(tarefa);
+
+        var convite = convite(participante, StatusConvite.PENDENTE);
+        conviteEventos.saveAndFlush(new ConviteHistorico(
+                convite, criador, AcaoConvite.ENVIO, java.time.Instant.now()));
+        combinadoEventos.saveAndFlush(CombinadoHistorico.de(
+                combinado, criador, "Rascunho criado.", AcaoCombinadoHistorico.CRIACAO));
+
+        mvc.perform(delete(url()).header("Authorization", bearer))
+                .andExpect(status().isNoContent());
+
+        em.flush();
+        em.clear();
+        assertFalse(combinados.existsById(combinadoId));
+        assertTrue(tarefas.findByCombinadoIdOrderByIdAsc(combinadoId).isEmpty());
+        assertTrue(convites.findByCombinadoId(combinadoId).isEmpty());
+        assertTrue(combinadoEventos.findByCombinadoIdOrderByOcorridoEmAscIdAsc(combinadoId).isEmpty());
+        assertTrue(conviteEventos.findByConviteIdOrderByOcorridoEmAscIdAsc(convite.getId()).isEmpty());
+    }
+
+    @Test void somenteCriadorPodeDescartarRascunhoECombinadoPublicadoNaoPodeSerExcluido() throws Exception {
+        rascunho();
+        mvc.perform(delete(url()).header("Authorization", token(participante)))
+                .andExpect(status().isForbidden());
+
+        combinado.setStatus(StatusCombinado.AGUARDANDO_CONFIRMACAO);
+        combinados.saveAndFlush(combinado);
+        mvc.perform(delete(url()).header("Authorization", bearer))
+                .andExpect(status().isBadRequest());
+        assertTrue(combinados.existsById(combinado.getId()));
+    }
+
+    @Test void recusaPelaRotaDoCombinadoAtualizaConviteSemCancelarCombinado() throws Exception {
+        var convite = convite(participante, StatusConvite.PENDENTE);
+
+        mvc.perform(patch(url() + "/recusar")
+                        .header("Authorization", token(participante))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"motivo\":\"Não consigo participar\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("AGUARDANDO_CONFIRMACAO"));
+
+        assertEquals(StatusConvite.RECUSADO, convites.findById(convite.getId()).orElseThrow().getStatus());
+        assertEquals(StatusCombinado.AGUARDANDO_CONFIRMACAO,
+                combinados.findById(combinado.getId()).orElseThrow().getStatus());
+        assertEquals(AcaoConvite.RECUSA,
+                conviteEventos.findByConviteIdOrderByOcorridoEmAscIdAsc(convite.getId()).get(0).getAcao());
+    }
+
     @Test void devePublicarRascunhoCompletoPreservandoEstadoCompativel() throws Exception {
         rascunho();
         combinado.setResponsabilidades("{\"rascunho\":true,\"observacao\":\"preservar\"}");
@@ -94,11 +161,15 @@ class RascunhosDetalhesTest extends GestaoFixture {
     }
     @Test void deveBloquearAceiteEmRascunhoEReaberturaDeEstadoFinal() throws Exception {
         rascunho();
-        mvc.perform(patch(url() + "/aceitar").header("Authorization", bearer)).andExpect(status().isConflict());
+        convite(participante, StatusConvite.PENDENTE);
+        mvc.perform(patch(url() + "/aceitar").header("Authorization", token(participante)))
+                .andExpect(status().isForbidden());
         combinado.setStatus(StatusCombinado.CANCELADO);
         combinados.saveAndFlush(combinado);
-        mvc.perform(patch(url() + "/aceitar").header("Authorization", bearer)).andExpect(status().isConflict());
-        mvc.perform(patch(url() + "/recusar").header("Authorization", bearer)).andExpect(status().isBadRequest());
+        mvc.perform(patch(url() + "/aceitar").header("Authorization", token(participante)))
+                .andExpect(status().isConflict());
+        mvc.perform(patch(url() + "/recusar").header("Authorization", token(participante)))
+                .andExpect(status().isConflict());
         assertEquals(StatusCombinado.CANCELADO, combinado.getStatus());
         assertNull(combinado.getAceitoEm());
     }
